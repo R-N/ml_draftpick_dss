@@ -18,7 +18,10 @@ setup(
         'paddlepaddle',
         'thefuzz',
         'requests-html',
-        'torch'                  
+        'torch',
+        'opencv-python',
+        'scikit-image',
+        'albumentations',
     ],
 
     classifiers=[
