@@ -88,19 +88,25 @@ class Parser:
     def read_scores(self, img, bgr=True):
         return read_scores(img, self.ocr, self.scaler, bgr=bgr)
     
-    def parse_match_result(self, ss_path, player_name):
+    def parse_match_result(self, ss_path, player_name, throw=False):
         img = load_img(ss_path)
+
+        match_result = self.infer_match_result(img, bgr=False)
+        assert ((not throw) or match_result != "Invalid"), "INVALID"
+
+        medals = self.infer_medals(img, bgr=False)
+        assert ((not throw) or len([m for m in medals if m == "AFK"])) == 0, "AFK"
         
         battle_id = self.read_battle_id(img, bgr=False)
-        match_result = self.infer_match_result(img, bgr=False)
         match_duration = self.read_match_duration(img, bgr=False)
         team_kills = self.read_team_kills(img, bgr=False)
         heroes = self.infer_heroes(img, bgr=False)
-        medals = self.infer_medals(img, bgr=False)
         scores = self.read_scores(img, bgr=False)
 
+        relpath = os.path.relpath(self.input_dir, ss_path)
+
         obj = {
-            "file": ss_path,
+            "file": relpath,
             "player": player_name,
             "battle_id": battle_id,
             "match_result": match_result,
@@ -116,12 +122,60 @@ class Parser:
         }
         return obj
     
-    def parse_match_result_player(self, player_name):
-        files = os.listdir(os.path.join(self.input_dir, player_name))
-        objs = [self.parse_match_result(file, player_name) for file in files]
+    def _parse_match_result_player(self, player_name):
+        input_dir_player = self.input_dir_player(player_name)
+        files = os.listdir(input_dir_player)
+        objs = [self.parse_match_result(os.path.join(input_dir_player, file), player_name, throw=False) for file in files]
         return objs
+    
+    def _parse_match_result_player_split(self, player_name):
+        input_dir_player = self.input_dir_player(player_name)
+        files = os.listdir(input_dir_player)
+        valid_objs, invalid_files, afk_files = [], [], []
+        for file in files:
+            path = os.path.join(input_dir_player, file)
+            relpath = os.path.relpath(self.input_dir, path)
+            try:
+                obj = self.parse_match_result(path, player_name, throw=True)
+                valid_objs.append(obj)
+            except AssertionError as ex:
+                if ex.message == "INVALID":
+                    invalid_files.append(relpath)
+                elif ex.message == "AFK":
+                    afk_files.append(relpath)
+                else:
+                    raise
+        return valid_objs, invalid_files, afk_files
+    
+    def parse_match_result_player(self, player_name, split=True):
+        f = self._parse_match_result_player_split if split else self._parse_match_result_player
+        return f(player_name)
 
-    def parse_match_result_all(self):
+    def parse_match_result_all(self, split=True):
         players = os.listdir(self.input_dir)
         for player in players:
-            yield self.parse_match_result_player(player)
+            yield self.parse_match_result_player(player, split=split)
+
+def is_invalid(obj):
+    return obj["match_result"] == "Invalid"
+
+def has_afk(obj):
+    return len([m for m in obj["medals"] if m == "AFK"]) > 0
+
+def filter_invalid(objs, split=True):
+    valid = [obj for obj in objs if not is_invalid(obj)]
+    if not split:
+        return valid
+    return (
+        valid,
+        [obj for obj in objs if is_invalid(obj)]
+    )
+
+def filter_afk(objs, split=True):
+    valid = [obj for obj in objs if not has_afk(obj)]
+    if not split:
+        return valid
+    return (
+        valid,
+        [obj for obj in objs if has_afk(obj)]
+    )
