@@ -21,7 +21,7 @@ setup(
         'torch',
         'opencv-python',
         'scikit-image',
-        'albumentations>=1.2.1',
+        'albumentations>=1.3.0',
     ],
 
     classifiers=[

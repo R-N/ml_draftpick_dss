@@ -28,7 +28,7 @@ class BaseClassifier:
         self.label_count = len(labels)
         self.label_map = create_label_map(labels)
 
-        assert img_size[0]//32 == 0 and img_size[1]//32 == 0
+        assert img_size[0]%32 == 0 and img_size[1]%32 == 0
         self.img_size = img_size
 
         self.metrics = metrics + [f"val_{m}" for m in metrics]
