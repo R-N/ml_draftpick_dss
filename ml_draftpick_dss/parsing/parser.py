@@ -1,5 +1,5 @@
 import os
-from .preprocessing import sharpen, load_img, circle_mask
+from .preprocessing import sharpen, load_img, circle_mask, remove_artifact
 from .cropping import extract
 from .ocr import OCR
 from .scaler import Scaler
@@ -29,9 +29,14 @@ def read_team_kills(img, ocr, scaler, bgr=True):
     team_kills_ints = [ocr.read_int(i) for i in team_kills_imgs]
     return team_kills_ints
 
+def hero_icon_postprocessing(x):
+    x = circle_mask(x)
+    x = remove_artifact(x)
+    return x
+
 def infer_heroes(img, classifier, scaler, bgr=True):
     img = load_img(img, bgr=bgr)
-    hero_imgs = [extract(img, "HERO_LIST", scaler=scaler, split_list=True, crop_list=True, postprocessing=circle_mask, reverse_x=r) for r in (False, True)]
+    hero_imgs = [extract(img, "HERO_LIST", scaler=scaler, split_list=True, crop_list=True, postprocessing=hero_icon_postprocessing, reverse_x=r) for r in (False, True)]
     hero_classes = [classifier.infer(i) for i in hero_imgs]
     return hero_classes
 
