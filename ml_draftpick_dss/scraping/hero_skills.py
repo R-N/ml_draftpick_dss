@@ -2,6 +2,7 @@ import pandas as pd
 from requests_html import HTMLSession
 from .hero_attributes import HERO_URL
 from .util import standardize_name
+from ..constants import HERO_LIST
 
 def parse_skill(hero, table):
     rows = table.find(":root>tbody>tr")
@@ -69,7 +70,7 @@ def scrap_hero_skills(hero):
 
     return skills
 
-def scrap_all(heroes):
+def scrap_all(heroes=HERO_LIST):
     hero_skills = [scrap_hero_skills(hero) for hero in heroes]
     hero_skills = [skills for skills in hero_skills if skills]
     hero_skills = [[skill for skill in skills if skill] for skills in hero_skills]

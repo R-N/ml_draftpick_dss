@@ -7,6 +7,7 @@ from .util import create_label_map
 from .augmentation import prepare_data
 import tensorflow_addons as tfa
 import json
+from ..constants import HERO_LIST
 
 METRICS = ["loss", "accuracy", "f1_score", "auc"]
 
@@ -256,7 +257,7 @@ class MedalClassifier(BaseClassifier):
             **kwargs
         )
 
-HERO_ICON_LABELS = ['Miya', 'Balmond', 'Saber', 'Alice', 'Nana', 'Tigreal', 'Alucard', 'Karina', 'Akai', 'Franco', 'Bane', 'Bruno', 'Clint', 'Rafaela', 'Eudora', 'Zilong', 'Fanny', 'Layla', 'Minotaur', 'Lolita', 'Hayabusa', 'Freya', 'Gord', 'Natalia', 'Kagura', 'Chou', 'Sun', 'Alpha', 'Ruby', 'Yi Sun-shin', 'Moskov', 'Johnson', 'Cyclops', 'Estes', 'Hilda', 'Aurora', 'Lapu-Lapu', 'Vexana', 'Roger', 'Karrie', 'Gatotkaca', 'Harley', 'Irithel', 'Grock', 'Argus', 'Odette', 'Lancelot', 'Diggie', 'Hylos', 'Zhask', 'Helcurt', 'Pharsa', 'Lesley', 'Jawhead', 'Angela', 'Gusion', 'Valir', 'Martis', 'Uranus', 'Hanabi', "Chang'e", 'Kaja', 'Selena', 'Aldous', 'Claude', 'Vale', 'Leomord', 'Lunox', 'Hanzo', 'Belerick', 'Kimmy', 'Thamuz', 'Harith', 'Minsitthar', 'Kadita', 'Faramis', 'Badang', 'Khufra', 'Granger', 'Guinevere', 'Esmeralda', 'Terizla', 'X.Borg', 'Ling', 'Dyrroth', 'Lylia', 'Baxia', 'Masha', 'Wanwan', 'Silvanna', 'Carmilla', 'Cecilion', 'Atlas', 'Popol and Kupa', 'Yu Zhong', 'Luo Yi', 'Benedetta', 'Khaleed', 'Barats', 'Brody', 'Yve', 'Mathilda', 'Paquito', 'Gloo', 'Beatrix', 'Phoveus', 'Natan', 'Aulus', 'Aamon', 'Floryn', 'Valentina', 'Edith', 'Yin', 'Melissa', 'Xavier', 'Julian', 'Fredrinn', 'Joy', 'Novaria', 'Arlott']
+HERO_ICON_LABELS = HERO_LIST
 HERO_ICON_IMG_SIZE = (96, 96)
 
 class HeroIconClassifier(BaseClassifier):

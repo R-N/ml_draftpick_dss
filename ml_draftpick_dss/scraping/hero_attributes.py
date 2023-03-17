@@ -1,6 +1,7 @@
 import pandas as pd
 from requests_html import HTMLSession
 from .util import parse_number, standardize_name
+from ..constants import HERO_LIST
 
 HERO_URL = "https://mobile-legends.fandom.com/wiki"
 
@@ -36,7 +37,7 @@ def scrap_hero_attr(hero):
         raise ex
     return obj
 
-def scrap_all(heroes):
+def scrap_all(heroes=HERO_LIST):
     objs = [scrap_hero_attr(hero) for hero in heroes]
     objs = [obj for obj in objs if obj]
     df = pd.DataFrame.from_dict(objs)
