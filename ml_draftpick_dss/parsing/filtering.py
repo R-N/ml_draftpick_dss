@@ -58,7 +58,8 @@ class Filterer:
         return infer_match_results(img, self.classifier, self.scaler, batch_index=batch_index%4, bgr=bgr)
     
     def generate_cp(self, ss_batch, player_name, batch_index=0):
-        img = load_img(ss_batch[0])
+        img = os.path.join(self.input_dir_player(player_name), ss_batch[0])
+        img = load_img(img)
         match_types = self.read_match_types(img, batch_index=batch_index%4, bgr=False)
         match_results = self.read_match_results(img, batch_index=batch_index%4, bgr=False)
         mask = generate_mask(match_types, match_results)
