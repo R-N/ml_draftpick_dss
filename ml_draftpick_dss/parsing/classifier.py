@@ -22,7 +22,7 @@ def create_head_model_v2(label_count):
     ], name="head")
 
 class BaseClassifier:
-    def __init__(self, labels, img_size, log_dir="logs", checkpoint_dir="checkpoints", metrics=METRICS):
+    def __init__(self, labels, img_size, log_dir="logs", checkpoint_dir="checkpoints", metrics=METRICS, head_model_creator=create_head_model_v2):
         self.data_train = None
         self.data_val = None
 
@@ -40,7 +40,7 @@ class BaseClassifier:
         self.model = None
         self.optim = None
         self.compiled = False
-        self.create_model()
+        self.create_model(head_model_creator)
 
         self.checkpoint_dir = checkpoint_dir
         self.checkpoint = None
