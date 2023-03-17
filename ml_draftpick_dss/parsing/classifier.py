@@ -142,12 +142,12 @@ class BaseClassifier:
     def load_checkpoint(self, checkpoint="loss"):
         assert self.checkpoint_managers
         self.checkpoint_managers[checkpoint].restore_or_initialize()
-        self.load_best_metrics(f"checkpoints/{checkpoint}/metrics.json")
+        self.load_best_metrics(f"{self.checkpoint_dir}/{checkpoint}/metrics.json")
 
     def save_checkpoint(self, checkpoint):
         assert self.checkpoint_managers
         self.checkpoint_managers[checkpoint].save()
-        self.save_best_metrics(f"checkpoints/{checkpoint}/metrics.json")
+        self.save_best_metrics(f"{self.checkpoint_dir}/{checkpoint}/metrics.json")
 
     def load_best_metrics(self, path):
         try:
