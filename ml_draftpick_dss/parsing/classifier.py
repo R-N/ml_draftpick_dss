@@ -81,13 +81,14 @@ class BaseClassifier:
         base_model.trainable = False
         return base_model
     
-    def _create_head_model(self):
-        head = create_head_model_v2(self.label_count)
+    def _create_head_model(self, head_model_creator=create_head_model_v2):
+        head_model_creator = head_model_creator or create_head_model_v2
+        head = head_model_creator(self.label_count)
         return head
     
-    def create_model(self):
+    def create_model(self, head_model_creator=create_head_model_v2):
         self.base_model = self._create_base_model()
-        self.head_model = self._create_head_model()
+        self.head_model = self._create_head_model(head_model_creator)
 
         # Create new model on top
         input = tf.keras.layers.Input(shape=self.input_shape)
