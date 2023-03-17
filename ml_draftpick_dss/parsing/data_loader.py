@@ -49,5 +49,5 @@ def get_data(data_dir, img_size, labels, label_map=None, flip=False, artifact=Fa
                 print(e)
 
     batch_size = batch_size or len(data)
-    data = (batch_size//len(data)) * data
+    data = max(1, (batch_size//len(data))) * data
     return data#np.array(data)
