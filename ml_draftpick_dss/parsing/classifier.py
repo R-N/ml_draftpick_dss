@@ -12,6 +12,17 @@ from .preprocessing import rgba2rgb
 
 METRICS = ["loss", "accuracy", "f1_score", "auc"]
 
+def create_base_model_v1(input_shape, label_count, include_top=False, trainable=False):
+    base_model = tf.keras.applications.MobileNetV3Large(
+        input_shape = input_shape, 
+        include_top = include_top, 
+        weights = "imagenet",
+        classes=label_count,
+        include_preprocessing=True
+    )
+    base_model.trainable = trainable
+    return base_model
+
 def create_head_model_v2(label_count):
     return tf.keras.Sequential([
         tf.keras.layers.MaxPooling2D(pool_size=(3, 3)),
@@ -22,7 +33,7 @@ def create_head_model_v2(label_count):
     ], name="head")
 
 class BaseClassifier:
-    def __init__(self, labels, img_size, log_dir="logs", checkpoint_dir="checkpoints", metrics=METRICS, head_model_creator=create_head_model_v2):
+    def __init__(self, labels, img_size, log_dir="logs", checkpoint_dir="checkpoints", metrics=METRICS, base_model_factory=create_base_model_v1, head_model_factory=create_head_model_v2):
         self.data_train = None
         self.data_val = None
 
@@ -40,7 +51,9 @@ class BaseClassifier:
         self.model = None
         self.optim = None
         self.compiled = False
-        self.create_model(head_model_creator)
+        self.base_model_factory = base_model_factory or create_base_model_v1
+        self.head_model_factory = head_model_factory or create_head_model_v2
+        self.create_model()
 
         self.checkpoint_dir = checkpoint_dir
         self.checkpoint = None
@@ -70,25 +83,11 @@ class BaseClassifier:
     @property
     def input_shape(self):
         return (*self.img_size, 3)
-
-    def _create_base_model(self):
-        base_model = tf.keras.applications.MobileNetV3Large(
-            input_shape = self.input_shape, 
-            include_top = False, 
-            weights = "imagenet",
-            include_preprocessing=True
-        )
-        base_model.trainable = False
-        return base_model
     
-    def _create_head_model(self, head_model_creator=create_head_model_v2):
-        head_model_creator = head_model_creator or create_head_model_v2
-        head = head_model_creator(self.label_count)
-        return head
-    
-    def create_model(self, head_model_creator=create_head_model_v2):
-        self.base_model = self._create_base_model()
-        self.head_model = self._create_head_model(head_model_creator)
+    def create_model(self):
+        create_head_model = callable(self.head_model_factory)
+        self.base_model = self.base_model_factory(self.input_shape, self.label_count, include_top=not create_head_model, trainable=not create_head_model)
+        self.head_model = self.head_model_factory(self.label_count)
 
         # Create new model on top
         input = tf.keras.layers.Input(shape=self.input_shape)
