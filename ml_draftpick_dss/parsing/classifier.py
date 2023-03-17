@@ -85,7 +85,7 @@ class BaseClassifier:
     
     def create_model(self):
         self.base_model = self._create_base_model()
-        self.head_model = self._create_head_model
+        self.head_model = self._create_head_model()
 
         # Create new model on top
         input = tf.keras.layers.Input(shape=self.input_shape)
