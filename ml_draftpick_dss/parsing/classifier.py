@@ -117,6 +117,7 @@ class BaseClassifier:
         self.compiled = True
 
     def prepare_checkpoint(self):
+        assert self.model
         kwargs = {
             "optimizer": self.optim
         } if self.optim else {}
@@ -138,9 +139,14 @@ class BaseClassifier:
             writer.flush()
 
     def load_checkpoint(self, checkpoint="loss"):
-        assert self.model
+        assert self.checkpoint_managers
         self.checkpoint_managers[checkpoint].restore_or_initialize()
         self.load_best_metrics(f"checkpoints/{checkpoint}/metrics.json")
+
+    def save_checkpoint(self, checkpoint):
+        assert self.checkpoint_managers
+        self.checkpoint_managers[checkpoint].save()
+        self.save_best_metrics(f"checkpoints/{checkpoint}/metrics.json")
 
     def load_best_metrics(self, path):
         try:
@@ -150,8 +156,8 @@ class BaseClassifier:
             print(ex)
     
     def prepare_training(self, load_checkpoint="loss"):
-        assert self.checkpoint_manager
         assert self.compiled
+        assert self.checkpoint_managers
         assert self.file_writers
 
         if load_checkpoint:
@@ -195,8 +201,7 @@ class BaseClassifier:
         self.save_best_metrics("metrics.json")
 
         for m, old, new in new_best_metrics:
-            self.checkpoint_managers[m].save()
-            self.save_best_metrics(f"checkpoints/{m}/metrics.json")
+            self.save_checkpoint(m)
 
         self.best_metrics["epoch"] += 1
 
