@@ -167,7 +167,7 @@ class BaseClassifier:
             self.load_checkpoint(load_checkpoint)
             
     def set_lr(self, lr):
-        self.optim.lr.assign(lr)
+        return self.optim.lr.assign(lr)
 
     @property
     def epoch(self):
