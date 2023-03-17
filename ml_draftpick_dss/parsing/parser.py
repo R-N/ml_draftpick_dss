@@ -1,5 +1,5 @@
 import os
-from .preprocessing import sharpen, load_img
+from .preprocessing import sharpen, load_img, circle_mask
 from .cropping import extract
 from .ocr import OCR
 from .scaler import Scaler
@@ -31,19 +31,19 @@ def read_team_kills(img, ocr, scaler, bgr=True):
 
 def infer_heroes(img, classifier, scaler, bgr=True):
     img = load_img(img, bgr=bgr)
-    hero_imgs = [extract(img, "HERO_LIST", scaler=scaler, reverse_x=r) for r in (False, True)]
+    hero_imgs = [extract(img, "HERO_LIST", scaler=scaler, split_list=True, crop_list=True, postprocessing=circle_mask, reverse_x=r) for r in (False, True)]
     hero_classes = [classifier.infer(i) for i in hero_imgs]
     return hero_classes
 
 def infer_medals(img, classifier, scaler, bgr=True):
     img = load_img(img, bgr=bgr)
-    medal_imgs = [extract(img, "MEDAL_LIST", scaler=scaler, reverse_x=r) for r in (False, True)]
+    medal_imgs = [extract(img, "MEDAL_LIST", scaler=scaler, split_list=True, crop_list=True, reverse_x=r) for r in (False, True)]
     medal_classes = [classifier.infer(i) for i in medal_imgs]
     return medal_classes
 
 def read_scores(img, ocr, scaler, bgr=True):
     img = load_img(img, bgr=bgr)
-    score_imgs = [extract(img, "SCORE_LIST", scaler=scaler, postprocessing=sharpen, reverse_x=r) for r in (False, True)]
+    score_imgs = [extract(img, "SCORE_LIST", scaler=scaler, split_list=True, crop_list=True, reverse_x=r) for r in (False, True)]
     score_floats = [ocr.read_score(i) for i in score_imgs]
     return score_floats
 
@@ -92,18 +92,23 @@ class Parser:
         img = load_img(ss_path)
 
         match_result = self.infer_match_result(img, bgr=False)
-        assert ((not throw) or match_result != "Invalid"), "INVALID"
+        assert ((not throw) or match_result != "Invalid"), f"INVALID: {ss_path}"
 
         medals = self.infer_medals(img, bgr=False)
-        assert ((not throw) or len([m for m in medals if m == "AFK"])) == 0, "AFK"
-        
-        battle_id = self.read_battle_id(img, bgr=False)
-        match_duration = self.read_match_duration(img, bgr=False)
-        team_kills = self.read_team_kills(img, bgr=False)
-        heroes = self.infer_heroes(img, bgr=False)
-        scores = self.read_scores(img, bgr=False)
+        assert ((not throw) or len([m for m in medals if m == "AFK"])) == 0, f"AFK: {ss_path}; {medals}"
 
-        relpath = os.path.relpath(self.input_dir, ss_path)
+        heroes = self.infer_heroes(img, bgr=False)
+        assert (len(set(heroes[0] + heroes[1])) == 10), f"DOUBLE: {ss_path}; {heroes}"
+        
+        relpath = os.path.relpath(ss_path, self.input_dir)
+        try:
+            battle_id = self.read_battle_id(img, bgr=False)
+            match_duration = self.read_match_duration(img, bgr=False)
+            team_kills = self.read_team_kills(img, bgr=False)
+            scores = self.read_scores(img, bgr=False)
+        except Exception as ex:
+            print("relpath", relpath)
+            raise
 
         obj = {
             "file": relpath,
@@ -131,21 +136,27 @@ class Parser:
     def _parse_match_result_player_split(self, player_name):
         input_dir_player = self.input_dir_player(player_name)
         files = os.listdir(input_dir_player)
-        valid_objs, invalid_files, afk_files = [], [], []
+        valid_objs, invalid_files, afk_files, double_files = [], [], [], []
         for file in files:
             path = os.path.join(input_dir_player, file)
-            relpath = os.path.relpath(self.input_dir, path)
+            relpath = os.path.relpath(path, self.input_dir)
             try:
                 obj = self.parse_match_result(path, player_name, throw=True)
                 valid_objs.append(obj)
             except AssertionError as ex:
-                if ex.message == "INVALID":
+                message = ex.message if hasattr(ex, "message") else str(ex)
+                if message.startswith("INVALID"):
+                    print(message)
                     invalid_files.append(relpath)
-                elif ex.message == "AFK":
+                elif message.startswith("AFK"):
+                    print(message)
                     afk_files.append(relpath)
+                elif message.startswith("DOUBLE"):
+                    print(message)
+                    double_files.append(relpath)
                 else:
                     raise
-        return valid_objs, invalid_files, afk_files
+        return valid_objs, invalid_files, afk_files, double_files
     
     def parse_match_result_player(self, player_name, split=True):
         f = self._parse_match_result_player_split if split else self._parse_match_result_player

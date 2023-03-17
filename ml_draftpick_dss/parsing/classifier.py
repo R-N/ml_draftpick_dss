@@ -8,6 +8,7 @@ from .augmentation import prepare_data
 import tensorflow_addons as tfa
 import json
 from ..constants import HERO_LIST
+from .preprocessing import rgba2rgb
 
 METRICS = ["loss", "accuracy", "f1_score", "auc"]
 
@@ -141,7 +142,8 @@ class BaseClassifier:
 
     def load_checkpoint(self, checkpoint="loss"):
         assert self.checkpoint_managers
-        self.checkpoint_managers[checkpoint].restore_or_initialize()
+        res = self.checkpoint_managers[checkpoint].restore_or_initialize()
+        print("restored checkpoint: ", res)
         self.load_best_metrics(f"{self.checkpoint_dir}/{checkpoint}/metrics.json")
 
     def save_checkpoint(self, checkpoint):
@@ -212,7 +214,8 @@ class BaseClassifier:
         self.model.save(*args, **kwargs)
 
     def prepare_imgs(self, imgs):
-        assert imgs[0].shape[-1] == 3
+        if imgs[0].shape[-1] == 4:
+            imgs = [rgba2rgb(img) for img in imgs]
         imgs = [tf.cast(img, tf.float32) for img in imgs]
         imgs = [tf.image.resize(img, size=self.img_size) for img in imgs]
         imgs = tf.stack(imgs)

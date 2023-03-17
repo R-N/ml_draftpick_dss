@@ -8,7 +8,7 @@ BACKGROUNDS = [
     #(48, 67, 90)
 ]
 
-def circle_mask(img, color=BACKGROUNDS[0]):
+def circle_mask(img, color=BACKGROUNDS[0], alpha=False):
     img = img.copy()
     radius = min(img.shape[:2]) // 2
     img = cv2.cvtColor(img, cv2.COLOR_BGR2BGRA)
@@ -22,7 +22,8 @@ def circle_mask(img, color=BACKGROUNDS[0]):
     #img[:, :, 3] = mask[:,:,3]
     img = cv2.bitwise_and(img, mask)
     img = img + cv2.bitwise_and((255 - mask), (*color, 255))
-    #img = rgba2rgb(img)
+    if not alpha:
+        img = rgba2rgb(img)
     return img
 
 def invert_x(tup, w):
@@ -37,7 +38,7 @@ def remove_artifact(
     img, invert=False, 
     circle_pos=CIRCLE_POS, circle_radius=CIRCLE_RADIUS, 
     rect_start=RECT_START, rect_end=RECT_END,
-    color=BACKGROUNDS[0]
+    color=BACKGROUNDS[0], alpha=False
 ):
     img = img.copy()
     w = img.shape[1]
@@ -48,6 +49,8 @@ def remove_artifact(
         rect_start = invert_x(rect_start, w)
         rect_end = invert_x(rect_end, w)
     img = cv2.rectangle(img, rect_start, rect_end, (*color, 255), -1)
+    if not alpha:
+        img = rgba2rgb(img)
     return img
 
 def rgba2rgb(img): 

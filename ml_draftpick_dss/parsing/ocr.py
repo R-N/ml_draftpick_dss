@@ -34,7 +34,7 @@ class OCR:
     
     def read_num(self, img):
         num = self.read(img)
-        num = num.strip(".").replace("!", "")
+        num = num.strip(".").replace("!", "").replace("/", "").replace("%", "")
         return num
     
     def read_int(self, img):
@@ -42,7 +42,7 @@ class OCR:
         return int(num.replace(".", ""))
 
     def read_score(self, img):
-        score = self.read_num(img)
+        score_text = self.read_num(img)
         try:
             replace = float(score_text) >= 100
             replace = -2 if replace else -1
@@ -60,11 +60,11 @@ class OCR:
     
     def read_match_duration(self, img):
         text = self.read(img)
-        time = time.split(" ")[-1].strip()[:5]
+        time = text.split(" ")[-1].strip()[:5].replace(".", ":")
         return time
     
     def read_match_duration_mins(self, img):
-        time = self.read_duration(img)
+        time = self.read_match_duration(img)
         mins, sec = [int(x) for x in time.split(":")]
         total_mins = mins + sec/60
         return total_mins
