@@ -8,7 +8,7 @@ setup(
     author='Muhammad Rizqi Nur',
     author_email='rizqinur2010@gmail.com',
     license='MIT License',
-    packages=['ml_draftpick_dss'],
+    packages=setuptools.find_packages(),
     install_requires=[
         'pandas',
         'numpy', 
