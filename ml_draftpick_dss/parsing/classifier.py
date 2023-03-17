@@ -117,7 +117,10 @@ class BaseClassifier:
         self.compiled = True
 
     def prepare_checkpoint(self):
-        self.checkpoint = tf.train.Checkpoint(model=self.head_model, optimizer=self.optim)
+        kwargs = {
+            "optimizer": self.optim
+        } if self.optim else {}
+        self.checkpoint = tf.train.Checkpoint(model=self.head_model, **kwargs)
         self.checkpoint_managers = {m: tf.train.CheckpointManager(self.checkpoint, f"{self.checkpoint_dir}/{m}", max_to_keep=1) for m in self.metrics}
 
     def prepare_logging(self):
