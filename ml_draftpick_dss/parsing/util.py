@@ -1,7 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
+from .preprocessing import load_img
 
-def show_imgs(imgs, cols=10, fig_title=""):
+def show_imgs(imgs, cols=10, fig_title="", show=True):
     rows = (len(imgs) // cols) + (1 if len(imgs) % cols > 0 else 0)
     fig = plt.figure(figsize=(16, 3*rows))
     if fig_title:
@@ -18,11 +19,13 @@ def show_imgs(imgs, cols=10, fig_title=""):
         ax.set_axis_off()
     if cols > 5:
         fig.tight_layout()
+    if show:
+        plt.show()
     return fig
 
-def show_image_file(f):
-    img = cv2.imread(f)[...,::-1]
-    show_imgs([img], cols=1, height=10)
+def show_image_file(f, show=True):
+    img = load_img(f)
+    return show_imgs([img], cols=1, height=10, show=show)
 
 
 def create_label_map(labels):

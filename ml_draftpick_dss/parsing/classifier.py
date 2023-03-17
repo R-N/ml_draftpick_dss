@@ -207,7 +207,7 @@ class BaseClassifier:
 
         return epoch, history, new_best_metrics
 
-    def save(self, *args, **kwagrs):
+    def save(self, *args, **kwargs):
         self.model.save(*args, **kwargs)
 
     def prepare_imgs(self, imgs):
