@@ -262,3 +262,6 @@ class HeroIconClassifier(BaseClassifier):
             *args,
             **kwargs
         )
+
+    def load_data(self, *args, flip=True, artifact=True, circle=True, train_batch_size=None, **kwargs):
+        super().load_data(*args, flip=flip, artifact=artifact, circle=circle, train_batch_size=train_batch_size, **kwargs)
