@@ -20,8 +20,6 @@ def get_data(data_dir, img_size, labels, label_map=None, flip=False, artifact=Fa
                 img = bgr2rgb(cv2.imread(img)) #convert BGR to RGB format
                 img = cv2.resize(img, img_size) # Reshaping images to preferred size
 
-                channels = img.shape[-1]
-
                 imgs = [img]
 
                 if circle:
@@ -39,6 +37,7 @@ def get_data(data_dir, img_size, labels, label_map=None, flip=False, artifact=Fa
                     ) for bg in backgrounds for img in imgs]
                     imgs = [j for i in imgs for j in i]
 
+                channels = imgs[0].shape[-1]
                 if channels == 4:
                     imgs = [rgba2rgb(img) for img in imgs]
                 

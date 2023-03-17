@@ -56,12 +56,12 @@ class BaseClassifier:
         val_dir = val_dir or train_dir
         val_batch_size = val_batch_size or train_batch_size
 
-        data_train = get_data(train_dir, flip=flip, artifact=artifact, circle=circle, batch_size=train_batch_size)
-        data_val = get_data(val_dir, flip=flip, artifact=artifact, circle=circle, batch_size=val_batch_size)
+        data_train = get_data(train_dir, self.img_size, self.labels, flip=flip, artifact=artifact, circle=circle, batch_size=train_batch_size)
+        data_val = get_data(val_dir, self.img_size, self.labels, flip=flip, artifact=artifact, circle=circle, batch_size=val_batch_size)
         
-        self.data_train = prepare_data(data_train, self.img_size, batch_size=train_batch_size)
+        self.data_train = prepare_data(data_train, self.img_size, self.label_count, batch_size=train_batch_size)
         if augment_val:
-            self.data_val = prepare_data(data_val, self.img_size, batch_size=val_batch_size)
+            self.data_val = prepare_data(data_val, self.img_size, self.label_count, batch_size=val_batch_size)
         else:
             raise Exception("Not implemented")
         
