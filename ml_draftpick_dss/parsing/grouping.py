@@ -53,7 +53,10 @@ class Grouper:
         return read_player_name(img, self.ocr, self.scaler, batch_index=batch_index%4, bgr=bgr)
     
     def generate_mv(self, ss_batch, batch_index=0):
-        player_name = self.read_player_name(ss_batch[0], batch_index=batch_index%4)
+        player_name = self.read_player_name(
+            os.path.join(self.input_dir, ss_batch[0]), 
+            batch_index=batch_index%4
+        )
         player_output_dir = self.output_dir_player(player_name)
         mvs = generate_mv(
             ss_batch,

@@ -1,7 +1,8 @@
 from paddleocr import PaddleOCR
 from thefuzz import fuzz
 
-DEFAULT_SIMILARITY = lambda x: 0.01 * fuzz.token_sort_ratio(x)
+def DEFAULT_SIMILARITY(*args, **kwargs):
+    return 0.01 * fuzz.token_sort_ratio(*args, **kwargs)
 
 # use en if text contains numbers
 # otherwise use latin

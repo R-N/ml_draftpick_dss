@@ -95,7 +95,7 @@ OFFSETS = {
 
 def get_cropping(name, scaler, batch_index=0, offset=0, reverse_x=False):
     cropping = CROPPINGS[name]
-    if isinstance(cropping, function):
+    if callable(cropping):
         cropping = cropping(batch_index)
     if name in OFFSETS:
         offset += OFFSETS[name]

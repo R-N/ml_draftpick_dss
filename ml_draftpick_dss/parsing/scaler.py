@@ -10,9 +10,9 @@ class Scaler:
         if not isinstance(img, tuple) and not isinstance(img, list):
             img = img.shape[:2]
         self.img_size = img
-        self.nonwide_ratio = self.result_size[0] / reference_resolution[0]
-        extra_side = 0.5 * self.result_size[1] * ((self.result_size[1]/self.result_size[0]) / (reference_resolution[1]/reference_resolution[0]) - 1)
-        extra_side = 0.5 * (self.result_size[1] - reference_resolution[1] * self.nonwide_ratio) 
+        self.nonwide_ratio = self.img_size[0] / reference_resolution[0]
+        extra_side = 0.5 * self.img_size[1] * ((self.img_size[1]/self.img_size[0]) / (reference_resolution[1]/reference_resolution[0]) - 1)
+        extra_side = 0.5 * (self.img_size[1] - reference_resolution[1] * self.nonwide_ratio) 
         self.extra_side = int(extra_side)
 
     def scale(self, value, x=False, offset=0):
