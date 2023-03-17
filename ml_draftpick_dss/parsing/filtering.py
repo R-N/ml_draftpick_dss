@@ -61,7 +61,7 @@ class Filterer:
         img = os.path.join(self.input_dir_player(player_name), ss_batch[0])
         img = load_img(img)
         match_types = self.read_match_types(img, batch_index=batch_index%4, bgr=False)
-        match_results = self.read_match_results(img, batch_index=batch_index%4, bgr=False)
+        match_results = self.infer_match_results(img, batch_index=batch_index%4, bgr=False)
         mask = generate_mask(match_types, match_results)
         valid_ss = filter_batch(ss_batch, mask)
         player_input_dir = self.input_dir_player(player_name)
@@ -71,12 +71,14 @@ class Filterer:
             player_input_dir,
             player_output_dir
         )
-        return player_output_dir, cps
+        return cps
     
     def generate_cp_player(self, player_name):
         batches = self.create_batches(player_name)
-        cps = [self.generate_cp(batch, i%4) for i, batch in enumerate(batches)]
-        return cps
+        player_output_dir = self.output_dir_player(player_name)
+        cps = [self.generate_cp(batch, player_name, i%4) for i, batch in enumerate(batches)]
+        cps = [j for i in cps for j in i]
+        return player_output_dir, cps
 
     def generate_cp_all(self):
         players = os.listdir(self.input_dir)

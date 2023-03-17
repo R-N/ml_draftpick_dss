@@ -212,7 +212,7 @@ class BaseClassifier:
         self.model.save(*args, **kwargs)
 
     def prepare_imgs(self, imgs):
-        assert imgs.shape[-1] == 3
+        assert imgs[0].shape[-1] == 3
         imgs = [tf.cast(img, tf.float32) for img in imgs]
         imgs = [tf.image.resize(img, size=self.img_size) for img in imgs]
         imgs = tf.stack(imgs)

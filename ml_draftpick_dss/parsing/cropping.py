@@ -116,7 +116,7 @@ def get_ith(img_list, i):
     img_h = img_list_h // 5
     img_up = img_h * i
     img_down = img_h * (5-1-i)
-    img_i = crop(img_list, [(img_up, img_down), (0, 0), (0, 0)])
+    img_i = crop(img_list, [(img_up, img_down), (0, 0)])
     return img_i
 
 def extract(img, name, batch_index=0, offset=0, scaler=None, reverse_x=False, split_list=False, crop_list=False, postprocessing=None):
