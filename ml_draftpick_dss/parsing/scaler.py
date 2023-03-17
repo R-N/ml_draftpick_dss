@@ -6,7 +6,7 @@ def offset_offset(tup, x):
     return (tup[0] + x, tup[1] - x)
 
 class Scaler:
-    def __init__(self, img, reference_resolution=REFERENCE_RESOLUTION):
+    def __init__(self, img=(900, 1600), reference_resolution=REFERENCE_RESOLUTION):
         if not isinstance(img, tuple) and not isinstance(img, list):
             img = img.shape[:2]
         self.img_size = img
