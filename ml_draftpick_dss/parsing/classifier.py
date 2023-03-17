@@ -40,12 +40,12 @@ class BaseClassifier:
         self.compiled = False
         self.create_model()
 
+        self.checkpoint_dir = checkpoint_dir
         self.checkpoint = None
         self.checkpoint_manager = None
         self.prepare_checkpoint()
 
         self.log_dir = log_dir
-        self.checkpoint_dir = checkpoint_dir
         self.file_writers = None
 
         self.best_metrics = {m: 100 if "loss" in m else 0 for m in self.metrics}
