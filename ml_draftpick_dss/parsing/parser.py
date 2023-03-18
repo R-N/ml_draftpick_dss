@@ -111,13 +111,13 @@ class Parser:
         img = load_img(ss_path)
 
         match_result, match_result_img = self.infer_match_result(img, bgr=False)
-        assert ((not throw) or match_result != "Invalid"), f"INVALID: {ss_path}"
+        assert ((not throw) or (match_result != "Invalid")), f"INVALID: {ss_path}"
 
         medals, medals_img = self.infer_medals(img, bgr=False)
-        assert ((not throw) or len([m for m in medals if m == "AFK"])) == 0, f"AFK: {ss_path}; {medals}"
+        assert ((not throw) or ("AFK" not in (medals[0] + medals[1]))), f"AFK: {ss_path}; {medals}"
 
         heroes, heroes_img = self.infer_heroes(img, bgr=False)
-        assert ((not throw) or len(set(heroes[0] + heroes[1])) == 10), f"DOUBLE: {ss_path}; {heroes}"
+        assert ((not throw) or (len(set(heroes[0] + heroes[1])) == 10)), f"DOUBLE: {ss_path}; {heroes}"
         
         try:
             battle_id, battle_id_img = self.read_battle_id(img, bgr=False)
@@ -211,7 +211,7 @@ def is_invalid(obj):
     return obj["match_result"] == "Invalid"
 
 def has_afk(obj):
-    return len([m for m in obj["medals"] if m == "AFK"]) > 0
+    return "AFK" in (obj["medals"][0] + obj["medals"][1])
 
 def filter_invalid(objs, split=True):
     valid = [obj for obj in objs if not is_invalid(obj)]
