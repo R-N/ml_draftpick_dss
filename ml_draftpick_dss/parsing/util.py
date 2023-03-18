@@ -44,12 +44,12 @@ def split_extension(path):
 
 def inference_save_path(save_dir, feature, infered_class, relpath, index=0):
     file_name = split_extension(relpath.replace("/", "_"))
-    file_name = f"{file_name[0]}_{index}.{file_name[1]}"
+    file_name = f"{file_name[-2]}_{index}.{file_name[-1]}"
     return os.path.join(save_dir, feature, infered_class, file_name)
 
 def read_save_path(save_dir, feature, read, relpath, index=0):
     file_name = split_extension(relpath.replace("/", "_"))
-    file_name = f"{read}_{file_name[0]}_{index}.{file_name[-1]}"
+    file_name = f"{read}_{file_name[-2]}_{index}.{file_name[-1]}"
     return os.path.join(save_dir, feature, file_name)
 
 def listify(x):
