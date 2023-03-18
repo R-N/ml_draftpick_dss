@@ -67,7 +67,7 @@ class Filterer:
 
     def generate_cp(self, ss_batch, player_name, batch_index=0):
         img = os.path.join(self.input_dir_player(player_name), ss_batch[0])
-        obj = self.infer(self, img, batch_index=batch_index)
+        obj = self.infer(img, batch_index=batch_index)
         mask = generate_mask(obj["match_types"], obj["match_results"])
         valid_ss = filter_batch(ss_batch, mask)
         player_input_dir = self.input_dir_player(player_name)
