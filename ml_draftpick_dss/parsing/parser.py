@@ -4,30 +4,31 @@ from .cropping import extract
 from .ocr import OCR
 from .scaler import Scaler
 from .classifier import MatchResultClassifier, HeroIconClassifier, MedalClassifier
+from .util import inference_save_path, read_save_path, save_inference
 
 def read_battle_id(img, ocr, scaler, bgr=True):
     img = load_img(img, bgr=bgr)
     battle_id_img = extract(img, "BATTLE_ID", scaler=scaler, postprocessing=sharpen)
     battle_id_int = ocr.read_battle_id(battle_id_img)
-    return battle_id_int
+    return battle_id_int, battle_id_img
 
 def infer_match_result(img, classifier, scaler, bgr=True):
     img = load_img(img, bgr=bgr)
     match_result_img = extract(img, "MATCH_RESULT", scaler=scaler)
-    match_result_text = classifier.infer([match_result_img])
-    return match_result_text
+    match_result_text = classifier.infer([match_result_img])[0]
+    return match_result_text, match_result_img
 
 def read_match_duration(img, ocr, scaler, bgr=True):
     img = load_img(img, bgr=bgr)
     match_duration_img = extract(img, "MATCH_DURATION", scaler=scaler, postprocessing=sharpen)
     match_duration_float = ocr.read_match_duration_mins(match_duration_img)
-    return match_duration_float
+    return match_duration_float, match_duration_img
 
 def read_team_kills(img, ocr, scaler, bgr=True):
     img = load_img(img, bgr=bgr)
     team_kills_imgs = [extract(img, "TEAM_KILLS", scaler=scaler, postprocessing=sharpen, reverse_x=r) for r in (False, True)]
     team_kills_ints = [ocr.read_int(i) for i in team_kills_imgs]
-    return team_kills_ints
+    return team_kills_ints, team_kills_imgs
 
 def hero_icon_postprocessing(x):
     x = circle_mask(x)
@@ -38,19 +39,19 @@ def infer_heroes(img, classifier, scaler, bgr=True):
     img = load_img(img, bgr=bgr)
     hero_imgs = [extract(img, "HERO_LIST", scaler=scaler, split_list=True, crop_list=True, postprocessing=hero_icon_postprocessing, reverse_x=r) for r in (False, True)]
     hero_classes = [classifier.infer(i) for i in hero_imgs]
-    return hero_classes
+    return hero_classes, hero_imgs
 
 def infer_medals(img, classifier, scaler, bgr=True):
     img = load_img(img, bgr=bgr)
     medal_imgs = [extract(img, "MEDAL_LIST", scaler=scaler, split_list=True, crop_list=True, reverse_x=r) for r in (False, True)]
     medal_classes = [classifier.infer(i) for i in medal_imgs]
-    return medal_classes
+    return medal_classes, medal_imgs
 
 def read_scores(img, ocr, scaler, bgr=True):
     img = load_img(img, bgr=bgr)
     score_imgs = [extract(img, "SCORE_LIST", scaler=scaler, split_list=True, crop_list=True, reverse_x=r) for r in (False, True)]
     score_floats = [ocr.read_score(i) for i in score_imgs]
-    return score_floats
+    return score_floats, score_imgs
 
 class Parser:
     def __init__(
@@ -71,6 +72,12 @@ class Parser:
 
     def input_dir_player(self, player_name):
         return os.path.join(self.input_dir, player_name)
+
+    def inference_save_path(self, feature, infered_class, relpath, index=0):
+        return inference_save_path(self.inference_save_dir, feature, infered_class, relpath, index=index)
+
+    def read_save_path(self, feature, read, relpath, index=0):
+        return read_save_path(self.inference_save_dir, feature, read, relpath, index=index)
     
     def read_battle_id(self, img, bgr=True):
         return read_battle_id(img, self.ocr, self.scaler, bgr=bgr)
@@ -93,24 +100,27 @@ class Parser:
     def read_scores(self, img, bgr=True):
         return read_scores(img, self.ocr, self.scaler, bgr=bgr)
     
-    def parse_match_result(self, ss_path, player_name, throw=False):
+    def input_relpath(self, path):
+        return os.path.relpath(path, self.input_dir)
+    
+    def infer(self, ss_path, player_name, throw=False, return_img=False):
         img = load_img(ss_path)
 
-        match_result = self.infer_match_result(img, bgr=False)
+        match_result, match_result_img = self.infer_match_result(img, bgr=False)
         assert ((not throw) or match_result != "Invalid"), f"INVALID: {ss_path}"
 
-        medals = self.infer_medals(img, bgr=False)
+        medals, medals_img = self.infer_medals(img, bgr=False)
         assert ((not throw) or len([m for m in medals if m == "AFK"])) == 0, f"AFK: {ss_path}; {medals}"
 
-        heroes = self.infer_heroes(img, bgr=False)
+        heroes, heroes_img = self.infer_heroes(img, bgr=False)
         assert (len(set(heroes[0] + heroes[1])) == 10), f"DOUBLE: {ss_path}; {heroes}"
         
-        relpath = os.path.relpath(ss_path, self.input_dir)
+        relpath = self.input_relpath(ss_path)
         try:
-            battle_id = self.read_battle_id(img, bgr=False)
-            match_duration = self.read_match_duration(img, bgr=False)
-            team_kills = self.read_team_kills(img, bgr=False)
-            scores = self.read_scores(img, bgr=False)
+            battle_id, battle_id_img = self.read_battle_id(img, bgr=False)
+            match_duration, match_duration_img = self.read_match_duration(img, bgr=False)
+            team_kills, team_kills_img = self.read_team_kills(img, bgr=False)
+            scores, scores_img = self.read_scores(img, bgr=False)
         except Exception as ex:
             print("relpath", relpath)
             raise
@@ -130,23 +140,38 @@ class Parser:
             "left_scores": scores[0],
             "right_scores": scores[1]
         }
+        if return_img:
+            obj = {
+                **obj,
+                "battle_id_img": battle_id_img,
+                "match_result_img": match_result_img,
+                "match_duration_img": match_duration_img,
+                "left_team_kills_img": team_kills_img[0],
+                "right_team_kills_img": team_kills_img[1],
+                "left_heroes_img": heroes_img[0],
+                "right_heroes_img": heroes_img[1],
+                "left_medals_img": medals_img[0],
+                "right_medals_img": medals_img[1],
+                "left_scores_img": scores_img[0],
+                "right_scores_img": scores_img[1]
+            }
         return obj
     
-    def _parse_match_result_player(self, player_name):
+    def _infer_player(self, player_name, throw=False, return_img=False):
         input_dir_player = self.input_dir_player(player_name)
         files = os.listdir(input_dir_player)
-        objs = [self.parse_match_result(os.path.join(input_dir_player, file), player_name, throw=False) for file in files]
+        objs = [self.infer(os.path.join(input_dir_player, file), player_name, throw=throw, return_img=return_img) for file in files]
         return objs
     
-    def _parse_match_result_player_split(self, player_name):
+    def _infer_player_split(self, player_name, return_img=False):
         input_dir_player = self.input_dir_player(player_name)
         files = os.listdir(input_dir_player)
         valid_objs, invalid_files, afk_files, double_files = [], [], [], []
         for file in files:
             path = os.path.join(input_dir_player, file)
-            relpath = os.path.relpath(path, self.input_dir)
+            relpath = self.input_relpath(path)
             try:
-                obj = self.parse_match_result(path, player_name, throw=True)
+                obj = self.infer(path, player_name, throw=True, return_img=return_img)
                 valid_objs.append(obj)
             except AssertionError as ex:
                 message = ex.message if hasattr(ex, "message") else str(ex)
@@ -163,14 +188,21 @@ class Parser:
                     raise
         return valid_objs, invalid_files, afk_files, double_files
     
-    def parse_match_result_player(self, player_name, split=True):
-        f = self._parse_match_result_player_split if split else self._parse_match_result_player
-        return f(player_name)
+    def infer_player(self, player_name, split=True, throw=False, return_img=False):
+        if split:
+            return self._infer_player_split(player_name, return_img=return_img)
+        return self._infer_player(player_name, throw=throw, return_img=return_img)
 
-    def parse_match_result_all(self, split=True):
+    def infer_all(self, split=True, throw=False, return_img=False):
         players = os.listdir(self.input_dir)
         for player in players:
-            yield self.parse_match_result_player(player, split=split)
+            yield self.infer_player(player, split=split, throw=throw, return_img=return_img)
+
+    def save_inference(self, obj):
+        for feature in ["match_result", "left_heroes", "right_heroes", "left_medals", "right_medals"]:
+            save_inference(obj, self.inference_save_path, feature)
+        for feature in ["battle_id", "match_duration", "left_team_kills", "right_team_kills", "left_scores", "right_scores"]:
+            save_inference(obj, self.read_save_path, feature)
 
 def is_invalid(obj):
     return obj["match_result"] == "Invalid"

@@ -5,18 +5,19 @@ from .ocr import OCR, DEFAULT_SIMILARITY
 from .scaler import Scaler
 from .grouping import BATCH_SIZE, create_batches, generate_mv as _generate_mv
 from .classifier import MatchResultListClassifier
+from .util import inference_save_path, read_save_path, save_inference
 
 def read_match_types(img, ocr, scaler, batch_index=0, bgr=True):
     img = load_img(img, bgr=bgr)
     match_type_imgs = extract(img, "MATCH_TYPE_LIST", scaler=scaler, batch_index=batch_index%4, split_list=True, crop_list=True, postprocessing=sharpen)
     match_type_texts = [ocr.read(i) for i in match_type_imgs]
-    return match_type_texts
+    return match_type_texts, match_type_imgs
 
 def infer_match_results(img, classifier, scaler, batch_index=0, bgr=True):
     img = load_img(img, bgr=bgr)
     match_result_imgs = extract(img, "MATCH_RESULT_LIST", scaler=scaler, batch_index=batch_index%4, split_list=True, crop_list=True)
     match_result_classes = classifier.infer(match_result_imgs)
-    return match_result_classes
+    return match_result_classes, match_result_imgs
 
 def generate_mask(match_types, match_results, similarity=DEFAULT_SIMILARITY):
     assert len(match_types) == len(match_results)
@@ -32,15 +33,22 @@ def generate_cp(ss_batch, input_dir, output_dir, player_name):
     return _generate_mv(ss_batch, input_dir, output_dir, player_name, concat_input=True)
 
 class Filterer:
-    def __init__(self, input_dir, output_dir, ocr=None, classifier=None, scaler=None, img=None, batch_size=BATCH_SIZE):
+    def __init__(self, input_dir, output_dir, ocr=None, classifier=None, scaler=None, img=None, batch_size=BATCH_SIZE, inference_save_dir="inferences"):
         self.input_dir = input_dir
         self.output_dir = output_dir
+        self.inference_save_dir = inference_save_dir
         self.batch_size = batch_size
         assert scaler or img
         scaler = scaler or Scaler(img)
         self.scaler = scaler
         self.ocr = ocr or OCR(has_number=False)
         self.classifier = classifier or MatchResultListClassifier()
+
+    def inference_save_path(self, feature, infered_class, relpath, index=0):
+        return inference_save_path(self.inference_save_dir, feature, infered_class, relpath, index=index)
+
+    def read_save_path(self, feature, read, relpath, index=0):
+        return read_save_path(self.inference_save_dir, feature, read, relpath, index=index)
 
     def output_dir_player(self, player_name):
         return os.path.join(self.output_dir, player_name)
@@ -56,13 +64,11 @@ class Filterer:
 
     def infer_match_results(self, img, batch_index=0, bgr=True):
         return infer_match_results(img, self.classifier, self.scaler, batch_index=batch_index%4, bgr=bgr)
-    
+
     def generate_cp(self, ss_batch, player_name, batch_index=0):
         img = os.path.join(self.input_dir_player(player_name), ss_batch[0])
-        img = load_img(img)
-        match_types = self.read_match_types(img, batch_index=batch_index%4, bgr=False)
-        match_results = self.infer_match_results(img, batch_index=batch_index%4, bgr=False)
-        mask = generate_mask(match_types, match_results)
+        obj = self.infer(self, img, batch_index=batch_index)
+        mask = generate_mask(obj["match_types"], obj["match_results"])
         valid_ss = filter_batch(ss_batch, mask)
         player_input_dir = self.input_dir_player(player_name)
         player_output_dir = self.output_dir_player(player_name)
@@ -84,3 +90,41 @@ class Filterer:
         players = os.listdir(self.input_dir)
         for player in players:
             yield self.generate_cp_player(player)
+    
+    def input_relpath(self, path):
+        return os.path.relpath(path, self.input_dir)
+    
+    def infer(self, img, batch_index=0, bgr=True, return_img=False):
+        img = load_img(img, bgr=bgr)
+        match_types, match_types_img = self.read_match_types(img, batch_index=batch_index%4, bgr=False)
+        match_results, match_results_img = self.infer_match_results(img, batch_index=batch_index%4, bgr=False)
+        relpath = self.input_relpath(img)
+        obj = {
+            "file": relpath,
+            "match_types": match_types,
+            "match_results": match_results,
+        }
+        if return_img:
+            obj = {
+                **obj,
+                "match_types_img": match_types_img,
+                "match_results_img": match_results_img
+            }
+        return obj
+    
+    def infer_player(self, player_name, return_img=False):
+        batches = self.create_batches(player_name)
+        imgs = [os.path.join(self.input_dir_player(player_name), ss_batch[0]) for ss_batch in batches]
+        objs = [self.infer(img, i%4, return_img=return_img) for i, img in enumerate(imgs)]
+        return objs
+
+    def infer_all(self, return_img=False):
+        players = os.listdir(self.input_dir)
+        for player in players:
+            yield self.infer_player(player, return_img=return_img)
+
+    def save_inference(self, obj):
+        for feature in ["match_results"]:
+            save_inference(obj, self.inference_save_path, feature)
+        for feature in ["match_types"]:
+            save_inference(obj, self.read_save_path, feature)

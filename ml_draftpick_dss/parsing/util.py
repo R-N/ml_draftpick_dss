@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from .preprocessing import load_img
+import os
+import cv2
 
 def show_imgs(imgs, cols=10, fig_title="", show=True):
     rows = (len(imgs) // cols) + (1 if len(imgs) % cols > 0 else 0)
@@ -35,3 +37,27 @@ def create_label_map(labels):
 def loop_every_n(arr, n):
     for i in range(len(arr)//n):
         yield arr[i*n:n+i*n]
+
+
+def inference_save_path(save_dir, feature, infered_class, relpath, index=0):
+    file_name = relpath.replace("/", "_").rsplit(".", 2)
+    file_name = f"{file_name[0]}_{index}.{file_name[1]}"
+    return os.path.join(save_dir, feature, infered_class, file_name)
+
+def read_save_path(save_dir, feature, read, relpath, index=0):
+    file_name = relpath.replace("/", "_").rsplit(".", 2)
+    file_name = f"{read}_{file_name[0]}_{index}.{file_name[1]}"
+    return os.path.join(save_dir, feature, file_name)
+
+def listify(x):
+    return x if isinstance(x, list) else [x]
+
+def rgb2bgr(img):
+    return cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+
+def save_inference(obj, path_factory, feature):
+    img_key = f"{feature}_img"
+    pair = list(zip(listify(obj[feature]), listify(obj[img_key])))
+    for i, (inference, img) in enumerate(pair):
+        read_path = path_factory(feature, inference, obj["file"], index=i)
+        cv2.imwrite(rgb2bgr(img), read_path)
