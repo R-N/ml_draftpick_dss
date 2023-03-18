@@ -24,7 +24,7 @@ def create_base_model_v1(input_shape, label_count, include_top=False, trainable=
     return base_model
 
 def create_base_model_v2(input_shape, label_count, include_top=False, trainable=False):
-    base_model = tf.keras.applications.EfficientNetV2M(
+    base_model = tf.keras.applications.EfficientNetV2S(
         input_shape = input_shape, 
         include_top = include_top, 
         weights = "imagenet",
