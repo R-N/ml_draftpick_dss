@@ -63,6 +63,8 @@ def save_inference(obj, path_factory, feature):
     pair = list(zip(listify(obj[feature]), listify(obj[img_key])))
     for i, (inference, img) in enumerate(pair):
         path = path_factory(feature, inference, obj["file"], index=i)
+        dir = os.path.dirname(path)
+        mkdir(dir)
         cv2.imwrite(path, rgb2bgr(img))
 
 def mkdir(path):
