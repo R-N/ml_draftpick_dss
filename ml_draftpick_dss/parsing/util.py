@@ -40,7 +40,7 @@ def loop_every_n(arr, n):
         yield arr[i*n:n+i*n]
 
 def split_extension(path):
-    return path.rsplit(".", maxsplit=2)
+    return path.rsplit(".", maxsplit=1)
 
 def inference_save_path(save_dir, feature, infered_class, relpath, index=0):
     file_name = split_extension(relpath.replace("/", "_"))
