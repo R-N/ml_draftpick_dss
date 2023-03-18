@@ -3,6 +3,7 @@ from .preprocessing import sharpen, load_img
 from .cropping import extract
 from .ocr import OCR
 from .scaler import Scaler
+from .util import mkdir
 
 BATCH_SIZE = 1+5
 
@@ -37,6 +38,7 @@ class Grouper:
     def __init__(self, input_dir, output_dir, ocr=None, scaler=None, img=None, batch_size=BATCH_SIZE):
         self.input_dir = input_dir
         self.output_dir = output_dir
+        mkdir(self.output_dir)
         self.batch_size = batch_size
         assert scaler or img
         scaler = scaler or Scaler(img)

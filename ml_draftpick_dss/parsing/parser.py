@@ -4,7 +4,7 @@ from .cropping import extract
 from .ocr import OCR
 from .scaler import Scaler
 from .classifier import MatchResultClassifier, HeroIconClassifier, MedalClassifier
-from .util import inference_save_path, read_save_path, save_inference
+from .util import inference_save_path, read_save_path, save_inference, mkdir
 
 def read_battle_id(img, ocr, scaler, bgr=True):
     img = load_img(img, bgr=bgr)
@@ -59,11 +59,14 @@ class Parser:
             match_result_classifier=None, 
             hero_icon_classifier=None, 
             medal_classifier=None, 
-            scaler=None, img=None
+            scaler=None, img=None,
+            inference_save_dir="inferences"
         ):
         self.input_dir = input_dir
         assert scaler or img
         scaler = scaler or Scaler(img)
+        self.inference_save_dir = inference_save_dir
+        mkdir(self.inference_save_dir)
         self.scaler = scaler
         self.ocr = ocr or OCR(has_number=False)
         self.match_result_classifier = match_result_classifier or MatchResultClassifier()

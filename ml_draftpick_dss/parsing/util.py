@@ -3,6 +3,7 @@ import numpy as np
 from .preprocessing import load_img
 import os
 import cv2
+from pathlib import Path
 
 def show_imgs(imgs, cols=10, fig_title="", show=True):
     rows = (len(imgs) // cols) + (1 if len(imgs) % cols > 0 else 0)
@@ -60,4 +61,8 @@ def save_inference(obj, path_factory, feature):
     pair = list(zip(listify(obj[feature]), listify(obj[img_key])))
     for i, (inference, img) in enumerate(pair):
         read_path = path_factory(feature, inference, obj["file"], index=i)
-        cv2.imwrite(rgb2bgr(img), read_path)
+        cv2.imwrite(read_path, rgb2bgr(img))
+
+def mkdir(path):
+    path = Path(path)
+    path.mkdir(parents=True, exist_ok=True)

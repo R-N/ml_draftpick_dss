@@ -5,7 +5,7 @@ from .ocr import OCR, DEFAULT_SIMILARITY
 from .scaler import Scaler
 from .grouping import BATCH_SIZE, create_batches, generate_mv as _generate_mv
 from .classifier import MatchResultListClassifier
-from .util import inference_save_path, read_save_path, save_inference
+from .util import inference_save_path, read_save_path, save_inference, mkdir
 
 def read_match_types(img, ocr, scaler, batch_index=0, bgr=True):
     img = load_img(img, bgr=bgr)
@@ -36,7 +36,9 @@ class Filterer:
     def __init__(self, input_dir, output_dir, ocr=None, classifier=None, scaler=None, img=None, batch_size=BATCH_SIZE, inference_save_dir="inferences"):
         self.input_dir = input_dir
         self.output_dir = output_dir
+        mkdir(self.output_dir)
         self.inference_save_dir = inference_save_dir
+        mkdir(self.inference_save_dir)
         self.batch_size = batch_size
         assert scaler or img
         scaler = scaler or Scaler(img)
