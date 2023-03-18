@@ -23,6 +23,17 @@ def create_base_model_v1(input_shape, label_count, include_top=False, trainable=
     base_model.trainable = trainable
     return base_model
 
+def create_base_model_v2(input_shape, label_count, include_top=False, trainable=False):
+    base_model = tf.keras.applications.EfficientNetV2M(
+        input_shape = input_shape, 
+        include_top = include_top, 
+        weights = "imagenet",
+        classes=label_count,
+        include_preprocessing=True
+    )
+    base_model.trainable = trainable
+    return base_model
+
 def create_head_model_v2(label_count):
     return tf.keras.Sequential([
         tf.keras.layers.MaxPooling2D(pool_size=(3, 3)),
@@ -275,11 +286,12 @@ HERO_ICON_LABELS = HERO_LIST
 HERO_ICON_IMG_SIZE = (96, 96)
 
 class HeroIconClassifier(BaseClassifier):
-    def __init__(self, *args, labels=HERO_ICON_LABELS, head_model_factory=create_head_model_v3, **kwargs):
+    def __init__(self, *args, labels=HERO_ICON_LABELS, base_model_factory=create_base_model_v2, head_model_factory=create_head_model_v2, **kwargs):
         super().__init__(
             labels, 
             HERO_ICON_IMG_SIZE, 
             *args,
+            base_model_factory=base_model_factory,
             head_model_factory=head_model_factory,
             **kwargs
         )
