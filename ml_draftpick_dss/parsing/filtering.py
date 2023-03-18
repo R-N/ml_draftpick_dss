@@ -95,10 +95,10 @@ class Filterer:
         return os.path.relpath(path, self.input_dir)
     
     def infer(self, img, batch_index=0, bgr=True, return_img=False):
+        relpath = self.input_relpath(img)
         img = load_img(img, bgr=bgr)
         match_types, match_types_img = self.read_match_types(img, batch_index=batch_index%4, bgr=False)
         match_results, match_results_img = self.infer_match_results(img, batch_index=batch_index%4, bgr=False)
-        relpath = self.input_relpath(img)
         obj = {
             "file": relpath,
             "match_types": match_types,

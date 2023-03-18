@@ -104,6 +104,7 @@ class Parser:
         return os.path.relpath(path, self.input_dir)
     
     def infer(self, ss_path, player_name, throw=False, return_img=False):
+        relpath = self.input_relpath(ss_path)
         img = load_img(ss_path)
 
         match_result, match_result_img = self.infer_match_result(img, bgr=False)
@@ -115,7 +116,6 @@ class Parser:
         heroes, heroes_img = self.infer_heroes(img, bgr=False)
         assert (len(set(heroes[0] + heroes[1])) == 10), f"DOUBLE: {ss_path}; {heroes}"
         
-        relpath = self.input_relpath(ss_path)
         try:
             battle_id, battle_id_img = self.read_battle_id(img, bgr=False)
             match_duration, match_duration_img = self.read_match_duration(img, bgr=False)
