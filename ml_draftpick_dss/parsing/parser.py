@@ -50,7 +50,7 @@ def infer_medals(img, classifier, scaler, bgr=True):
 def read_scores(img, ocr, scaler, bgr=True):
     img = load_img(img, bgr=bgr)
     score_imgs = [extract(img, "SCORE_LIST", scaler=scaler, split_list=True, crop_list=True, reverse_x=r) for r in (False, True)]
-    score_floats = [ocr.read_score(i) for i in score_imgs]
+    score_floats = [[ocr.read_score(j) for j in i] for i in score_imgs]
     return score_floats, score_imgs
 
 class Parser:
