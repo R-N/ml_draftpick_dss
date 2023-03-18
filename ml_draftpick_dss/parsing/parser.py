@@ -117,7 +117,7 @@ class Parser:
         assert ((not throw) or len([m for m in medals if m == "AFK"])) == 0, f"AFK: {ss_path}; {medals}"
 
         heroes, heroes_img = self.infer_heroes(img, bgr=False)
-        assert (len(set(heroes[0] + heroes[1])) == 10), f"DOUBLE: {ss_path}; {heroes}"
+        assert ((not throw) or len(set(heroes[0] + heroes[1])) == 10), f"DOUBLE: {ss_path}; {heroes}"
         
         try:
             battle_id, battle_id_img = self.read_battle_id(img, bgr=False)
