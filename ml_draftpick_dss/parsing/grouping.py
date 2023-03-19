@@ -58,13 +58,13 @@ def find_history(input_dir, history_candidates, classifier, scaler=None):
 
 def infer_ss_type(img, classifier, scaler, bgr=True):
     img = load_img(img, bgr=bgr)
-    ss_corner_img = extract(img, "SS_CORNER", scaler=scaler, postprocessing=sharpen)
+    ss_corner_img = extract(img, "SS_CORNER", scaler=scaler)
     ss_corner_class = classifier.infer([ss_corner_img])[0]
     return ss_corner_class, ss_corner_img
 
 def read_player_name(img, ocr, scaler, bgr=True, throw=True):
     img = load_img(img, bgr=bgr)
-    name_img = extract(img, "HISTORY_PLAYER_NAME", scaler=scaler, postprocessing=sharpen)
+    name_img = extract(img, "HISTORY_PLAYER_NAME", scaler=scaler)
     try:
         name_text = ocr.read_history_player_name(name_img)
     except Exception as ex:

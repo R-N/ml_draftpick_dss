@@ -8,7 +8,7 @@ from .util import inference_save_path, read_save_path, save_inference, mkdir, ex
 
 def read_battle_id(img, ocr, scaler, bgr=True):
     img = load_img(img, bgr=bgr)
-    battle_id_img = extract(img, "BATTLE_ID", scaler=scaler, postprocessing=sharpen)
+    battle_id_img = extract(img, "BATTLE_ID", scaler=scaler)
     battle_id_int = ocr.read_battle_id(battle_id_img)
     return battle_id_int, battle_id_img
 
@@ -20,13 +20,13 @@ def infer_match_result(img, classifier, scaler, bgr=True):
 
 def read_match_duration(img, ocr, scaler, bgr=True):
     img = load_img(img, bgr=bgr)
-    match_duration_img = extract(img, "MATCH_DURATION", scaler=scaler, postprocessing=sharpen)
+    match_duration_img = extract(img, "MATCH_DURATION", scaler=scaler)
     match_duration_float = ocr.read_match_duration_mins(match_duration_img)
     return match_duration_float, match_duration_img
 
 def read_team_kills(img, ocr, scaler, bgr=True):
     img = load_img(img, bgr=bgr)
-    team_kills_imgs = [extract(img, "TEAM_KILLS", scaler=scaler, postprocessing=sharpen, reverse_x=r) for r in (False, True)]
+    team_kills_imgs = [extract(img, "TEAM_KILLS", scaler=scaler, reverse_x=r) for r in (False, True)]
     team_kills_ints = [ocr.read_int(i) for i in team_kills_imgs]
     return team_kills_ints, team_kills_imgs
 
