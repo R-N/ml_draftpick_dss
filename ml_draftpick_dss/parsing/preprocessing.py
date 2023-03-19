@@ -81,7 +81,7 @@ def load_img(img, bgr=True, resize=None, keep_aspect_ratio=True):
         img = cv2.imread(img)
     if resize:
         if keep_aspect_ratio:
-            resize = (resize[0], img.shape[1] * resize[0] / img.shape[0])
+            resize = (resize[0], int(img.shape[1] * resize[0] / img.shape[0]))
         img = cv2.resize(img, resize, interpolation=cv2.INTER_LANCZOS4)
     if bgr:
         img = bgr2rgb(img)
