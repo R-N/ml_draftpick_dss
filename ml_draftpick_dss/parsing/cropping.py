@@ -1,6 +1,10 @@
 from .scaler import Scaler
 from skimage.util import crop as _crop
 
+SS_CORNER = (
+    (0, 1651),
+    (0, 964)
+)
 HISTORY_PLAYER_NAME = (
     (10, 2070), 
     (260, 500)
@@ -67,6 +71,7 @@ MEDAL_LIST_CROP = (
 )
 
 CROPPINGS = {
+    "SS_CORNER": SS_CORNER,
     "HISTORY_PLAYER_NAME": HISTORY_PLAYER_NAME,
     "MATCH_TYPE_LIST": MATCH_TYPE_LIST,
     "MATCH_TYPE_LIST_CROP": MATCH_TYPE_LIST_CROP,
@@ -84,6 +89,7 @@ CROPPINGS = {
     "MEDAL_LIST_CROP": MEDAL_LIST_CROP,
 }
 OFFSETS = {
+    "SS_CORNER": 0.4,
     "HISTORY_PLAYER_NAME": 0.4,
     "MATCH_TYPE_LIST": 0.4,
     "MATCH_RESULT_LIST": 0.4,

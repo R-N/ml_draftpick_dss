@@ -3,8 +3,8 @@ from .preprocessing import sharpen, load_img
 from .cropping import extract
 from .ocr import OCR, DEFAULT_SIMILARITY
 from .scaler import Scaler
-from .grouping import BATCH_SIZE, create_batches, generate_mv as _generate_mv
-from .classifier import MatchResultListClassifier
+from .grouping import BATCH_SIZE, create_batches, generate_mv as _generate_mv, infer_ss_type
+from .classifier import MatchResultListClassifier, ScreenshotClassifier
 from .util import inference_save_path, read_save_path, save_inference, mkdir
 
 def read_match_types(img, ocr, scaler, batch_index=0, bgr=True):
@@ -33,15 +33,17 @@ def generate_cp(ss_batch, input_dir, output_dir, player_name):
     return _generate_mv(ss_batch, input_dir, output_dir, player_name, concat_input=True)
 
 class Filterer:
-    def __init__(self, input_dir, output_dir, classifier, ocr=None, scaler=None, img=None, batch_size=BATCH_SIZE, inference_save_dir="inferences"):
+    def __init__(self, input_dir, output_dir, ss_classifier, result_list_classifier, ocr=None, scaler=None, img=None, batch_size=BATCH_SIZE, inference_save_dir="inferences"):
         self.input_dir = input_dir
         self.output_dir = output_dir
         mkdir(self.output_dir)
         self.inference_save_dir = inference_save_dir
         mkdir(self.inference_save_dir)
         self.batch_size = batch_size
-        assert isinstance(classifier, MatchResultListClassifier)
-        self.classifier = classifier
+        assert isinstance(ss_classifier, ScreenshotClassifier)
+        self.ss_classifier = ss_classifier
+        assert isinstance(result_list_classifier, MatchResultListClassifier)
+        self.result_list_classifier = result_list_classifier
         assert scaler or img
         scaler = scaler or Scaler(img)
         self.scaler = scaler
@@ -60,13 +62,16 @@ class Filterer:
         return os.path.join(self.input_dir, player_name)
 
     def create_batches(self, player_name):
-        return create_batches(self.input_dir_player(player_name), batch_size=self.batch_size)
+        return create_batches(self.input_dir_player(player_name), self.ss_classifier, batch_size=self.batch_size)
+
+    def infer_ss_type(self, img, bgr=True):
+        return infer_ss_type(img, self.ss_classifier, self.scaler, bgr=bgr)
 
     def read_match_types(self, img, batch_index=0, bgr=True):
         return read_match_types(img, self.ocr, self.scaler, batch_index=batch_index%4, bgr=bgr)
 
     def infer_match_results(self, img, batch_index=0, bgr=True):
-        return infer_match_results(img, self.classifier, self.scaler, batch_index=batch_index%4, bgr=bgr)
+        return infer_match_results(img, self.result_list_classifier, self.scaler, batch_index=batch_index%4, bgr=bgr)
 
     def generate_cp(self, ss_batch, player_name, batch_index=0):
         img = os.path.join(self.input_dir_player(player_name), ss_batch[0])

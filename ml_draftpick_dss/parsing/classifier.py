@@ -282,6 +282,18 @@ class MedalClassifier(BaseClassifier):
             **kwargs
         )
 
+SS_LABELS = ["History", "Result"]
+SS_IMG_SIZE = (96, 224)
+
+class ScreenshotClassifier(BaseClassifier):
+    def __init__(self, *args, **kwargs):
+        super().__init__(
+            SS_LABELS, 
+            SS_IMG_SIZE, 
+            *args,
+            **kwargs
+        )
+
 HERO_ICON_LABELS = HERO_LIST
 HERO_ICON_IMG_SIZE = (96, 96)
 
