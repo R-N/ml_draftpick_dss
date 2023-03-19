@@ -77,9 +77,11 @@ def exception_message(ex):
 def list_subdirectories(dir):
     subd = os.listdir(dir)
     subd = [d for d in subd if os.path.isdir(os.path.join(dir, d))]
+    subd = list(sorted(subd))
     return subd
 
 def list_images(dir, extension=".jpg"):
     imgs = os.listdir(dir)
     imgs = [i for i in imgs if os.path.isfile(os.path.join(dir, i)) and i.lower().endswith(extension)]
+    imgs = list(sorted(imgs))
     return imgs
