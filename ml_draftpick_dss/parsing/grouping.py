@@ -13,7 +13,7 @@ def create_batches(input_dir, *args, **kwargs):
     ss_list = [s for s in ss_list if not s.endswith(".ini")]
     return _create_batches(ss_list, *args, **kwargs)
 
-def _create_batches(ss_list, classifier=None, scaler=None, batch_size=BATCH_SIZE)
+def _create_batches(ss_list, classifier=None, scaler=None, batch_size=BATCH_SIZE):
     n = len(ss_list)
     n = n // batch_size + (1 if n % batch_size > 0 else 0)
 
