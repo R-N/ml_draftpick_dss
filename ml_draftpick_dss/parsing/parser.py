@@ -199,9 +199,14 @@ class Parser:
             return self._infer_player_split(player_name, return_img=return_img)
         return self._infer_player(player_name, throw=throw, return_img=return_img)
 
-    def infer_all(self, split=True, throw=False, return_img=False):
+    def infer_all(self, split=True, throw=False, return_img=False, start=None, exclude={}):
         players = os.listdir(self.input_dir)
+        if start:
+            players = players[players.index(start):]
+        if exclude:
+            players = [p for p in players if p not in exclude]
         for player in players:
+            print("Infering", player)
             yield self.infer_player(player, split=split, throw=throw, return_img=return_img)
 
     def save_inference(self, obj):

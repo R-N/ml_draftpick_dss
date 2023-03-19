@@ -94,8 +94,12 @@ class Filterer:
         cps = [j for i in cps for j in i]
         return player_output_dir, cps
 
-    def generate_cp_all(self):
+    def generate_cp_all(self, start=None, exclude={}):
         players = list_subdirectories(self.input_dir)
+        if start:
+            players = players[players.index(start):]
+        if exclude:
+            players = [p for p in players if p not in exclude]
         for player in players:
             yield self.generate_cp_player(player)
     
@@ -126,8 +130,12 @@ class Filterer:
         objs = [self.infer(img, i%4, return_img=return_img) for i, img in enumerate(imgs)]
         return objs
 
-    def infer_all(self, return_img=False):
+    def infer_all(self, return_img=False, start=None, exclude={}):
         players = list_subdirectories(self.input_dir)
+        if start:
+            players = players[players.index(start):]
+        if exclude:
+            players = [p for p in players if p not in exclude]
         for player in players:
             print("Infering", player)
             yield self.infer_player(player, return_img=return_img)
