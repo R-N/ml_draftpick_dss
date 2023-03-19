@@ -2,8 +2,8 @@ from .scaler import Scaler
 from skimage.util import crop as _crop
 
 SS_CORNER = (
-    (0, 1651),
-    (0, 964)
+    (0, 2050),
+    (0, 1650)
 )
 HISTORY_PLAYER_NAME = (
     (10, 2070), 

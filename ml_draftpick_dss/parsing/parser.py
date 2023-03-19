@@ -4,7 +4,7 @@ from .cropping import extract
 from .ocr import OCR
 from .scaler import Scaler
 from .classifier import MatchResultClassifier, HeroIconClassifier, MedalClassifier
-from .util import inference_save_path, read_save_path, save_inference, mkdir
+from .util import inference_save_path, read_save_path, save_inference, mkdir, exception_message
 
 def read_battle_id(img, ocr, scaler, bgr=True):
     img = load_img(img, bgr=bgr)
@@ -180,7 +180,7 @@ class Parser:
                 obj = self.infer(path, player_name, throw=True, return_img=return_img)
                 valid_objs.append(obj)
             except AssertionError as ex:
-                message = ex.message if hasattr(ex, "message") else str(ex)
+                message = exception_message(ex)
                 if message.startswith("INVALID"):
                     print(message)
                     invalid_files.append(relpath)

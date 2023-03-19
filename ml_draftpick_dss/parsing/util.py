@@ -70,3 +70,6 @@ def save_inference(obj, path_factory, feature):
 def mkdir(path):
     path = Path(path)
     path.mkdir(parents=True, exist_ok=True)
+
+def exception_message(ex):
+    return ex.message if hasattr(ex, "message") else str(ex)

@@ -3,7 +3,7 @@ from .preprocessing import sharpen, load_img
 from .cropping import extract
 from .ocr import OCR
 from .scaler import Scaler
-from .util import mkdir, inference_save_path, read_save_path, save_inference
+from .util import mkdir, inference_save_path, read_save_path, save_inference, exception_message
 from .classifier import ScreenshotClassifier
 
 BATCH_SIZE = 1+5
@@ -59,7 +59,8 @@ def read_player_name(img, ocr, scaler, bgr=True, throw=True):
     try:
         name_text = ocr.read_history_player_name(name_img)
     except Exception as ex:
-        if ex.message != "Invalid SS" or throw:
+        message = exception_message(ex)
+        if "Invalid SS" not in message or throw:
             raise
         name_text = None
     return name_text, name_img
@@ -110,8 +111,8 @@ class Grouper:
     def infer_ss_type(self, img, bgr=True):
         return infer_ss_type(img, self.classifier, self.scaler, bgr=bgr)
 
-    def read_player_name(self, img, bgr=True):
-        return read_player_name(img, self.ocr, self.scaler, bgr=bgr)
+    def read_player_name(self, img, bgr=True, throw=True):
+        return read_player_name(img, self.ocr, self.scaler, bgr=bgr, throw=throw)
     
     def generate_mv(self, ss_batch, throw=True):
         obj = self.infer(ss_batch[0], throw=throw)
@@ -134,11 +135,7 @@ class Grouper:
         relpath = self.input_relpath(img)
         img = load_img(img, bgr=bgr)
         ss_type, ss_type_img = self.infer_ss_type(img, bgr=False)
-        try:
-            player_name, player_name_img = self.read_player_name(img, bgr=False)
-        except Exception as ex:
-            if ex.message != "Invalid SS" or throw:
-                raise
+        player_name, player_name_img = self.read_player_name(img, bgr=False, throw=throw)
             
         obj = {
             "file": relpath,
@@ -148,16 +145,16 @@ class Grouper:
         if return_img:
             obj = {
                 **obj,
-                "ss_type": ss_type_img,
-                "player_name": player_name_img
+                "ss_type_img": ss_type_img,
+                "player_name_img": player_name_img
             }
         return obj
     
-    def infer_all(self, player_name, throw=False, return_img=False):
+    def infer_all(self, throw=False, return_img=False):
         for img in os.listdir(self.input_dir):
-            img = os.path.join(self.input_dir_player(player_name), img)
+            img = os.path.join(self.input_dir, img)
             obj = self.infer(img, throw=throw, return_img=return_img)
-            return obj
+            yield obj
 
     def save_inference(self, obj):
         for feature in ["ss_type"]:
