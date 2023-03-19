@@ -3,7 +3,7 @@ from .preprocessing import sharpen, load_img
 from .cropping import extract
 from .ocr import OCR
 from .scaler import Scaler
-from .util import mkdir, inference_save_path, read_save_path, save_inference, show_imgs
+from .util import mkdir, inference_save_path, read_save_path, save_inference
 from .classifier import ScreenshotClassifier
 
 BATCH_SIZE = 1+5
