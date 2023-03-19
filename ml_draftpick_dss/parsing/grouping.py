@@ -139,7 +139,7 @@ class Grouper:
     def generate_groups(self, throw=True):
         batches = self.create_batches()
         for i, batch in enumerate(batches):
-            yield (self.generate_mv(batch, i%4, throw=throw))
+            yield (self.generate_mv(batch, throw=throw))
 
     def infer(self, img, bgr=True, throw=False, return_img=False):
         relpath = self.input_relpath(img)
