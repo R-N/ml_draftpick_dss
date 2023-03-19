@@ -76,9 +76,11 @@ def upscale(img):
 def denoise(img):
     return cv2.fastNlMeansDenoisingColored(img,None,10,10,7,21)
 
-def load_img(img, bgr=True):
+def load_img(img, bgr=True, resize=None):
     if isinstance(img, str):
         img = cv2.imread(img)
+    if resize:
+        img = cv2.resize(img, resize, interpolation=INTER_LANCZOS4 )
     if bgr:
         img = bgr2rgb(img)
     return img
