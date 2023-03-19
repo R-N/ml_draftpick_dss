@@ -24,7 +24,6 @@ class OCR:
     def read_history_player_name(self, img):
         name_text = self.read(img)
         name_text = name_text.replace("`", "'").replace('"', "'").rsplit("'", maxsplit=1)
-        print(name_text)
         if (not len(name_text) == 2):
             raise Exception("Invalid SS")
         if self.similarity(name_text[-1].rsplit(" ", 2)[-1], "history") < 0.8:
