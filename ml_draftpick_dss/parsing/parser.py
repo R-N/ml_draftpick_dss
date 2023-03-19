@@ -69,11 +69,11 @@ class Parser:
         self.match_result_classifier = match_result_classifier
         self.hero_icon_classifier = hero_icon_classifier
         self.medal_classifier = medal_classifier
-        assert scaler or img
-        scaler = scaler or Scaler(img)
+        scaler = scaler or (Scaler(img) if img else None)
         self.inference_save_dir = inference_save_dir
         mkdir(self.inference_save_dir)
-        self.scaler = scaler
+        self._scaler = scaler
+        self.scaler = None
         self.ocr = ocr or OCR(has_number=False)
 
     def input_dir_player(self, player_name):
@@ -112,6 +112,7 @@ class Parser:
     def infer(self, ss_path, player_name, throw=False, return_img=False):
         relpath = self.input_relpath(ss_path)
         img = load_img(ss_path)
+        self.scaler = self._scaler or Scaler(img)
 
         match_result, match_result_img = self.infer_match_result(img, bgr=False)
         assert ((not throw) or (match_result != "Invalid")), f"INVALID: {ss_path}"

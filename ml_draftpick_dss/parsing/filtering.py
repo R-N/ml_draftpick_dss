@@ -45,8 +45,9 @@ class Filterer:
         assert isinstance(result_list_classifier, MatchResultListClassifier)
         self.result_list_classifier = result_list_classifier
         assert scaler or img
-        scaler = scaler or Scaler(img)
-        self.scaler = scaler
+        scaler = scaler or (Scaler(img) if img else None)
+        self._scaler = scaler
+        self.scaler = None
         self.ocr = ocr or OCR(has_number=False)
 
     def inference_save_path(self, feature, infered_class, relpath, index=0):
@@ -109,6 +110,7 @@ class Filterer:
     def infer(self, img, batch_index=0, bgr=True, return_img=False):
         relpath = self.input_relpath(img)
         img = load_img(img, bgr=bgr)
+        self.scaler = self._scaler or Scaler(img)
         match_types, match_types_img = self.read_match_types(img, batch_index=batch_index%4, bgr=False)
         match_results, match_results_img = self.infer_match_results(img, batch_index=batch_index%4, bgr=False)
         obj = {

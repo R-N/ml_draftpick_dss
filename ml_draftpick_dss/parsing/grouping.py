@@ -97,9 +97,9 @@ class Grouper:
         self.batch_size = batch_size
         assert isinstance(classifier, ScreenshotClassifier)
         self.classifier = classifier
-        assert scaler or img
-        scaler = scaler or Scaler(img)
-        self.scaler = scaler
+        scaler = scaler or (Scaler(img) if img else None)
+        self._scaler = scaler
+        self.scaler = None
         self.ocr = ocr or OCR(has_number=False)
 
     def inference_save_path(self, feature, infered_class, relpath, index=0):
@@ -147,6 +147,7 @@ class Grouper:
     def infer(self, img, bgr=True, throw=False, return_img=False):
         relpath = self.input_relpath(img)
         img = load_img(img, bgr=bgr)
+        self.scaler = self._scaler or Scaler(img)
         ss_type, ss_type_img = self.infer_ss_type(img, bgr=False)
         player_name, player_name_img = self.read_player_name(img, bgr=False, throw=throw)
             
