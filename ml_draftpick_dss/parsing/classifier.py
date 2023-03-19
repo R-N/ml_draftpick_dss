@@ -247,18 +247,19 @@ class BaseClassifier:
         imgs = self.prepare_imgs(imgs)
         return [self.labels[np.argmax(y)] for y in self.model(imgs)]
 
-MATCH_RESULT_LABELS = ["Victory", "Defeat", "Invalid"]
+MATCH_RESULT_LIST_LABELS = ["Victory", "Defeat", "Invalid", "AFK", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"]
 MATCH_RESULT_LIST_IMG_SIZE = (96, 224)
 
 class MatchResultListClassifier(BaseClassifier):
     def __init__(self, *args, **kwargs):
         super().__init__(
-            MATCH_RESULT_LABELS, 
+            MATCH_RESULT_LIST_LABELS, 
             MATCH_RESULT_LIST_IMG_SIZE, 
             *args,
             **kwargs
         )
         
+MATCH_RESULT_LABELS = ["Victory", "Defeat", "Invalid"]
 MATCH_RESULT_IMG_SIZE = (96, 224)
 
 class MatchResultClassifier(BaseClassifier):
