@@ -3,14 +3,13 @@ from .preprocessing import sharpen, load_img
 from .cropping import extract
 from .ocr import OCR
 from .scaler import Scaler
-from .util import mkdir, inference_save_path, read_save_path, save_inference, exception_message
+from .util import mkdir, inference_save_path, read_save_path, save_inference, exception_message, list_images
 from .classifier import ScreenshotClassifier
 
 BATCH_SIZE = 1+5
 
 def create_batches(input_dir, *args, **kwargs):
-    ss_list = list(sorted(os.listdir(input_dir)))
-    ss_list = [s for s in ss_list if not s.endswith(".ini")]
+    ss_list = list_images(input_dir)
     return _create_batches(input_dir, ss_list, *args, **kwargs)
 
 def _create_batches(input_dir, ss_list, classifier=None, scaler=None, batch_size=BATCH_SIZE):
@@ -127,6 +126,9 @@ class Grouper:
     def generate_mv(self, ss_batch, throw=True):
         img = os.path.join(self.input_dir, ss_batch[0])
         obj = self.infer(img, throw=throw)
+        return self._generate_mv(ss_batch, obj, throw=throw)
+    
+    def _generate_mv(self, ss_batch, obj, throw=True):
         assert ((not throw) or (obj["ss_type"] == "History"))
         player_name = obj["player_name"]
         player_output_dir = self.output_dir_player(player_name)
@@ -162,7 +164,7 @@ class Grouper:
         return obj
     
     def infer_all(self, throw=False, return_img=False):
-        for img in os.listdir(self.input_dir):
+        for img in list_images(self.input_dir):
             img = os.path.join(self.input_dir, img)
             obj = self.infer(img, throw=throw, return_img=return_img)
             yield obj
@@ -172,3 +174,31 @@ class Grouper:
             save_inference(obj, self.inference_save_path, feature)
         for feature in ["player_name"]:
             save_inference(obj, self.read_save_path, feature)
+
+class Grouper2(Grouper):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def create_obj_batches(self):
+        ss_list = list_images(self.input_dir)
+        return self._create_obj_batches(ss_list)
+
+    def _create_obj_batches(self, ss_list):
+        objs = [self.infer(os.path.join(self.input_dir, img), throw=False) for img in ss_list]
+        history_indexes = [i for i, obj in enumerate(objs) if obj["ss_type"] == "History"]
+        len_indexes = len(history_indexes)
+        indexes_2 = history_indexes + [None]
+        index_pairs = [(indexes_2[i], indexes_2[i+1] for i in range(len_indexes))]
+        indexing = [(a, min(a+self.batch_size, b)) if b else (a, len_indexes) for a, b in index_pairs]
+        obj_batches = [objs[a:b] for a, b in indexing]
+        return obj_batches
+
+    def create_batches(self):
+        obj_batches = self.create_obj_batches()
+        return obj_batches
+    
+    def generate_groups(self, throw=True):
+        obj_batches = self.create_obj_batches()
+        for i, obj_batch in enumerate(obj_batches):
+            batch = [obj["file"] for obj in obj_batch]
+            yield (self._generate_mv(batch, obj_batch[0], throw=throw))

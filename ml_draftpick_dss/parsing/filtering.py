@@ -3,9 +3,9 @@ from .preprocessing import sharpen, load_img
 from .cropping import extract
 from .ocr import OCR, DEFAULT_SIMILARITY
 from .scaler import Scaler
-from .grouping import BATCH_SIZE, create_batches, generate_mv as _generate_mv, infer_ss_type
+from .grouping import BATCH_SIZE, create_batches, generate_mv as _generate_mv, infer_ss_type, Grouper2
 from .classifier import MatchResultListClassifier, ScreenshotClassifier
-from .util import inference_save_path, read_save_path, save_inference, mkdir
+from .util import inference_save_path, read_save_path, save_inference, mkdir, list_subdirectories
 
 def read_match_types(img, ocr, scaler, batch_index=0, bgr=True):
     img = load_img(img, bgr=bgr)
@@ -95,7 +95,7 @@ class Filterer:
         return player_output_dir, cps
 
     def generate_cp_all(self):
-        players = os.listdir(self.input_dir)
+        players = list_subdirectories(self.input_dir)
         for player in players:
             yield self.generate_cp_player(player)
     
@@ -127,7 +127,7 @@ class Filterer:
         return objs
 
     def infer_all(self, return_img=False):
-        players = os.listdir(self.input_dir)
+        players = list_subdirectories(self.input_dir)
         for player in players:
             yield self.infer_player(player, return_img=return_img)
 
@@ -136,3 +136,9 @@ class Filterer:
             save_inference(obj, self.inference_save_path, feature)
         for feature in ["match_types"]:
             save_inference(obj, self.read_save_path, feature)
+
+
+class Filterer2(Filterer):
+    def __init__(self, input_dir, output_dir, ss_classifier, *args, **kwargs):
+        super().__init__(input_dir, output_dir, ss_classifier=ss_classifier, *args, **kwargs)
+        self.grouper = Grouper2(f"{input_dir}_group", f"_{output_dir}_group", classifier=self.ss_classifier, ocr=self.ocr, scaler=self.scaler)
