@@ -11,9 +11,9 @@ BATCH_SIZE = 1+5
 def create_batches(input_dir, *args, **kwargs):
     ss_list = list(sorted(os.listdir(input_dir)))
     ss_list = [s for s in ss_list if not s.endswith(".ini")]
-    return _create_batches(ss_list, *args, **kwargs)
+    return _create_batches(input_dir, ss_list, *args, **kwargs)
 
-def _create_batches(ss_list, classifier=None, scaler=None, batch_size=BATCH_SIZE):
+def _create_batches(input_dir, ss_list, classifier=None, scaler=None, batch_size=BATCH_SIZE):
     n = len(ss_list)
     n = n // batch_size + (1 if n % batch_size > 0 else 0)
 
@@ -24,27 +24,37 @@ def _create_batches(ss_list, classifier=None, scaler=None, batch_size=BATCH_SIZE
         prev_batch = None
         for i in range(n):
             batch = ss_list[i*batch_size:i*batch_size+batch_size]
-            ss_type = infer_ss_type(batch[0], classifier, scaler)
+            ss_type, ss_type_img = infer_ss_type(os.path.join(input_dir, batch[0]), classifier, scaler)
             if ss_type != "History":
                 if prev_batch:
-                    index = find_history(prev_batch[1:], classifier, scaler)
+                    index = find_history(input_dir, prev_batch[1:], classifier, scaler)
                     if index >= 0:
                         ss_groups[-1] = prev_batch[:1+index]
                         next_ss_list = ss_list[(i-1)*batch_size + 1+index:]
-                        return ss_groups + _create_batches(next_ss_list, classifier=classifier, scaler=scaler, batch_size=batch_size)
-                index = find_history(batch[1:], classifier, scaler)
+                        return ss_groups + _create_batches(input_dir, next_ss_list, classifier=classifier, scaler=scaler, batch_size=batch_size)
+                index = find_history(input_dir, batch[1:], classifier, scaler)
                 if index >= 0:
                     next_ss_list = ss_list[i*batch_size + 1+index:]
-                    return ss_groups + _create_batches(classifier=classifier, scaler=scaler, batch_size=batch_size)
+                    return ss_groups + _create_batches(input_dir, next_ss_list, classifier=classifier, scaler=scaler, batch_size=batch_size)
                 prev_batch = None
                 continue
             ss_groups.append(batch)
             prev_batch = batch
+        if prev_batch:
+            index = find_history(input_dir, prev_batch[1:], classifier, scaler)
+            if index >= 0:
+                ss_groups[-1] = prev_batch[:1+index]
+                next_ss_list = ss_list[i*batch_size + 1+index:]
+                return ss_groups + _create_batches(input_dir, next_ss_list, classifier=classifier, scaler=scaler, batch_size=batch_size)
     return ss_groups
 
-def find_history(history_candidates, classifier, scaler=None):
-    candidate_ss_types = [infer_ss_type(img, classifier, scaler) for img in history_candidates]
-    index = candidate_ss_types.index("History")
+def find_history(input_dir, history_candidates, classifier, scaler=None):
+    candidate_ss_types = [infer_ss_type(os.path.join(input_dir, img), classifier, scaler) for img in history_candidates]
+    candidate_ss_types = [t for t, i in candidate_ss_types]
+    try:
+        index = candidate_ss_types.index("History")
+    except ValueError as ex:
+        index = -1
     return index
 
 def infer_ss_type(img, classifier, scaler, bgr=True):
@@ -106,7 +116,7 @@ class Grouper:
         return os.path.join(self.output_dir, player_name)
 
     def create_batches(self):
-        return create_batches(self.input_dir, self.classifier, batch_size=self.batch_size)
+        return create_batches(self.input_dir, classifier=self.classifier, scaler=self.scaler, batch_size=self.batch_size)
 
     def infer_ss_type(self, img, bgr=True):
         return infer_ss_type(img, self.classifier, self.scaler, bgr=bgr)
