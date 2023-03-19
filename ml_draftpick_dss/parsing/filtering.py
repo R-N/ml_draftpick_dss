@@ -129,6 +129,7 @@ class Filterer:
     def infer_all(self, return_img=False):
         players = list_subdirectories(self.input_dir)
         for player in players:
+            print("Infering", player)
             yield self.infer_player(player, return_img=return_img)
 
     def save_inference(self, obj):
