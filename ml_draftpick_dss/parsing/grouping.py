@@ -186,16 +186,16 @@ class Grouper2(Grouper):
     def _create_obj_batches(self, ss_list):
         objs = [self.infer(os.path.join(self.input_dir, img), throw=False) for img in ss_list]
         history_indexes = [i for i, obj in enumerate(objs) if obj["ss_type"] == "History"]
-        len_indexes = len(history_indexes)
         indexes_2 = history_indexes + [None]
-        index_pairs = [(indexes_2[i], indexes_2[i+1]) for i in range(len_indexes)]
-        indexing = [(a, min(a+self.batch_size, b)) if b else (a, len_indexes) for a, b in index_pairs]
+        index_pairs = [(indexes_2[i], indexes_2[i+1]) for i in range(len(history_indexes))]
+        indexing = [(a, min(a+self.batch_size, b)) if b else (a, len(objs)) for a, b in index_pairs]
         obj_batches = [objs[a:b] for a, b in indexing]
         return obj_batches
 
     def create_batches(self):
         obj_batches = self.create_obj_batches()
-        return obj_batches
+        batches = [[obj["file"] for obj in objs] for objs in obj_batches]
+        return batches
     
     def generate_groups(self, throw=True):
         obj_batches = self.create_obj_batches()

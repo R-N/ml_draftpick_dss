@@ -81,5 +81,5 @@ def list_subdirectories(dir):
 
 def list_images(dir, extension=".jpg"):
     imgs = os.listdir(dir)
-    imgs = [i for i in imgs if os.path.isfile(os.path.join(dir, i) and i.lower().endswith(extension))]
+    imgs = [i for i in imgs if os.path.isfile(os.path.join(dir, i)) and i.lower().endswith(extension)]
     return imgs
