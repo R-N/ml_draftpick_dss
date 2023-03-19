@@ -44,7 +44,6 @@ class Filterer:
         self.ss_classifier = ss_classifier
         assert isinstance(result_list_classifier, MatchResultListClassifier)
         self.result_list_classifier = result_list_classifier
-        assert scaler or img
         scaler = scaler or (Scaler(img) if img else None)
         self._scaler = scaler
         self.scaler = None
