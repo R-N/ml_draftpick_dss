@@ -33,18 +33,19 @@ def generate_cp(ss_batch, input_dir, output_dir, player_name):
     return _generate_mv(ss_batch, input_dir, output_dir, player_name, concat_input=True)
 
 class Filterer:
-    def __init__(self, input_dir, output_dir, ocr=None, classifier=None, scaler=None, img=None, batch_size=BATCH_SIZE, inference_save_dir="inferences"):
+    def __init__(self, input_dir, output_dir, classifier, ocr=None, scaler=None, img=None, batch_size=BATCH_SIZE, inference_save_dir="inferences"):
         self.input_dir = input_dir
         self.output_dir = output_dir
         mkdir(self.output_dir)
         self.inference_save_dir = inference_save_dir
         mkdir(self.inference_save_dir)
         self.batch_size = batch_size
+        assert isinstance(classifier, MatchResultListClassifier)
+        self.classifier = classifier
         assert scaler or img
         scaler = scaler or Scaler(img)
         self.scaler = scaler
         self.ocr = ocr or OCR(has_number=False)
-        self.classifier = classifier or MatchResultListClassifier()
 
     def inference_save_path(self, feature, infered_class, relpath, index=0):
         return inference_save_path(self.inference_save_dir, feature, infered_class, relpath, index=index)

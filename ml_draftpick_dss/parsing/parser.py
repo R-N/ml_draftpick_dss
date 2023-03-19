@@ -55,23 +55,26 @@ def read_scores(img, ocr, scaler, bgr=True):
 
 class Parser:
     def __init__(
-            self, input_dir, ocr=None, 
-            match_result_classifier=None, 
-            hero_icon_classifier=None, 
-            medal_classifier=None, 
-            scaler=None, img=None,
+            self, input_dir, 
+            match_result_classifier, 
+            hero_icon_classifier, 
+            medal_classifier, 
+            ocr=None, scaler=None, img=None,
             inference_save_dir="inferences"
         ):
         self.input_dir = input_dir
+        assert isinstance(match_result_classifier, MatchResultClassifier)
+        assert isinstance(hero_icon_classifier, HeroIconClassifier)
+        assert isinstance(medal_classifier, MedalClassifier)
+        self.match_result_classifier = match_result_classifier
+        self.hero_icon_classifier = hero_icon_classifier
+        self.medal_classifier = medal_classifier
         assert scaler or img
         scaler = scaler or Scaler(img)
         self.inference_save_dir = inference_save_dir
         mkdir(self.inference_save_dir)
         self.scaler = scaler
         self.ocr = ocr or OCR(has_number=False)
-        self.match_result_classifier = match_result_classifier or MatchResultClassifier()
-        self.hero_icon_classifier = hero_icon_classifier or HeroIconClassifier()
-        self.medal_classifier = medal_classifier or MedalClassifier()
 
     def input_dir_player(self, player_name):
         return os.path.join(self.input_dir, player_name)
