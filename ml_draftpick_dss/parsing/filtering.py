@@ -141,7 +141,7 @@ class Filterer:
 class Filterer2(Filterer):
     def __init__(self, input_dir, output_dir, ss_classifier, *args, **kwargs):
         super().__init__(input_dir, output_dir, ss_classifier=ss_classifier, *args, **kwargs)
-        self.grouper = Grouper2(f"{input_dir}_group", f"_{output_dir}_group", classifier=self.ss_classifier, ocr=self.ocr, scaler=self.scaler, batch_size=self.batch_size)
+        self.grouper = Grouper2(f"{input_dir}_group", f"{output_dir}_group", classifier=self.ss_classifier, ocr=self.ocr, scaler=self.scaler, batch_size=self.batch_size)
 
     def create_batches(self, player_name):
         self.grouper.input_dir = self.input_dir_player(player_name)
