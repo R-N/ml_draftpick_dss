@@ -33,7 +33,7 @@ def generate_cp(ss_batch, input_dir, output_dir, player_name):
     return _generate_mv(ss_batch, input_dir, output_dir, player_name, concat_input=True)
 
 class Filterer:
-    def __init__(self, input_dir, output_dir, ss_classifier, result_list_classifier, ocr=None, scaler=None, img=None, batch_size=BATCH_SIZE, inference_save_dir="inferences"):
+    def __init__(self, input_dir, output_dir, ss_classifier, result_list_classifier, ocr=None, img_size=None, batch_size=BATCH_SIZE, inference_save_dir="inferences"):
         self.input_dir = input_dir
         self.output_dir = output_dir
         mkdir(self.output_dir)
@@ -44,7 +44,8 @@ class Filterer:
         self.ss_classifier = ss_classifier
         assert isinstance(result_list_classifier, MatchResultListClassifier)
         self.result_list_classifier = result_list_classifier
-        scaler = scaler or (Scaler(img) if img else None)
+        self.img_size = img_size
+        scaler = Scaler(img_size) if img_size else None
         self._scaler = scaler
         self.scaler = None
         self.ocr = ocr or OCR(has_number=False)
@@ -108,7 +109,7 @@ class Filterer:
     
     def infer(self, img, batch_index=0, bgr=True, return_img=False):
         relpath = self.input_relpath(img)
-        img = load_img(img, bgr=bgr)
+        img = load_img(img, bgr=bgr, resize=self.img_size)
         self.scaler = self._scaler or Scaler(img)
         match_types, match_types_img = self.read_match_types(img, batch_index=batch_index%4, bgr=False)
         match_results, match_results_img = self.infer_match_results(img, batch_index=batch_index%4, bgr=False)

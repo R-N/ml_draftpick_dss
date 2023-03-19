@@ -59,7 +59,7 @@ class Parser:
             match_result_classifier, 
             hero_icon_classifier, 
             medal_classifier, 
-            ocr=None, scaler=None, img=None,
+            ocr=None, img_size=None,
             inference_save_dir="inferences"
         ):
         self.input_dir = input_dir
@@ -69,9 +69,10 @@ class Parser:
         self.match_result_classifier = match_result_classifier
         self.hero_icon_classifier = hero_icon_classifier
         self.medal_classifier = medal_classifier
-        scaler = scaler or (Scaler(img) if img else None)
         self.inference_save_dir = inference_save_dir
         mkdir(self.inference_save_dir)
+        self.img_size = img_size
+        scaler = Scaler(img_size) if img_size else None
         self._scaler = scaler
         self.scaler = None
         self.ocr = ocr or OCR(has_number=False)
@@ -111,7 +112,7 @@ class Parser:
     
     def infer(self, ss_path, player_name, throw=False, return_img=False):
         relpath = self.input_relpath(ss_path)
-        img = load_img(ss_path)
+        img = load_img(ss_path, resize=self.img_size)
         self.scaler = self._scaler or Scaler(img)
 
         match_result, match_result_img = self.infer_match_result(img, bgr=False)

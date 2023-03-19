@@ -88,7 +88,7 @@ def generate_mv(ss_batch, input_dir, output_dir, player_name=None, concat_input=
     return _generate_mv(ss_batch, input_dir, output_dir)
 
 class Grouper:
-    def __init__(self, input_dir, output_dir, classifier, ocr=None, scaler=None, img=None, batch_size=BATCH_SIZE, inference_save_dir="inferences"):
+    def __init__(self, input_dir, output_dir, classifier, ocr=None, img_size=None, batch_size=BATCH_SIZE, inference_save_dir="inferences"):
         self.input_dir = input_dir
         self.output_dir = output_dir
         mkdir(self.output_dir)
@@ -97,7 +97,8 @@ class Grouper:
         self.batch_size = batch_size
         assert isinstance(classifier, ScreenshotClassifier)
         self.classifier = classifier
-        scaler = scaler or (Scaler(img) if img else None)
+        self.img_size = img_size
+        scaler = Scaler(img_size) if img_size else None
         self._scaler = scaler
         self.scaler = None
         self.ocr = ocr or OCR(has_number=False)
@@ -146,7 +147,7 @@ class Grouper:
 
     def infer(self, img, bgr=True, throw=False, return_img=False):
         relpath = self.input_relpath(img)
-        img = load_img(img, bgr=bgr)
+        img = load_img(img, bgr=bgr, resize=self.img_size)
         self.scaler = self._scaler or Scaler(img)
         ss_type, ss_type_img = self.infer_ss_type(img, bgr=False)
         player_name, player_name_img = self.read_player_name(img, bgr=False, throw=throw)
