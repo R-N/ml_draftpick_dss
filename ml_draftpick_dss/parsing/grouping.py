@@ -125,7 +125,8 @@ class Grouper:
         return read_player_name(img, self.ocr, self.scaler, bgr=bgr, throw=throw)
     
     def generate_mv(self, ss_batch, throw=True):
-        obj = self.infer(ss_batch[0], throw=throw)
+        img = os.path.join(self.input_dir, ss_batch[0])
+        obj = self.infer(img, throw=throw)
         assert ((not throw) or (obj["ss_type"] == "History"))
         player_name = obj["player_name"]
         player_output_dir = self.output_dir_player(player_name)
