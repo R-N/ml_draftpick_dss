@@ -6,8 +6,8 @@ SS_CORNER = (
     (0, 1650)
 )
 OPENING_FAILURE = (
-    (1000, 1000),
-    (600, 600)
+    (470, 540),
+    (640, 640)
 )
 HISTORY_PLAYER_NAME = (
     (10, 2070), 
