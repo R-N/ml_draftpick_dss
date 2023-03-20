@@ -120,6 +120,7 @@ class Filterer:
                     opening_failure_list.append(relpath)
                 else:
                     raise
+        cps = [j for i in cps for j in i]
         return player_output_dir, cps, result_list, opening_failure_list
     
     def generate_cp_player(self, player_name, split=True, throw=False):
