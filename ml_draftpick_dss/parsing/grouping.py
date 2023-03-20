@@ -1,7 +1,7 @@
 import os
 from .preprocessing import sharpen, load_img
 from .cropping import extract
-from .ocr import OCR
+from .ocr import OCR, DEFAULT_SIMILARITY
 from .scaler import Scaler
 from .util import mkdir, inference_save_path, read_save_path, save_inference, exception_message, list_images
 from .classifier import ScreenshotClassifier
@@ -12,19 +12,24 @@ def create_batches(input_dir, *args, **kwargs):
     ss_list = list_images(input_dir)
     return _create_batches(input_dir, ss_list, *args, **kwargs)
 
-def _create_batches(input_dir, ss_list, classifier=None, scaler=None, batch_size=BATCH_SIZE):
+def _create_batches(input_dir, ss_list, classifier=None, ocr=None, scaler=None, batch_size=BATCH_SIZE):
     n = len(ss_list)
     n = n // batch_size + (1 if n % batch_size > 0 else 0)
 
     if not classifier:
         ss_groups = [ss_list[i*batch_size:i*batch_size+batch_size] for i in range(n)]
     else:
+        ocr = ocr or OCR(has_number=False)
         ss_groups = []
         prev_batch = None
         for i in range(n):
             batch = ss_list[i*batch_size:i*batch_size+batch_size]
-            ss_type, ss_type_img = infer_ss_type(os.path.join(input_dir, batch[0]), classifier, scaler)
-            if ss_type != "History":
+            img = os.path.join(input_dir, batch[0])
+            img = load_img(img)
+            ss_type, ss_type_img = infer_ss_type(img, classifier, scaler, bgr=False)
+            opening_failure_text, opening_failure_img = read_opening_failure(img, ocr, scaler, bgr=False)
+            opening_failure = check_opening_failure(opening_failure_text)
+            if ss_type != "History" and not opening_failure:
                 if prev_batch:
                     index = find_history(input_dir, prev_batch[1:], classifier, scaler)
                     if index >= 0:
@@ -47,11 +52,19 @@ def _create_batches(input_dir, ss_list, classifier=None, scaler=None, batch_size
                 return ss_groups + _create_batches(input_dir, next_ss_list, classifier=classifier, scaler=scaler, batch_size=batch_size)
     return ss_groups
 
-def find_history(input_dir, history_candidates, classifier, scaler=None):
-    candidate_ss_types = [infer_ss_type(os.path.join(input_dir, img), classifier, scaler) for img in history_candidates]
+def find_history(input_dir, history_candidates, classifier, ocr=None, scaler=None):
+    ocr = ocr or OCR(has_number=False)
+    imgs = [os.path.join(input_dir, img) for img in history_candidates]
+    imgs = [load_img(img) for img in imgs]
+    candidate_ss_types = [infer_ss_type(img, classifier, scaler, bgr=False) for img in imgs]
     candidate_ss_types = [t for t, i in candidate_ss_types]
+    
+    candidate_opening_failures = [read_opening_failure(img, ocr, scaler, bgr=False) for img in imgs]
+    candidate_opening_failures = [check_opening_failure(t) for t, i in candidate_opening_failures]
+
+    mask = [candidate_ss_types[i] == "History" and not candidate_opening_failures[i] for i in range(len(imgs))]
     try:
-        index = candidate_ss_types.index("History")
+        index = mask.index(True)
     except ValueError as ex:
         index = -1
     return index
@@ -73,6 +86,15 @@ def read_player_name(img, ocr, scaler, bgr=True, throw=True):
             raise
         name_text = None
     return name_text, name_img
+
+def read_opening_failure(img, ocr, scaler, bgr=True):
+    img = load_img(img, bgr=bgr)
+    text_img = extract(img, "OPENING_FAILURE", scaler=scaler)
+    text = ocr.read_opening_failure(text_img)
+    return text, text_img
+
+def check_opening_failure(text, similarity=DEFAULT_SIMILARITY):
+    return similarity(text, "Please download the relevant resources first!") >= 0.8
 
 def _generate_mv(ss_batch, input_dir, output_dir):
     return [(
@@ -123,14 +145,20 @@ class Grouper:
 
     def read_player_name(self, img, bgr=True, throw=True):
         return read_player_name(img, self.ocr, self.scaler, bgr=bgr, throw=throw)
-    
+
+    def read_opening_failure(self, img, bgr=True):
+        return read_opening_failure(img, self.ocr, scaler=self.scaler, bgr=bgr)
+
+    def check_opening_failure(self, text, similarity=DEFAULT_SIMILARITY):
+        return check_opening_failure(text, similarity=similarity)
+
     def generate_mv(self, ss_batch, throw=True):
         img = os.path.join(self.input_dir, ss_batch[0])
         obj = self.infer(img, throw=throw)
         return self._generate_mv(ss_batch, obj, throw=throw)
     
     def _generate_mv(self, ss_batch, obj, throw=True):
-        assert ((not throw) or (obj["ss_type"] == "History"))
+        assert ((not throw) or (obj["ss_type"] == "History" and not obj["opening_failure"]))
         player_name = obj["player_name"]
         player_output_dir = self.output_dir_player(player_name)
         mvs = generate_mv(
@@ -151,17 +179,21 @@ class Grouper:
         self.scaler = self._scaler or Scaler(img)
         ss_type, ss_type_img = self.infer_ss_type(img, bgr=False)
         player_name, player_name_img = self.read_player_name(img, bgr=False, throw=throw)
+        opening_failure_text, opening_failure_img = self.read_opening_failure(img, bgr=False)
+        opening_failure = self.check_opening_failure(opening_failure_text)
             
         obj = {
             "file": relpath,
             "ss_type": ss_type,
             "player_name": player_name,
+            "opening_failure": opening_failure
         }
         if return_img:
             obj = {
                 **obj,
                 "ss_type_img": ss_type_img,
-                "player_name_img": player_name_img
+                "player_name_img": player_name_img,
+                "opening_failure_img": opening_failure_img
             }
         return obj
     
@@ -174,7 +206,7 @@ class Grouper:
     def save_inference(self, obj):
         for feature in ["ss_type"]:
             save_inference(obj, self.inference_save_path, feature)
-        for feature in ["player_name"]:
+        for feature in ["player_name", "opening_failure"]:
             save_inference(obj, self.read_save_path, feature)
 
 class Grouper2(Grouper):
@@ -187,7 +219,7 @@ class Grouper2(Grouper):
 
     def _create_obj_batches(self, ss_list):
         objs = [self.infer(os.path.join(self.input_dir, img), throw=False) for img in ss_list]
-        history_indexes = [i for i, obj in enumerate(objs) if obj["ss_type"] == "History"]
+        history_indexes = [i for i, obj in enumerate(objs) if obj["ss_type"] == "History" and not obj["opening_failure"]]
         indexes_2 = history_indexes + [None]
         index_pairs = [(indexes_2[i], indexes_2[i+1]) for i in range(len(history_indexes))]
         indexing = [(a, min(a+self.batch_size, b)) if b else (a, len(objs)) for a, b in index_pairs]

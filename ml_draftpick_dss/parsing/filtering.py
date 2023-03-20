@@ -3,7 +3,7 @@ from .preprocessing import sharpen, load_img
 from .cropping import extract
 from .ocr import OCR, DEFAULT_SIMILARITY
 from .scaler import Scaler
-from .grouping import BATCH_SIZE, create_batches, generate_mv as _generate_mv, infer_ss_type, Grouper2
+from .grouping import BATCH_SIZE, create_batches, generate_mv as _generate_mv, infer_ss_type, Grouper2, read_opening_failure, check_opening_failure
 from .classifier import MatchResultListClassifier, ScreenshotClassifier
 from .util import inference_save_path, read_save_path, save_inference, mkdir, list_subdirectories
 
@@ -19,11 +19,11 @@ def infer_match_results(img, classifier, scaler, batch_index=0, bgr=True):
     match_result_classes = classifier.infer(match_result_imgs)
     return match_result_classes, match_result_imgs
 
-def generate_mask(match_types, match_results, similarity=DEFAULT_SIMILARITY):
+def generate_mask(match_types, match_results, opening_failures, similarity=DEFAULT_SIMILARITY):
     assert len(match_types) == len(match_results)
     match_results_mask = [c in {"Victory", "Defeat"} for c in match_results]
     match_types_mask = [similarity(s, "ranked") >= 0.8 for s in match_types]
-    final_mask = [(match_results_mask[i] and match_types_mask) for i in range(len(match_types))]
+    final_mask = [(match_results_mask[i] and match_types_mask[i] and not opening_failures[i]) for i in range(len(match_types))]
     return final_mask
 
 def filter_batch(ss_batch, mask):
@@ -74,10 +74,16 @@ class Filterer:
     def infer_match_results(self, img, batch_index=0, bgr=True):
         return infer_match_results(img, self.result_list_classifier, self.scaler, batch_index=batch_index%4, bgr=bgr)
 
+    def read_opening_failure(self, img, bgr=True):
+        return read_opening_failure(img, self.ocr, scaler=self.scaler, bgr=bgr)
+
+    def check_opening_failure(self, text, similarity=DEFAULT_SIMILARITY):
+        return check_opening_failure(text, similarity=similarity)
+
     def generate_cp(self, ss_batch, player_name, batch_index=0):
         img = os.path.join(self.input_dir_player(player_name), ss_batch[0])
         obj = self.infer(img, batch_index=batch_index)
-        mask = generate_mask(obj["match_types"], obj["match_results"])
+        mask = generate_mask(obj["match_types"], obj["match_results"], obj["opening_failures"])
         valid_ss = filter_batch(ss_batch, mask)
         player_input_dir = self.input_dir_player(player_name)
         player_output_dir = self.output_dir_player(player_name)
@@ -113,16 +119,20 @@ class Filterer:
         self.scaler = self._scaler or Scaler(img)
         match_types, match_types_img = self.read_match_types(img, batch_index=batch_index%4, bgr=False)
         match_results, match_results_img = self.infer_match_results(img, batch_index=batch_index%4, bgr=False)
+        opening_failure_text, opening_failure_img = self.read_opening_failure(img, bgr=False)
+        opening_failure = self.check_opening_failure(opening_failure_text)
         obj = {
             "file": relpath,
             "match_types": match_types,
             "match_results": match_results,
+            "opening_failure": opening_failure
         }
         if return_img:
             obj = {
                 **obj,
                 "match_types_img": match_types_img,
-                "match_results_img": match_results_img
+                "match_results_img": match_results_img,
+                "opening_failure_img": opening_failure_img
             }
         return obj
     
@@ -145,7 +155,7 @@ class Filterer:
     def save_inference(self, obj):
         for feature in ["match_results"]:
             save_inference(obj, self.inference_save_path, feature)
-        for feature in ["match_types"]:
+        for feature in ["match_types", "opening_failure"]:
             save_inference(obj, self.read_save_path, feature)
 
 
