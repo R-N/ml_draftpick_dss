@@ -21,7 +21,7 @@ def infer_match_results(img, classifier, scaler, batch_index=0, bgr=True):
 
 def generate_mask(match_types, match_results, similarity=DEFAULT_SIMILARITY):
     assert len(match_types) == len(match_results)
-    match_results_mask = [c != "Invalid" for c in match_results]
+    match_results_mask = [c in {"Victory", "Defeat"} for c in match_results]
     match_types_mask = [similarity(s, "ranked") >= 0.8 for s in match_types]
     final_mask = [(match_results_mask[i] and match_types_mask) for i in range(len(match_types))]
     return final_mask
