@@ -122,10 +122,10 @@ class Filterer:
                     raise
         return player_output_dir, cps, result_list, opening_failure_list
     
-    def generate_cp_player(self, player_name, split=True, throw=False, return_img=False):
+    def generate_cp_player(self, player_name, split=True, throw=False):
         if split:
-            return self._generate_cp_player_split(player_name, return_img=return_img)
-        return self._generate_cp_player(player_name, throw=throw, return_img=return_img)
+            return self._generate_cp_player_split(player_name)
+        return self._generate_cp_player(player_name, throw=throw)
 
     def generate_cp_all(self, split=True, throw=False, start=None, exclude={}):
         players = list_subdirectories(self.input_dir)
