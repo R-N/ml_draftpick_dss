@@ -1,9 +1,10 @@
 import os
 from .preprocessing import sharpen, load_img, circle_mask, remove_artifact
 from .cropping import extract
-from .ocr import OCR
+from .ocr import OCR, DEFAULT_SIMILARITY
 from .scaler import Scaler
 from .classifier import MatchResultClassifier, HeroIconClassifier, MedalClassifier
+from .grouping import infer_ss_type, read_opening_failure, check_opening_failure
 from .util import inference_save_path, read_save_path, save_inference, mkdir, exception_message
 
 def read_battle_id(img, ocr, scaler, bgr=True):
@@ -109,11 +110,27 @@ class Parser:
     
     def input_relpath(self, path):
         return os.path.relpath(path, self.input_dir)
+
+    def infer_ss_type(self, img, bgr=True):
+        return infer_ss_type(img, self.ss_classifier, self.scaler, bgr=bgr)
+
+    def read_opening_failure(self, img, bgr=True):
+        return read_opening_failure(img, self.ocr, scaler=self.scaler, bgr=bgr)
+
+    def check_opening_failure(self, text, similarity=DEFAULT_SIMILARITY):
+        return check_opening_failure(text, similarity=similarity)
     
     def infer(self, ss_path, player_name, throw=False, return_img=False):
         relpath = self.input_relpath(ss_path)
         img = load_img(ss_path, resize=self.img_size)
         self.scaler = self._scaler or Scaler(img)
+
+        ss_type, ss_type_img = self.infer_ss_type(img, bgr=False)
+        assert ((not throw) or (ss_type=="Result")), f"HISTORY: {ss_path}"
+
+        opening_failure_text, opening_failure_img = self.read_opening_failure(img, bgr=False)
+        opening_failure = self.check_opening_failure(opening_failure_text)
+        assert ((not throw) or (not opening_failure)), f"OPENING_FAILURE: {ss_path}"
 
         match_result, match_result_img = self.infer_match_result(img, bgr=False)
         assert ((not throw) or (match_result != "Invalid")), f"INVALID: {ss_path}"
@@ -174,7 +191,7 @@ class Parser:
     def _infer_player_split(self, player_name, return_img=False):
         input_dir_player = self.input_dir_player(player_name)
         files = os.listdir(input_dir_player)
-        valid_objs, invalid_files, afk_files, double_files = [], [], [], []
+        valid_objs, history_files, invalid_files, afk_files, double_files = [], [], [], []
         for file in files:
             path = os.path.join(input_dir_player, file)
             relpath = self.input_relpath(path)
@@ -183,6 +200,9 @@ class Parser:
                 valid_objs.append(obj)
             except AssertionError as ex:
                 message = exception_message(ex)
+                if message.startswith("HISTORY") or message.startswith("OPENING_FAILURE"):
+                    print(message)
+                    history_files.append(relpath)
                 if message.startswith("INVALID"):
                     print(message)
                     invalid_files.append(relpath)
@@ -194,7 +214,7 @@ class Parser:
                     double_files.append(relpath)
                 else:
                     raise
-        return valid_objs, invalid_files, afk_files, double_files
+        return valid_objs, history_files, invalid_files, afk_files, double_files
     
     def infer_player(self, player_name, split=True, throw=False, return_img=False):
         if split:
@@ -212,9 +232,9 @@ class Parser:
             yield self.infer_player(player, split=split, throw=throw, return_img=return_img)
 
     def save_inference(self, obj):
-        for feature in ["match_result", "left_heroes", "right_heroes", "left_medals", "right_medals"]:
+        for feature in ["ss_type", "match_result", "left_heroes", "right_heroes", "left_medals", "right_medals"]:
             save_inference(obj, self.inference_save_path, feature)
-        for feature in ["battle_id", "match_duration", "left_team_kills", "right_team_kills", "left_scores", "right_scores"]:
+        for feature in ["opening_failure", "battle_id", "match_duration", "left_team_kills", "right_team_kills", "left_scores", "right_scores"]:
             save_inference(obj, self.read_save_path, feature)
 
 def is_invalid(obj):

@@ -138,7 +138,7 @@ class Grouper:
         return os.path.join(self.output_dir, player_name)
 
     def create_batches(self):
-        return create_batches(self.input_dir, classifier=self.classifier, scaler=self.scaler, batch_size=self.batch_size)
+        return create_batches(self.input_dir, classifier=self.classifier, ocr=self.ocr, scaler=self.scaler, batch_size=self.batch_size)
 
     def infer_ss_type(self, img, bgr=True):
         return infer_ss_type(img, self.classifier, self.scaler, bgr=bgr)
@@ -178,9 +178,9 @@ class Grouper:
         img = load_img(img, bgr=bgr, resize=self.img_size)
         self.scaler = self._scaler or Scaler(img)
         ss_type, ss_type_img = self.infer_ss_type(img, bgr=False)
-        player_name, player_name_img = self.read_player_name(img, bgr=False, throw=throw)
         opening_failure_text, opening_failure_img = self.read_opening_failure(img, bgr=False)
         opening_failure = self.check_opening_failure(opening_failure_text)
+        player_name, player_name_img = self.read_player_name(img, bgr=False, throw=throw)
             
         obj = {
             "file": relpath,
@@ -206,7 +206,7 @@ class Grouper:
     def save_inference(self, obj):
         for feature in ["ss_type"]:
             save_inference(obj, self.inference_save_path, feature)
-        for feature in ["player_name", "opening_failure"]:
+        for feature in ["opening_failure", "player_name"]:
             save_inference(obj, self.read_save_path, feature)
 
 class Grouper2(Grouper):
