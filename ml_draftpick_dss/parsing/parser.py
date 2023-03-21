@@ -36,10 +36,15 @@ def hero_icon_postprocessing(x, invert=False):
     x = remove_artifact(x, invert=invert)
     return x
 
+HERO_ICON_POSTPROCESSINGS = {
+    True: lambda x: hero_icon_postprocessing(x, invert=False),
+    False: lambda x: hero_icon_postprocessing(x, invert=False)
+}
+
 def infer_heroes(img, classifier, scaler, bgr=True):
     img = load_img(img, bgr=bgr)
-    hero_imgs = [extract(img, "HERO_LIST", scaler=scaler, split_list=True, crop_list=True, postprocessing=hero_icon_postprocessing, reverse_x=r) for r in (False, True)]
-    hero_classes = [classifier.infer(hero_imgs[i], invert=i%2==1) for i in range(2)]
+    hero_imgs = [extract(img, "HERO_LIST", scaler=scaler, split_list=True, crop_list=True, postprocessing=HERO_ICON_POSTPROCESSINGS[r], reverse_x=r) for r in (False, True)]
+    hero_classes = [classifier.infer(hero_imgs[i]) for i in range(2)]
     return hero_classes, hero_imgs
 
 def infer_medals(img, classifier, scaler, bgr=True):
