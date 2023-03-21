@@ -25,10 +25,10 @@ def read_match_duration(img, ocr, scaler, bgr=True):
     match_duration_float = ocr.read_match_duration_mins(match_duration_img)
     return match_duration_float, match_duration_img
 
-def read_team_kills(img, ocr, scaler, bgr=True):
+def read_team_kills(img, ocr, scaler, bgr=True, throw=True):
     img = load_img(img, bgr=bgr)
     team_kills_imgs = [extract(img, "TEAM_KILLS", scaler=scaler, reverse_x=r) for r in (False, True)]
-    team_kills_ints = [ocr.read_int(i) for i in team_kills_imgs]
+    team_kills_ints = [ocr.read_int(i, throw=throw) for i in team_kills_imgs]
     return team_kills_ints, team_kills_imgs
 
 def hero_icon_postprocessing(x):
@@ -99,8 +99,8 @@ class Parser:
     def read_match_duration(self, img,bgr=True):
         return read_match_duration(img, self.ocr, self.scaler, bgr=bgr)
 
-    def read_team_kills(self, img, bgr=True):
-        return read_team_kills(img, self.ocr, self.scaler, bgr=bgr)
+    def read_team_kills(self, img, bgr=True, throw=True):
+        return read_team_kills(img, self.ocr, self.scaler, bgr=bgr, throw=throw)
 
     def infer_heroes(self, img, bgr=True):
         return infer_heroes(img, self.hero_icon_classifier, self.scaler, bgr=bgr)
@@ -147,7 +147,7 @@ class Parser:
         try:
             battle_id, battle_id_img = self.read_battle_id(img, bgr=False)
             match_duration, match_duration_img = self.read_match_duration(img, bgr=False)
-            team_kills, team_kills_img = self.read_team_kills(img, bgr=False)
+            team_kills, team_kills_img = self.read_team_kills(img, bgr=False, throw=throw)
             scores, scores_img = self.read_scores(img, bgr=False)
         except Exception as ex:
             print("relpath", relpath)
