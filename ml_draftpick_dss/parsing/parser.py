@@ -108,8 +108,8 @@ class Parser:
     def infer_medals(self, img, bgr=True):
         return infer_medals(img, self.medal_classifier, self.scaler, bgr=bgr)
 
-    def read_scores(self, img, bgr=True, throw=True):
-        return read_scores(img, self.ocr, self.scaler, bgr=bgr, throw=throw)
+    def read_scores(self, img, bgr=True):
+        return read_scores(img, self.ocr, self.scaler, bgr=bgr)
     
     def input_relpath(self, path):
         return os.path.relpath(path, self.input_dir)
