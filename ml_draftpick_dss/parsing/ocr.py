@@ -21,31 +21,39 @@ class OCR:
             return None
         return text[0].strip().lower()
 
-    def read_history_player_name(self, img):
-        name_text = self.read(img)
-        name_text = name_text.replace("`", "'").replace('"', "'").rsplit("'", maxsplit=1)
-        if (not len(name_text) == 2):
-            raise Exception("Invalid SS")
-        if self.similarity(name_text[-1].rsplit(" ", 2)[-1], "history") < 0.8:
-            raise Exception("Invalid SS")
-        name_text = name_text[0]
-        return name_text
+    def read_history_player_name(self, img, throw=True):
+        try:
+            name_text = self.read(img)
+            name_text = name_text.replace("`", "'").replace('"', "'").rsplit("'", maxsplit=1)
+            if (not len(name_text) == 2):
+                raise Exception("INVALID_SS_HISTORY")
+            if self.similarity(name_text[-1].rsplit(" ", 2)[-1], "history") < 0.8:
+                raise Exception("INVALID_SS_HISTORY")
+            name_text = name_text[0]
+            return name_text
+        except Exception as ex:
+            if throw:
+                raise
+            return None
     
     def read_num(self, img):
         num = self.read(img)
         num = num.strip(".").replace("!", "").replace("/", "").replace("%", "")
         return num
     
-    def read_int(self, img, throw=True):
+    def read_int(self, img):
         num = self.read_num(img)
+        return int(num.replace(".", ""))
+    
+    def read_team_kills(self, img, throw=True):
         try:
-            return int(num.replace(".", ""))
+            return self.read_int(img)
         except ValueError as ex:
             if throw:
-                raise
+                raise Exception(f"INVALID_SS_KILL: {ex}")
             return None
 
-    def read_score(self, img):
+    def read_score(self, img, throw=True):
         score_text = self.read_num(img)
         try:
             replace = float(score_text) >= 100
@@ -53,9 +61,11 @@ class OCR:
             score_text = score_text if "." in score_text else (score_text[:replace] + "." + score_text[-1:])
             score_f = float(score_text)
             score_f = score_f if score_f < 70 else (score_f - 60)
-        except Exception as ex:
-            raise Exception("Invalid SS")
-        return score_f
+            return score_f
+        except ValueError as ex:
+            if throw:
+                raise Exception(f"INVALID_SS_SCORE: {ex}")
+            return None
     
     def read_battle_id(self, img):
         text = self.read(img)

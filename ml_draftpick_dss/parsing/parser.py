@@ -28,7 +28,7 @@ def read_match_duration(img, ocr, scaler, bgr=True):
 def read_team_kills(img, ocr, scaler, bgr=True, throw=True):
     img = load_img(img, bgr=bgr)
     team_kills_imgs = [extract(img, "TEAM_KILLS", scaler=scaler, reverse_x=r) for r in (False, True)]
-    team_kills_ints = [ocr.read_int(i, throw=throw) for i in team_kills_imgs]
+    team_kills_ints = [ocr.read_team_kills(i, throw=throw) for i in team_kills_imgs]
     return team_kills_ints, team_kills_imgs
 
 def hero_icon_postprocessing(x):
@@ -48,10 +48,10 @@ def infer_medals(img, classifier, scaler, bgr=True):
     medal_classes = [classifier.infer(i) for i in medal_imgs]
     return medal_classes, medal_imgs
 
-def read_scores(img, ocr, scaler, bgr=True):
+def read_scores(img, ocr, scaler, bgr=True, throw=True):
     img = load_img(img, bgr=bgr)
     score_imgs = [extract(img, "SCORE_LIST", scaler=scaler, split_list=True, crop_list=True, reverse_x=r) for r in (False, True)]
-    score_floats = [[ocr.read_score(j) for j in i] for i in score_imgs]
+    score_floats = [[ocr.read_score(j, throw=throw) for j in i] for i in score_imgs]
     return score_floats, score_imgs
 
 class Parser:
@@ -108,8 +108,8 @@ class Parser:
     def infer_medals(self, img, bgr=True):
         return infer_medals(img, self.medal_classifier, self.scaler, bgr=bgr)
 
-    def read_scores(self, img, bgr=True):
-        return read_scores(img, self.ocr, self.scaler, bgr=bgr)
+    def read_scores(self, img, bgr=True, throw=True):
+        return read_scores(img, self.ocr, self.scaler, bgr=bgr, throw=throw)
     
     def input_relpath(self, path):
         return os.path.relpath(path, self.input_dir)
@@ -148,7 +148,7 @@ class Parser:
             battle_id, battle_id_img = self.read_battle_id(img, bgr=False)
             match_duration, match_duration_img = self.read_match_duration(img, bgr=False)
             team_kills, team_kills_img = self.read_team_kills(img, bgr=False, throw=throw)
-            scores, scores_img = self.read_scores(img, bgr=False)
+            scores, scores_img = self.read_scores(img, bgr=False, throw=throw)
         except Exception as ex:
             print("relpath", relpath)
             raise
