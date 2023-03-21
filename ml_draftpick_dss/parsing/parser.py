@@ -156,6 +156,8 @@ class Parser:
         obj = {
             "file": relpath,
             "player": player_name,
+            "ss_type": ss_type,
+            "opening_failure": opening_failure,
             "battle_id": battle_id,
             "match_result": match_result,
             "match_duration": match_duration,
@@ -171,6 +173,8 @@ class Parser:
         if return_img:
             obj = {
                 **obj,
+                "ss_type_img": ss_type_img,
+                "opening_failure_img": opening_failure,
                 "battle_id_img": battle_id_img,
                 "match_result_img": match_result_img,
                 "match_duration_img": match_duration_img,
