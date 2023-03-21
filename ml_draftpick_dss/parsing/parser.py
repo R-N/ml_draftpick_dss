@@ -3,7 +3,7 @@ from .preprocessing import sharpen, load_img, circle_mask, remove_artifact
 from .cropping import extract
 from .ocr import OCR, DEFAULT_SIMILARITY
 from .scaler import Scaler
-from .classifier import MatchResultClassifier, HeroIconClassifier, MedalClassifier
+from .classifier import MatchResultClassifier, HeroIconClassifier, MedalClassifier, ScreenshotClassifier
 from .grouping import infer_ss_type, read_opening_failure, check_opening_failure
 from .util import inference_save_path, read_save_path, save_inference, mkdir, exception_message
 
@@ -57,6 +57,7 @@ def read_scores(img, ocr, scaler, bgr=True):
 class Parser:
     def __init__(
             self, input_dir, 
+            ss_classifier,
             match_result_classifier, 
             hero_icon_classifier, 
             medal_classifier, 
@@ -64,9 +65,11 @@ class Parser:
             inference_save_dir="inferences"
         ):
         self.input_dir = input_dir
+        assert isinstance(ss_classifier, ScreenshotClassifier)
         assert isinstance(match_result_classifier, MatchResultClassifier)
         assert isinstance(hero_icon_classifier, HeroIconClassifier)
         assert isinstance(medal_classifier, MedalClassifier)
+        self.ss_classifier = ss_classifier
         self.match_result_classifier = match_result_classifier
         self.hero_icon_classifier = hero_icon_classifier
         self.medal_classifier = medal_classifier
