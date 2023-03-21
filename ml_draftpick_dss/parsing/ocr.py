@@ -36,14 +36,9 @@ class OCR:
         num = num.strip(".").replace("!", "").replace("/", "").replace("%", "")
         return num
     
-    def read_int(self, img, throw=True):
+    def read_int(self, img):
         num = self.read_num(img)
-        try:
-            return int(num.replace(".", ""))
-        except ValueError as ex:
-            if throw:
-                raise
-            return None
+        return int(num.replace(".", ""))
 
     def read_score(self, img):
         score_text = self.read_num(img)
