@@ -174,7 +174,7 @@ class Parser:
             obj = {
                 **obj,
                 "ss_type_img": ss_type_img,
-                "opening_failure_img": opening_failure,
+                "opening_failure_img": opening_failure_img,
                 "battle_id_img": battle_id_img,
                 "match_result_img": match_result_img,
                 "match_duration_img": match_duration_img,
