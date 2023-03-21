@@ -67,18 +67,27 @@ class OCR:
                 raise Exception(f"INVALID_SS_SCORE: {ex}")
             return None
     
-    def read_battle_id(self, img):
+    def read_battle_id(self, img, throw=True):
         text = self.read(img)
-        num = int(text.split(" ")[-1].strip())
-        return num
+        try:
+            return int(text.split(" ")[-1].strip())
+        except ValueError as ex:
+            if throw:
+                raise Exception(f"INVALID_SS_BATTLE_ID: {ex}")
+            return None
     
     def read_match_duration(self, img):
         text = self.read(img)
         time = text.split(" ")[-1].strip()[:5].replace(".", ":")
         return time
     
-    def read_match_duration_mins(self, img):
+    def read_match_duration_mins(self, img, throw=True):
         time = self.read_match_duration(img)
-        mins, sec = [int(x) for x in time.split(":")]
-        total_mins = mins + sec/60
-        return total_mins
+        try:
+            mins, sec = [int(x) for x in time.split(":")]
+            total_mins = mins + sec/60
+            return total_mins
+        except ValueError as ex:
+            if throw:
+                raise Exception(f"INVALID_SS_DURATION: {ex}")
+            return None

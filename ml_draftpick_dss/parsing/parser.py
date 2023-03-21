@@ -7,10 +7,10 @@ from .classifier import MatchResultClassifier, HeroIconClassifier, MedalClassifi
 from .grouping import infer_ss_type, read_opening_failure, check_opening_failure
 from .util import inference_save_path, read_save_path, save_inference, mkdir, exception_message
 
-def read_battle_id(img, ocr, scaler, bgr=True):
+def read_battle_id(img, ocr, scaler, bgr=True, throw=True):
     img = load_img(img, bgr=bgr)
     battle_id_img = extract(img, "BATTLE_ID", scaler=scaler)
-    battle_id_int = ocr.read_battle_id(battle_id_img)
+    battle_id_int = ocr.read_battle_id(battle_id_img, throw=throw)
     return battle_id_int, battle_id_img
 
 def infer_match_result(img, classifier, scaler, bgr=True):
@@ -19,10 +19,10 @@ def infer_match_result(img, classifier, scaler, bgr=True):
     match_result_text = classifier.infer([match_result_img])[0]
     return match_result_text, match_result_img
 
-def read_match_duration(img, ocr, scaler, bgr=True):
+def read_match_duration(img, ocr, scaler, bgr=True, throw=True):
     img = load_img(img, bgr=bgr)
     match_duration_img = extract(img, "MATCH_DURATION", scaler=scaler)
-    match_duration_float = ocr.read_match_duration_mins(match_duration_img)
+    match_duration_float = ocr.read_match_duration_mins(match_duration_img, throw=throw)
     return match_duration_float, match_duration_img
 
 def read_team_kills(img, ocr, scaler, bgr=True, throw=True):
@@ -90,14 +90,14 @@ class Parser:
     def read_save_path(self, feature, read, relpath, index=0):
         return read_save_path(self.inference_save_dir, feature, read, relpath, index=index)
     
-    def read_battle_id(self, img, bgr=True):
-        return read_battle_id(img, self.ocr, self.scaler, bgr=bgr)
+    def read_battle_id(self, img, bgr=True, throw=True):
+        return read_battle_id(img, self.ocr, self.scaler, bgr=bgr, throw=throw)
 
     def infer_match_result(self, img, bgr=True):
         return infer_match_result(img, self.match_result_classifier, self.scaler, bgr=bgr)
 
-    def read_match_duration(self, img,bgr=True):
-        return read_match_duration(img, self.ocr, self.scaler, bgr=bgr)
+    def read_match_duration(self, img,bgr=True, throw=True):
+        return read_match_duration(img, self.ocr, self.scaler, bgr=bgr, throw=throw)
 
     def read_team_kills(self, img, bgr=True, throw=True):
         return read_team_kills(img, self.ocr, self.scaler, bgr=bgr, throw=throw)
@@ -145,8 +145,8 @@ class Parser:
         assert ((not throw) or (len(set(heroes[0] + heroes[1])) == 10)), f"DOUBLE: {ss_path}; {heroes}"
         
         try:
-            battle_id, battle_id_img = self.read_battle_id(img, bgr=False)
-            match_duration, match_duration_img = self.read_match_duration(img, bgr=False)
+            battle_id, battle_id_img = self.read_battle_id(img, bgr=False, throw=throw)
+            match_duration, match_duration_img = self.read_match_duration(img, bgr=False, throw=throw)
             team_kills, team_kills_img = self.read_team_kills(img, bgr=False, throw=throw)
             scores, scores_img = self.read_scores(img, bgr=False, throw=throw)
         except Exception as ex:
