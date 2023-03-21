@@ -27,7 +27,7 @@ def generate_mask(match_types, match_results, similarity=DEFAULT_SIMILARITY):
     return final_mask
 
 def filter_batch(ss_batch, mask):
-    return [ss_batch[i+1] for i in range(len(mask)) if mask[i]]
+    return [ss_batch[i+1] for i in range(len(ss_batch)-1) if mask[i]]
 
 def generate_cp(ss_batch, input_dir, output_dir, player_name):
     return _generate_mv(ss_batch, input_dir, output_dir, player_name, concat_input=True)
@@ -135,6 +135,7 @@ class Filterer:
         if exclude:
             players = [p for p in players if p not in exclude]
         for player in players:
+            print("Generating", player)
             yield self.generate_cp_player(player, split=split, throw=throw)
     
     def input_relpath(self, path):
