@@ -31,15 +31,15 @@ def read_team_kills(img, ocr, scaler, bgr=True, throw=True):
     team_kills_ints = [ocr.read_team_kills(i, throw=throw) for i in team_kills_imgs]
     return team_kills_ints, team_kills_imgs
 
-def hero_icon_postprocessing(x):
+def hero_icon_postprocessing(x, invert=False):
     x = circle_mask(x)
-    x = remove_artifact(x)
+    x = remove_artifact(x, invert=invert)
     return x
 
 def infer_heroes(img, classifier, scaler, bgr=True):
     img = load_img(img, bgr=bgr)
     hero_imgs = [extract(img, "HERO_LIST", scaler=scaler, split_list=True, crop_list=True, postprocessing=hero_icon_postprocessing, reverse_x=r) for r in (False, True)]
-    hero_classes = [classifier.infer(i) for i in hero_imgs]
+    hero_classes = [classifier.infer(hero_imgs[i], invert=i%2==1) for i in range(2)]
     return hero_classes, hero_imgs
 
 def infer_medals(img, classifier, scaler, bgr=True):
