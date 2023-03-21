@@ -222,7 +222,7 @@ class Grouper2(Grouper):
         history_indexes = [i for i, obj in enumerate(objs) if obj["ss_type"] == "History" and not obj["opening_failure"]]
         indexes_2 = history_indexes + [None]
         index_pairs = [(indexes_2[i], indexes_2[i+1]) for i in range(len(history_indexes))]
-        indexing = [(a, min(a+self.batch_size, b)) if b else (a, min(a+self.batch_size, len(objs))) for a, b in index_pairs]
+        indexing = [(a, min(a+self.batch_size, (b if b else len(objs)))) for a, b in index_pairs]
         obj_batches = [objs[a:b] for a, b in indexing]
         return obj_batches
 
