@@ -37,7 +37,7 @@ def hero_icon_postprocessing(x, invert=False):
     return x
 
 HERO_ICON_POSTPROCESSINGS = {
-    True: lambda x: hero_icon_postprocessing(x, invert=False),
+    True: lambda x: hero_icon_postprocessing(x, invert=True),
     False: lambda x: hero_icon_postprocessing(x, invert=False)
 }
 
