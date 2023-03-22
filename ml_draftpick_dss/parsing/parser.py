@@ -33,7 +33,7 @@ def read_team_kills(img, ocr, scaler, bgr=True, throw=True):
 
 def _hero_icon_postprocessing(x, invert=False, scaler=None):
     x = resize(x, tuple(reversed(HERO_ICON_IMG_SIZE)))
-    #x = circle_border(x)
+    x = circle_border(x)
     x = circle_mask(x)
     x = remove_artifact(x, invert=invert, scaler=scaler)
     return x
