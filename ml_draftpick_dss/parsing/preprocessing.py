@@ -7,14 +7,33 @@ BACKGROUNDS = [
     #(59, 124, 169),
     #(48, 67, 90)
 ]
+BORDERS = [
+    (84, 161, 187),
+    (32, 120, 156)
+]
+TRANSLATIONS = [
+    #(0, 0),
+    (0, 4),
+    (4, 0),
+    (0, -4),
+    (-4, 0),
+    (4, 4),
+    (4, -4),
+    (-4, 4),
+    (-4, -4)
+]
+
+def bgr2bgra(img):
+    return cv2.cvtColor(img, cv2.COLOR_BGR2BGRA)
 
 def circle_mask(img, color=BACKGROUNDS[0], alpha=False):
     img = img.copy()
-    radius = min(img.shape[:2]) // 2
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2BGRA)
+    center = min(img.shape[:2]) // 2 
+    radius = center
+    img = bgr2bgra(img)
 
     mask = np.zeros_like(img)
-    mask = cv2.circle(mask, (radius, radius), radius, (255,255,255,255), -1)
+    mask = cv2.circle(mask, (center, center), radius, (255,255,255,255), -1)
 
     #show_imgs([mask])
 
@@ -26,11 +45,26 @@ def circle_mask(img, color=BACKGROUNDS[0], alpha=False):
         img = rgba2rgb(img)
     return img
 
+def circle_border(img, color=BACKGROUNDS[0], thickness=4):
+    img = img.copy()
+    center = min(img.shape[:2]) // 2 
+    radius = center - (thickness//2)
+
+    img = cv2.circle(img, (center, center), radius, color, thickness)
+
+    return img
+
+def translate(img, delta, background=BACKGROUNDS[0]):
+    img = img.copy()
+    translation_matrix = np.float32([ [1,0, delta[0]], [0,1,delta[1]] ])
+    img = cv2.warp_affine(img, translation_matrix, borderMode=cv2.BORDER_CONSTANT, borderValue=background)
+    return img
+
 def invert_x(tup, w):
     return (w-tup[0], *tup[1:])
 
-CIRCLE_POS = (8, 18)
-CIRCLE_RADIUS = 16
+CIRCLE_POS = (8, 16)
+CIRCLE_RADIUS = 18
 RECT_START = (8, 80)
 RECT_END = (32, 100)
 

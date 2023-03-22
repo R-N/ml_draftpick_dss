@@ -1,5 +1,5 @@
 import os
-from .preprocessing import sharpen, load_img, circle_mask, remove_artifact, resize
+from .preprocessing import sharpen, load_img, circle_mask, remove_artifact, resize, circle_border
 from .cropping import extract
 from .ocr import OCR, DEFAULT_SIMILARITY
 from .scaler import Scaler
@@ -33,6 +33,7 @@ def read_team_kills(img, ocr, scaler, bgr=True, throw=True):
 
 def _hero_icon_postprocessing(x, invert=False, scaler=None):
     x = resize(x, tuple(reversed(HERO_ICON_IMG_SIZE)))
+    #x = circle_border(x)
     x = circle_mask(x)
     x = remove_artifact(x, invert=invert, scaler=scaler)
     return x
