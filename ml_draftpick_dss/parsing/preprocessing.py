@@ -29,7 +29,7 @@ def circle_mask(img, color=BACKGROUNDS[0], alpha=False):
 def invert_x(tup, w):
     return (w-tup[0], *tup[1:])
 
-CIRCLE_POS = (10, 18)
+CIRCLE_POS = (8, 18)
 CIRCLE_RADIUS = 16
 RECT_START = (8, 80)
 RECT_END = (32, 100)
