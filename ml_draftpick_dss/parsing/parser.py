@@ -1,9 +1,9 @@
 import os
-from .preprocessing import sharpen, load_img, circle_mask, remove_artifact
+from .preprocessing import sharpen, load_img, circle_mask, remove_artifact, resize
 from .cropping import extract
 from .ocr import OCR, DEFAULT_SIMILARITY
 from .scaler import Scaler
-from .classifier import MatchResultClassifier, HeroIconClassifier, MedalClassifier, ScreenshotClassifier
+from .classifier import MatchResultClassifier, HeroIconClassifier, MedalClassifier, ScreenshotClassifier, HERO_ICON_IMG_SIZE
 from .grouping import infer_ss_type, read_opening_failure, check_opening_failure
 from .util import inference_save_path, read_save_path, save_inference, mkdir, exception_message
 
@@ -32,6 +32,7 @@ def read_team_kills(img, ocr, scaler, bgr=True, throw=True):
     return team_kills_ints, team_kills_imgs
 
 def _hero_icon_postprocessing(x, invert=False, scaler=None):
+    x = resize(x, tuple(reversed(HERO_ICON_IMG_SIZE)))
     x = circle_mask(x)
     x = remove_artifact(x, invert=invert, scaler=scaler)
     return x
@@ -41,7 +42,7 @@ def hero_icon_postprocessing(invert=False, scaler=None):
 
 def infer_heroes(img, classifier, scaler, bgr=True):
     img = load_img(img, bgr=bgr)
-    hero_imgs = [extract(img, "HERO_LIST", scaler=scaler, split_list=True, crop_list=True, postprocessing=hero_icon_postprocessing(invert=r, scaler=scaler), reverse_x=r) for r in (False, True)]
+    hero_imgs = [extract(img, "HERO_LIST", scaler=scaler, split_list=True, crop_list=True, postprocessing=hero_icon_postprocessing(invert=r, scaler=None), reverse_x=r) for r in (False, True)]
     hero_classes = [classifier.infer(hero_imgs[i]) for i in range(2)]
     return hero_classes, hero_imgs
 

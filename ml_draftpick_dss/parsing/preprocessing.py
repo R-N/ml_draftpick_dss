@@ -82,13 +82,16 @@ def upscale(img):
 def denoise(img):
     return cv2.fastNlMeansDenoisingColored(img,None,10,10,7,21)
 
+def resize(img, resize):
+    return cv2.resize(img, resize, interpolation=cv2.INTER_LANCZOS4)
+
 def load_img(img, bgr=True, resize=None, keep_aspect_ratio=True):
     if isinstance(img, str):
         img = cv2.imread(img)
     if resize:
         if keep_aspect_ratio:
             resize = (resize[0], int(img.shape[1] * resize[0] / img.shape[0]))
-        img = cv2.resize(img, tuple(reversed(resize)), interpolation=cv2.INTER_LANCZOS4)
+        img = resize(img, tuple(reversed(resize)))
     if bgr:
         img = bgr2rgb(img)
     return img
