@@ -65,7 +65,7 @@ def invert_x(tup, w):
 
 CIRCLE_POS = (8, 16)
 CIRCLE_RADIUS = 18
-RECT_START = (8, 80)
+RECT_START = (8, 76)
 RECT_END = (32, 100)
 
 def remove_artifact(
