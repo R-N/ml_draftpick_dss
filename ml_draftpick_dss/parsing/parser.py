@@ -31,19 +31,17 @@ def read_team_kills(img, ocr, scaler, bgr=True, throw=True):
     team_kills_ints = [ocr.read_team_kills(i, throw=throw) for i in team_kills_imgs]
     return team_kills_ints, team_kills_imgs
 
-def hero_icon_postprocessing(x, invert=False):
+def _hero_icon_postprocessing(x, invert=False, scaler=None):
     x = circle_mask(x)
-    x = remove_artifact(x, invert=invert)
+    x = remove_artifact(x, invert=invert, scaler=scaler)
     return x
 
-HERO_ICON_POSTPROCESSINGS = {
-    True: lambda x: hero_icon_postprocessing(x, invert=True),
-    False: lambda x: hero_icon_postprocessing(x, invert=False)
-}
+def hero_icon_postprocessing(invert=False, scaler=None):
+    return lambda x: _hero_icon_postprocessing(x, invert=invert, scaler=scaler)
 
 def infer_heroes(img, classifier, scaler, bgr=True):
     img = load_img(img, bgr=bgr)
-    hero_imgs = [extract(img, "HERO_LIST", scaler=scaler, split_list=True, crop_list=True, postprocessing=HERO_ICON_POSTPROCESSINGS[r], reverse_x=r) for r in (False, True)]
+    hero_imgs = [extract(img, "HERO_LIST", scaler=scaler, split_list=True, crop_list=True, postprocessing=hero_icon_postprocessing(invert=r, scaler=scaler), reverse_x=r) for r in (False, True)]
     hero_classes = [classifier.infer(hero_imgs[i]) for i in range(2)]
     return hero_classes, hero_imgs
 

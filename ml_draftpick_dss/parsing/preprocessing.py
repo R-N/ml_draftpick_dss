@@ -35,13 +35,19 @@ RECT_START = (8, 82)
 RECT_END = (32, 100)
 
 def remove_artifact(
-    img, invert=False, 
+    img, invert=False, scaler=None, 
     circle_pos=CIRCLE_POS, circle_radius=CIRCLE_RADIUS, 
     rect_start=RECT_START, rect_end=RECT_END,
     color=BACKGROUNDS[0], alpha=False
 ):
     img = img.copy()
     w = img.shape[1]
+    if scaler:
+        circle_pos = scaler.scale_point(circle_pos)
+        circle_radius = scaler.scale_single(circle_radius)
+        rect_start = scaler.scale_point(rect_start)
+        rect_end = scaler.scale_point(rect_end)
+    
     if invert:
         circle_pos = invert_x(circle_pos, w)
     img = cv2.circle(img, circle_pos, circle_radius, (*color, 255), -1)

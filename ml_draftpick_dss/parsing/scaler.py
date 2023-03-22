@@ -22,3 +22,12 @@ class Scaler:
         else:
             ret = tuple(int(value[i] * self.nonwide_ratio) for i in range(len(value)))
         return ret
+    
+    def scale_point(self, point, offset=0):
+        return (
+            int(self.nonwide_ratio * point[0] + self.extra_side + offset), 
+            int(self.nonwide_ratio * point[1])
+        )
+    
+    def scale_single(self, value):
+        return int(self.nonwide_ratio * value)
