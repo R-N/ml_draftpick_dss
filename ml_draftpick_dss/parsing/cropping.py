@@ -39,8 +39,8 @@ HERO_LIST = (
 )
 
 HERO_LIST_CROP = (
-    (14, 25),
-    (34, 36)
+    (16, 26),
+    (34, 38)
 )
 
 BATTLE_ID = (
