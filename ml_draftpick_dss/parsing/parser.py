@@ -203,7 +203,7 @@ class Parser:
     def _infer_player_split(self, player_name, return_img=False):
         input_dir_player = self.input_dir_player(player_name)
         files = os.listdir(input_dir_player)
-        valid_objs, history_files, invalid_files, afk_files, double_files = [], [], [], []
+        valid_objs, history_files, invalid_files, afk_files, double_files, bad_files = [], [], [], [], []
         for file in files:
             path = os.path.join(input_dir_player, file)
             relpath = self.input_relpath(path)
@@ -215,7 +215,7 @@ class Parser:
                 if message.startswith("HISTORY") or message.startswith("OPENING_FAILURE"):
                     print(message)
                     history_files.append(relpath)
-                if message.startswith("INVALID"):
+                elif message.startswith("INVALID"):
                     print(message)
                     invalid_files.append(relpath)
                 elif message.startswith("AFK"):
@@ -226,7 +226,13 @@ class Parser:
                     double_files.append(relpath)
                 else:
                     raise
-        return valid_objs, history_files, invalid_files, afk_files, double_files
+            except Exception as ex:
+                message = exception_message(ex)
+                if message.startswith("BAD_SS"):
+                    print(message)
+                    bad_files.append(relpath)
+
+        return valid_objs, history_files, invalid_files, afk_files, double_files, bad_files
     
     def infer_player(self, player_name, split=True, throw=False, return_img=False):
         if split:

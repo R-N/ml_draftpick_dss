@@ -82,7 +82,7 @@ def read_player_name(img, ocr, scaler, bgr=True, throw=True):
         name_text = ocr.read_history_player_name(name_img)
     except Exception as ex:
         message = exception_message(ex)
-        if "INVALID_SS_HISTORY" not in message or throw:
+        if "BAD_SS_HISTORY" not in message or throw:
             raise
         name_text = None
     return name_text, name_img

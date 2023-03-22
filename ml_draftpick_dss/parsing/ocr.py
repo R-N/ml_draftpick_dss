@@ -26,9 +26,9 @@ class OCR:
             name_text = self.read(img)
             name_text = name_text.replace("`", "'").replace('"', "'").rsplit("'", maxsplit=1)
             if (not len(name_text) == 2):
-                raise Exception("INVALID_SS_HISTORY")
+                raise Exception("BAD_SS_HISTORY")
             if self.similarity(name_text[-1].rsplit(" ", 2)[-1], "history") < 0.8:
-                raise Exception("INVALID_SS_HISTORY")
+                raise Exception("BAD_SS_HISTORY")
             name_text = name_text[0]
             return name_text
         except Exception as ex:
@@ -50,7 +50,7 @@ class OCR:
             return self.read_int(img)
         except ValueError as ex:
             if throw:
-                raise Exception(f"INVALID_SS_KILL: {ex}")
+                raise Exception(f"BAD_SS_KILL: {ex}")
             return None
 
     def read_score(self, img, throw=True):
@@ -64,7 +64,7 @@ class OCR:
             return score_f
         except ValueError as ex:
             if throw:
-                raise Exception(f"INVALID_SS_SCORE: {ex}")
+                raise Exception(f"BAD_SS_SCORE: {ex}")
             return None
     
     def read_battle_id(self, img, throw=True):
@@ -73,7 +73,7 @@ class OCR:
             return int(text.split(" ")[-1].strip())
         except ValueError as ex:
             if throw:
-                raise Exception(f"INVALID_SS_BATTLE_ID: {ex}")
+                raise Exception(f"BAD_SS_BATTLE_ID: {ex}")
             return None
     
     def read_match_duration(self, img):
@@ -89,5 +89,5 @@ class OCR:
             return total_mins
         except ValueError as ex:
             if throw:
-                raise Exception(f"INVALID_SS_DURATION: {ex}")
+                raise Exception(f"BAD_SS_DURATION: {ex}")
             return None
