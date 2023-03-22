@@ -158,7 +158,7 @@ class Parser:
             print("relpath", relpath)
             raise
 
-        assert ((not throw) or (0 == len([1 for i in range(2) for s in scores[i] if s >= 15.0]))), f"OVERSCORE: {ss_path}; {scores}"
+        assert ((not throw) or (0 == len([1 for i in range(2) for s in scores[i] if s >= 17.0]))), f"OVERSCORE: {ss_path}; {scores}"
 
         assert ((not throw) or (0 == len([1 for i in range(2) for s in scores[i] if s < 3.0]))), f"UNDERSCORE: {ss_path}; {scores}"
 
