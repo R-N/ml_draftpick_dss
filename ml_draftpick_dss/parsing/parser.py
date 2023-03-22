@@ -160,7 +160,7 @@ class Parser:
         assert ((not throw) or (0 == len([1 for i in range(2) for s in scores[i] if s >= 15.0]))), f"OVERSCORE: {ss_path}; {scores}"
 
         medal_score = [list(zip(medals[i], scores[i])) for i in range(2)]
-        assert ((not throw) or (0 == len([1 for i in range(2) for m, s in medal_score[i] if m in {"Silver", "Bronze"} and s >= 10.0]))), f"MEDAL_MISMATCH: {ss_path}; {medal_score}"
+        assert ((not throw) or (0 == len([1 for i in range(2) for m, s in medal_score[i] if m in {"Silver", "Bronze", "AFK"} and s >= 10.0]))), f"MEDAL_MISMATCH: {ss_path}; {medal_score}"
 
         obj = {
             "file": relpath,
