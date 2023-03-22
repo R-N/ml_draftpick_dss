@@ -259,7 +259,7 @@ class MatchResultListClassifier(BaseClassifier):
             **kwargs
         )
         
-MATCH_RESULT_LABELS = ["Victory", "Defeat", "Invalid"]
+MATCH_RESULT_LABELS = ["Victory", "Defeat", "Invalid", "Bad"]
 MATCH_RESULT_IMG_SIZE = (96, 224)
 
 class MatchResultClassifier(BaseClassifier):
@@ -271,7 +271,7 @@ class MatchResultClassifier(BaseClassifier):
             **kwargs
         )
 
-MEDAL_LABELS = ["MVP Win", "MVP Lose", "Gold", "Silver", "Bronze", "AFK"]
+MEDAL_LABELS = ["MVP Win", "MVP Lose", "Gold", "Silver", "Bronze", "AFK", "Bad"]
 MEDAL_IMG_SIZE = (160, 224)
 
 class MedalClassifier(BaseClassifier):
@@ -295,7 +295,7 @@ class ScreenshotClassifier(BaseClassifier):
             **kwargs
         )
 
-HERO_ICON_LABELS = HERO_LIST
+HERO_ICON_LABELS = HERO_LIST + ["Bad"]
 HERO_ICON_IMG_SIZE = (96, 96)
 
 class HeroIconClassifier(BaseClassifier):
