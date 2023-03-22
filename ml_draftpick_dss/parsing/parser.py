@@ -158,6 +158,11 @@ class Parser:
             print("relpath", relpath)
             raise
 
+        assert ((not throw) or (0 == len([1 for i in range(2) for s in scores[i] if s >= 15.0]))), f"OVERSCORE: {ss_path}; {scores}"
+
+        medal_score = [list(zip(medals[i], scores[i])) for i in range(2)]
+        assert ((not throw) or (0 == len([1 for i in range(2) for m, s in medal_score[i] if m in {"Silver", "Bronze"} and s >= 10.0]))), f"MEDAL_MISMATCH: {ss_path}; {medal_score}"
+
         obj = {
             "file": relpath,
             "player": player_name,
@@ -203,7 +208,7 @@ class Parser:
     def _infer_player_split(self, player_name, return_img=False):
         input_dir_player = self.input_dir_player(player_name)
         files = os.listdir(input_dir_player)
-        valid_objs, history_files, invalid_files, afk_files, double_files, bad_files = [], [], [], [], []
+        valid_objs, history_files, invalid_files, afk_files, double_files, bad_files, overscore_files, medal_mismatch_files = [], [], [], [], [], [], []
         for file in files:
             path = os.path.join(input_dir_player, file)
             relpath = self.input_relpath(path)
@@ -224,6 +229,12 @@ class Parser:
                 elif message.startswith("DOUBLE"):
                     print(message)
                     double_files.append(relpath)
+                elif message.startswith("OVERSCORE"):
+                    print(message)
+                    overscore_files.append(relpath)
+                elif message.startswith("MEDAL_MISMATCH"):
+                    print(message)
+                    medal_mismatch_files.append(relpath)
                 else:
                     raise
             except Exception as ex:

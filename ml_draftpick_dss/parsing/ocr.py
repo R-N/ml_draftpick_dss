@@ -60,7 +60,7 @@ class OCR:
             replace = -2 if replace else -1
             score_text = score_text if "." in score_text else (score_text[:replace] + "." + score_text[-1:])
             score_f = float(score_text)
-            score_f = score_f if score_f < 70 else (score_f - 60)
+            #score_f = score_f if score_f < 70 else (score_f - 60)
             return score_f
         except ValueError as ex:
             if throw:
