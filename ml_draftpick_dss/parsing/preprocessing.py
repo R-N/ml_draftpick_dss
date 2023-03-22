@@ -45,7 +45,7 @@ def circle_mask(img, color=BACKGROUNDS[0], alpha=False):
         img = rgba2rgb(img)
     return img
 
-def circle_border(img, color=BORDERS[0], thickness=4):
+def circle_border(img, color=BORDERS[0], thickness=3):
     img = img.copy()
     center = min(img.shape[:2]) // 2 
     radius = center - (thickness//2)
