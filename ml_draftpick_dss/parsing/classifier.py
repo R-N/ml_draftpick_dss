@@ -8,7 +8,7 @@ from .augmentation import prepare_data
 import tensorflow_addons as tfa
 import json
 from ..constants import HERO_LIST
-from .preprocessing import rgba2rgb, TRANSLATIONS
+from .preprocessing import rgba2rgb, TRANSLATIONS, BORDERS
 
 METRICS = ["loss", "accuracy", "f1_score", "auc"]
 
@@ -89,16 +89,22 @@ class BaseClassifier:
         self.best_metrics["epoch"] = 0
         
 
-    def load_data(self, train_dir, val_dir=None, augment_val=True, flip=False, artifact=False, circle=False,  circle_border=False, translate=False, train_batch_size=32, val_batch_size=None, translations=TRANSLATIONS):
+    def load_data(self, train_dir, val_dir=None, augment_val=True, flip=False, artifact=False, circle=False,  circle_border=False, translate=False, train_batch_size=32, val_batch_size=None, translations=TRANSLATIONS, borders=BORDERS):
         val_dir = val_dir or train_dir
         val_batch_size = val_batch_size or train_batch_size
 
-        data_train = get_data(train_dir, self.img_size, self.labels, flip=flip, artifact=artifact, circle=circle, batch_size=train_batch_size)
-        data_val = get_data(val_dir, self.img_size, self.labels, flip=flip, artifact=artifact, circle=circle, circle_border=circle_border, translate=translate, batch_size=val_batch_size)
+        self.data_train = get_data(train_dir, self.img_size, self.labels, flip=flip, artifact=artifact, circle=circle, batch_size=train_batch_size, translations=translations, borders=borders)
+        if train_dir == val_dir and train_batch_size == val_batch_size:
+            self.data_val = self.data_train
+        else:
+            self.data_val = get_data(val_dir, self.img_size, self.labels, flip=flip, artifact=artifact, circle=circle, circle_border=circle_border, translate=translate, batch_size=val_batch_size, translations=translations, borders=borders)
         
-        self.data_train = prepare_data(data_train, self.img_size, self.label_count, batch_size=train_batch_size)
+        self.data_train = prepare_data(self.data_train, self.img_size, self.label_count, batch_size=train_batch_size)
         if augment_val:
-            self.data_val = prepare_data(data_val, self.img_size, self.label_count, batch_size=val_batch_size)
+            if train_dir == val_dir and train_batch_size == val_batch_size:
+                self.data_val = self.data_train
+            else:
+                self.data_val = prepare_data(self.data_val, self.img_size, self.label_count, batch_size=val_batch_size)
         else:
             raise Exception("Not implemented")
         
