@@ -220,8 +220,8 @@ class BaseClassifier:
             if "loss" in m:
                 cur_val, best_val = -cur_val, -best_val
             if cur_val > best_val:
-                self.best_metrics[m] = cur_metrics[m]
                 new_best_metrics.append((m, self.best_metrics[m], cur_metrics[m]))
+                self.best_metrics[m] = cur_metrics[m]
 
         self.save_best_metrics("metrics.json")
 
