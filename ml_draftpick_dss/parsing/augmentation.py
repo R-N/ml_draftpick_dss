@@ -75,7 +75,7 @@ def separate_data(data):
     ys = [y for x, y in data]
     return xs, ys
 
-def apply_aug(ds, img_size, label_count, shuffle_buffer=None, batch_size=128):
+def apply_aug(ds, img_size, label_count, shuffle_buffer=None, batch_size=32):
     shuffle_buffer = shuffle_buffer or len(ds)
     batch_size = batch_size or len(ds)
     ds = ds.map(partial(process_data, img_size=img_size), num_parallel_calls=AUTOTUNE).prefetch(AUTOTUNE)
@@ -84,7 +84,7 @@ def apply_aug(ds, img_size, label_count, shuffle_buffer=None, batch_size=128):
     ds = ds.batch(batch_size).prefetch(AUTOTUNE)
     return ds
 
-def prepare_data(data, img_size, label_count, shuffle_buffer=None, batch_size=128):
+def prepare_data(data, img_size, label_count, shuffle_buffer=None, batch_size=32):
     shuffle_buffer = shuffle_buffer or len(data)
     batch_size = batch_size or len(data)
     xs, ys = separate_data(data)

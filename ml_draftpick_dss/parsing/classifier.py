@@ -89,7 +89,7 @@ class BaseClassifier:
         self.best_metrics["epoch"] = 0
         
 
-    def load_data(self, train_dir, val_dir=None, augment_val=True, flip=False, artifact=False, circle=False, train_batch_size=128, val_batch_size=None):
+    def load_data(self, train_dir, val_dir=None, augment_val=True, flip=False, artifact=False, circle=False, train_batch_size=32, val_batch_size=None):
         val_dir = val_dir or train_dir
         val_batch_size = val_batch_size or train_batch_size
 
