@@ -8,7 +8,7 @@ from .augmentation import prepare_data
 import tensorflow_addons as tfa
 import json
 from ..constants import HERO_LIST
-from .preprocessing import rgba2rgb
+from .preprocessing import rgba2rgb, TRANSLATIONS
 
 METRICS = ["loss", "accuracy", "f1_score", "auc"]
 
@@ -89,7 +89,7 @@ class BaseClassifier:
         self.best_metrics["epoch"] = 0
         
 
-    def load_data(self, train_dir, val_dir=None, augment_val=True, flip=False, artifact=False, circle=False,  circle_border=False, translate=False, train_batch_size=32, val_batch_size=None):
+    def load_data(self, train_dir, val_dir=None, augment_val=True, flip=False, artifact=False, circle=False,  circle_border=False, translate=False, train_batch_size=32, val_batch_size=None, translations=TRANSLATIONS):
         val_dir = val_dir or train_dir
         val_batch_size = val_batch_size or train_batch_size
 
