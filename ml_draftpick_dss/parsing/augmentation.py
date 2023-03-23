@@ -92,8 +92,8 @@ def prepare_data(data, img_size, label_count, shuffle_buffer=None, batch_size=32
     ds = apply_aug(ds, img_size, label_count, batch_size=batch_size)
     return ds
 
-def sample_augmented(data, n=1, i=0):
-    batch = list(data.take(n))[i]
+def sample_augmented(data, i=0):
+    batch = list(data.take(i+1))[i]
     augmented = batch[0]
     return augmented
 

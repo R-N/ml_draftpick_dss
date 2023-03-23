@@ -24,21 +24,28 @@ def get_data(data_dir, img_size, labels, label_map=None, flip=False, artifact=Fa
 
                 if circle_border:
                     imgs = imgs + [_circle_border(img, color=border) for border in borders for img in imgs]
-                if translate:
-                    imgs = imgs + [_translate(img, delta, background=bg) for bg in backgrounds for delta in translations for img in imgs]
-                if circle:
-                    imgs = [circle_mask(img, color=bg) for bg in backgrounds for img in imgs]
                 if flip:
-                    imgs = imgs + [cv2.flip(img, 1) for img in imgs]
+                    imgs_i = imgs_i + [cv2.flip(img, 1) for img in imgs_i]
 
-                if artifact:
-                    imgs = [(
-                        img,
-                        remove_artifact(img, color=bg),
-                        remove_artifact(img, invert=True, color=bg),
-                        remove_artifact(remove_artifact(img, color=bg), invert=True, color=bg)
-                    ) for bg in backgrounds for img in imgs]
-                    imgs = [j for i in imgs for j in i]
+                if translate or circle or artifact:
+                    imgs_0 = list(imgs)
+                    imgs_n = list(imgs)
+                    for bg in backgrounds:
+                        imgs_i = imgs_0
+                        if translate:
+                            imgs_i = imgs_i + [_translate(img, delta, background=bg) for delta in translations for img in imgs_i]
+                        if circle:
+                            imgs_i = [circle_mask(img, color=bg) for img in imgs_i]
+                        if artifact:
+                            imgs_i = [(
+                                img,
+                                remove_artifact(img, color=bg),
+                                remove_artifact(img, invert=True, color=bg),
+                                remove_artifact(remove_artifact(img, color=bg), invert=True, color=bg)
+                            ) for img in imgs_i]
+                            imgs_i = [j for i in imgs_i for j in i]
+                        imgs_n.extend(imgs_i)
+                    imgs = imgs_n
 
                 channels = imgs[0].shape[-1]
                 if channels == 4:
