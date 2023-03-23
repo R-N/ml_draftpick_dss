@@ -57,7 +57,7 @@ def circle_border(img, color=BORDERS[0], thickness=2):
 def translate(img, delta, background=BACKGROUNDS[0]):
     img = img.copy()
     translation_matrix = np.float32([ [1,0, delta[0]], [0,1,delta[1]] ])
-    img = cv2.warp_affine(img, translation_matrix, borderMode=cv2.BORDER_CONSTANT, borderValue=background)
+    img = cv2.warpAffine(img, translation_matrix, borderMode=cv2.BORDER_CONSTANT, borderValue=background)
     return img
 
 def invert_x(tup, w):
