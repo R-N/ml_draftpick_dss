@@ -25,7 +25,7 @@ def get_data(data_dir, img_size, labels, label_map=None, flip=False, artifact=Fa
                 if circle_border:
                     imgs = imgs + [_circle_border(img, color=border) for border in borders for img in imgs]
                 if flip:
-                    imgs_i = imgs_i + [cv2.flip(img, 1) for img in imgs_i]
+                    imgs = imgs + [cv2.flip(img, 1) for img in imgs]
 
                 if translate or circle or artifact:
                     imgs_0 = list(imgs)
