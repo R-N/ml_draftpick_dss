@@ -93,7 +93,7 @@ class BaseClassifier:
         val_dir = val_dir or train_dir
         val_batch_size = val_batch_size or train_batch_size
 
-        self.data_train = get_data(train_dir, self.img_size, self.labels, flip=flip, artifact=artifact, circle=circle, batch_size=train_batch_size, translations=translations, borders=borders)
+        self.data_train = get_data(train_dir, self.img_size, self.labels, flip=flip, artifact=artifact, circle=circle, circle_border=circle_border, translate=translate, batch_size=train_batch_size, translations=translations, borders=borders)
         if train_dir == val_dir and train_batch_size == val_batch_size:
             self.data_val = self.data_train
         else:
