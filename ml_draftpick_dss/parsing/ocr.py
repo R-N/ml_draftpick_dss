@@ -76,6 +76,10 @@ class OCR:
             if throw:
                 raise AssertionError(f"BAD_SS_SCORE: {ex}")
             return None
+        except AssertionError as ex:
+            if throw:
+                raise AssertionError(f"BAD_SS_SCORE: {ex}")
+            return None
     
     def read_battle_id(self, img, throw=True):
         text = self.read(img)
