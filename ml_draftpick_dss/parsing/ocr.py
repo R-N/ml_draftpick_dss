@@ -67,8 +67,8 @@ class OCR:
                 score_f -= 40
             if score_i in {40, 41, 42}:
                 score_f -= 30
-            if score_i in {17, 18, 19}:
-                score_f -= 10
+            #if score_i in {17, 18, 19}:
+            #    score_f -= 10
             score_f = round(score_f, 1)
             assert (3.0 <= score_f and score_f < 17.0), f"OUTLIER_SCORE: {score_text}, {score_f}"
             return score_f
