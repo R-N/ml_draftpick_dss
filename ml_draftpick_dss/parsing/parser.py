@@ -166,9 +166,11 @@ class Parser:
             match_duration, match_duration_img = self.read_match_duration(img, bgr=False, throw=throw)
             team_kills, team_kills_img = self.read_team_kills(img, bgr=False, throw=throw)
             scores, scores_img = self.read_scores(img, bgr=False, throw=throw)
-        except Exception as ex:
-            print("relpath", relpath)
-            raise
+        except AssertionError as ex:
+            message = exception_message(ex)
+            err_type, err_detail = message.split(":", maxsplit=1)
+            new_message = f"{err_type}: {relpath}; {err_detail.strip()}"
+            raise AssertionError(new_message)
 
         assert ((not throw) or (0 == len([1 for i in range(2) for s in scores[i] if s >= 17.0]))), f"OVERSCORE: {ss_path}; {scores}"
 
