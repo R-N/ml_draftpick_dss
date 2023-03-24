@@ -60,8 +60,18 @@ class OCR:
             replace = -2 if replace else -1
             score_text = score_text if "." in score_text else (score_text[:replace] + "." + score_text[-1:])
             score_f = float(score_text)
-            score_f = score_f if score_f < 70 else (score_f - 60)
-            return round(score_f, 1)
+            score_i = int(score_f // 1)
+            if score_i in {77, 79}:
+                score_f -= 70
+            if score_i in {46}:
+                score_f -= 40
+            if score_i in {40, 41, 42}:
+                score_f -= 30
+            if score_i in {17, 18, 19}:
+                score_f -= 10
+            score_f = round(score_f, 1)
+            assert (3.0 <= score_f and score_f < 17.0), f"OUTLIER_SCORE: {score_text}, {score_f}"
+            return score_f
         except ValueError as ex:
             if throw:
                 raise AssertionError(f"BAD_SS_SCORE: {ex}")
