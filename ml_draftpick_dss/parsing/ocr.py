@@ -38,7 +38,8 @@ class OCR:
     
     def read_num(self, img):
         num = self.read(img)
-        num = num.replace("!", ".").replace("/", ".").strip(".")
+        print(num)
+        num = num.replace("!", ".").replace("/", ".").replace("%", "").strip(".")
         return num
     
     def read_int(self, img):
