@@ -38,7 +38,7 @@ class OCR:
     
     def read_num(self, img):
         num = self.read(img)
-        num = num.replace("!", ".").replace("/", ".").replace("%", "").strip(".")
+        num = num.replace("!", ".").replace("/", ".").strip(".")
         return num
     
     def read_int(self, img):
@@ -55,6 +55,8 @@ class OCR:
 
     def read_score(self, img, throw=True):
         score_text = self.read_num(img)
+        if score_text == "4v":
+            return 4.1
         try:
             assert score_text.count(".") <= 1, "MULTIPLE_DOTS: {score_text}"
             replace = float(score_text) >= 100
