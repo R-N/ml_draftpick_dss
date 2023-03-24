@@ -16,6 +16,7 @@ BAD_FILE_EXCEPTIONS = [
     "OVERSCORE",
     "UNDERSCORE",
     "MEDAL_MISMATCH",
+    "MEDAL_ORDER_MISMATCH",
     "BAD_SS",
 ]
 
@@ -178,6 +179,10 @@ class Parser:
 
         medal_score = [list(zip(medals[i], scores[i])) for i in range(2)]
         assert ((not throw) or (0 == len([1 for i in range(2) for m, s in medal_score[i] if m in {"Silver", "Bronze", "AFK"} and s >= 10.0]))), f"MEDAL_MISMATCH: {ss_path}; {medal_score}"
+
+        medal_score_medal = [sorted(medal_score[i], key=lambda x: x[0], reverse=False) for i in range(2)]
+        medal_score_score = [sorted(medal_score[i], key=lambda x: x[1], reverse=True) for i in range(2)]
+        assert medal_score_medal == medal_score_score, f"MEDAL_ORDER_MISMATCH: {ss_path}; {medal_score_medal}; {medal_score_score}"
 
         obj = {
             "file": relpath,

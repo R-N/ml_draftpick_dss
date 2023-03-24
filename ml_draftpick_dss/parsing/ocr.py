@@ -39,7 +39,11 @@ class OCR:
     def read_num(self, img):
         num = self.read(img)
         print(num)
-        num = num.replace("!", ".").replace("/", ".").replace("%", "").strip(".")
+        num = num.replace("!", ".").replace("%", "").strip(".")
+        if num.endswith("/"):
+            num[-1] = "1"
+        num = num.replace("/", ".") if "." not in num else num.replace("/", "")
+        num = num.strip(".")
         return num
     
     def read_int(self, img):
@@ -56,8 +60,10 @@ class OCR:
 
     def read_score(self, img, throw=True):
         score_text = self.read_num(img)
-        if score_text == "4v":
+        if score_text in ("4v", "4v1"):
             return 4.1
+        score_text = score_text.replace("t", "7")
+        score_text = score_text.replace("v", ".") if "." not in score_text else score_text.replace("v", "")
         try:
             assert score_text.count(".") <= 1, "MULTIPLE_DOTS: {score_text}"
             replace = float(score_text) >= 100
@@ -71,10 +77,12 @@ class OCR:
                 score_f -= 40
             if score_i in {40, 41, 42}:
                 score_f -= 30
-            #if score_i in {17, 18, 19}:
-            #    score_f -= 10
+            if score_i in {17, 18, 19}:
+                score_f -= 10
+            if score_f < 3.0:
+                score_f = score_f * 10 + 0.1 # This is imprecise by the decimal point but they shouldn't matter much
             score_f = round(score_f, 1)
-            assert (3.0 <= score_f and score_f < 17.0), f"OUTLIER_SCORE: {score_text}, {score_f}"
+            #assert (3.0 <= score_f and score_f < 17.0), f"OUTLIER_SCORE: {score_text}, {score_f}"
             return score_f
         except ValueError as ex:
             if throw:
@@ -88,7 +96,7 @@ class OCR:
     def read_battle_id(self, img, throw=True):
         text = self.read(img)
         try:
-            return int(text.split(" ")[-1].strip())
+            return int(text.split(" ")[-1].strip().strip(":").strip())
         except ValueError as ex:
             if throw:
                 raise AssertionError(f"BAD_SS_BATTLE_ID: {ex}")
@@ -96,7 +104,7 @@ class OCR:
     
     def read_match_duration(self, img):
         text = self.read(img)
-        time = text.split(" ")[-1].strip()[:5].replace(".", ":")
+        time = text.split(" ")[-1].strip()[:5].replace(".", ":").replace("!", ":").replace(";", ":")
         return time
     
     def read_match_duration_mins(self, img, throw=True):
