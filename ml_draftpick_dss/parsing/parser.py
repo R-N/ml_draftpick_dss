@@ -237,7 +237,7 @@ class Parser:
                 for x in BAD_FILE_EXCEPTIONS:
                     if message.startswith(x):
                         print(message)
-                        bad_files[x].append(relpath)
+                        bad_files[x].append(message)
                         handled = True
                 if not handled:
                     raise
