@@ -60,7 +60,7 @@ class OCR:
 
     def read_score(self, img, throw=True):
         score_text = self.read_num(img)
-        if score_text in ("4v", "4v1"):
+        if score_text in {"4v", "4v1"}:
             return 4.1
         score_text = score_text.replace("t", "7")
         score_text = score_text.replace("v", ".") if "." not in score_text else score_text.replace("v", "")
