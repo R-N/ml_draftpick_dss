@@ -11,12 +11,12 @@ BAD_FILE_EXCEPTIONS = [
     "HISTORY",
     "OPENING_FAILURE",
     "INVALID",
-    "AFK"
+    "AFK",
     "DOUBLE",
     "OVERSCORE",
     "UNDERSCORE",
     "MEDAL_MISMATCH",
-    "BAD_SS"
+    "BAD_SS",
 ]
 
 def read_battle_id(img, ocr, scaler, bgr=True, throw=True):
