@@ -61,7 +61,7 @@ class OCR:
             score_text = score_text if "." in score_text else (score_text[:replace] + "." + score_text[-1:])
             score_f = float(score_text)
             score_f = score_f if score_f < 70 else (score_f - 60)
-            return score_f
+            return round(score_f, 1)
         except ValueError as ex:
             if throw:
                 raise AssertionError(f"BAD_SS_SCORE: {ex}")
