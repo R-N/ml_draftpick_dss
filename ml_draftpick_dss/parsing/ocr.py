@@ -41,7 +41,7 @@ class OCR:
         print(num)
         num = num.replace("!", ".").replace("%", "").strip(".")
         if num.endswith("/"):
-            num[-1] = "1"
+            num = num[:-1] + "1"
         num = num.replace("/", ".") if "." not in num else num.replace("/", "")
         num = num.strip(".")
         return num
