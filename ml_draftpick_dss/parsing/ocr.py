@@ -56,6 +56,7 @@ class OCR:
     def read_score(self, img, throw=True):
         score_text = self.read_num(img)
         try:
+            assert score_text.count(".") <= 1, "MULTIPLE_DOTS: {score_text}"
             replace = float(score_text) >= 100
             replace = -2 if replace else -1
             score_text = score_text if "." in score_text else (score_text[:replace] + "." + score_text[-1:])
