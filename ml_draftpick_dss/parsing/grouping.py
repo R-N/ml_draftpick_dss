@@ -80,7 +80,7 @@ def read_player_name(img, ocr, scaler, bgr=True, throw=True):
     name_img = extract(img, "HISTORY_PLAYER_NAME", scaler=scaler)
     try:
         name_text = ocr.read_history_player_name(name_img)
-    except Exception as ex:
+    except AssertionError as ex:
         message = exception_message(ex)
         if "BAD_SS_HISTORY" not in message or throw:
             raise

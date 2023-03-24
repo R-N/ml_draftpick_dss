@@ -7,6 +7,18 @@ from .classifier import MatchResultClassifier, HeroIconClassifier, MedalClassifi
 from .grouping import infer_ss_type, read_opening_failure, check_opening_failure
 from .util import inference_save_path, read_save_path, save_inference, mkdir, exception_message
 
+BAD_FILE_EXCEPTIONS = [
+    "HISTORY",
+    "OPENING_FAILURE",
+    "INVALID",
+    "AFK"
+    "DOUBLE",
+    "OVERSCORE",
+    "UNDERSCORE",
+    "MEDAL_MISMATCH",
+    "BAD_SS"
+]
+
 def read_battle_id(img, ocr, scaler, bgr=True, throw=True):
     img = load_img(img, bgr=bgr)
     battle_id_img = extract(img, "BATTLE_ID", scaler=scaler)
@@ -207,10 +219,12 @@ class Parser:
         objs = [self.infer(os.path.join(input_dir_player, file), player_name, throw=throw, return_img=return_img) for file in files]
         return objs
     
+
     def _infer_player_split(self, player_name, return_img=False):
         input_dir_player = self.input_dir_player(player_name)
         files = os.listdir(input_dir_player)
-        valid_objs, history_files, invalid_files, afk_files, double_files, bad_files, overscore_files, underscore_files, medal_mismatch_files = [], [], [], [], [], [], [], []
+        bad_files = {x: [] for x in BAD_FILE_EXCEPTIONS}
+        valid_objs = []
         for file in files:
             path = os.path.join(input_dir_player, file)
             relpath = self.input_relpath(path)
@@ -219,36 +233,16 @@ class Parser:
                 valid_objs.append(obj)
             except AssertionError as ex:
                 message = exception_message(ex)
-                if message.startswith("HISTORY") or message.startswith("OPENING_FAILURE"):
-                    print(message)
-                    history_files.append(relpath)
-                elif message.startswith("INVALID"):
-                    print(message)
-                    invalid_files.append(relpath)
-                elif message.startswith("AFK"):
-                    print(message)
-                    afk_files.append(relpath)
-                elif message.startswith("DOUBLE"):
-                    print(message)
-                    double_files.append(relpath)
-                elif message.startswith("OVERSCORE"):
-                    print(message)
-                    overscore_files.append(relpath)
-                elif message.startswith("UNDERSCORE"):
-                    print(message)
-                    underscore_files.append(relpath)
-                elif message.startswith("MEDAL_MISMATCH"):
-                    print(message)
-                    medal_mismatch_files.append(relpath)
-                else:
+                handled = False
+                for x in BAD_FILE_EXCEPTIONS:
+                    if message.startswith(x):
+                        print(message)
+                        bad_files[x].append(relpath)
+                        handled = True
+                if not handled:
                     raise
-            except Exception as ex:
-                message = exception_message(ex)
-                if message.startswith("BAD_SS"):
-                    print(message)
-                    bad_files.append(relpath)
 
-        return valid_objs, history_files, invalid_files, afk_files, double_files, bad_files, overscore_files, underscore_files, medal_mismatch_files
+        return valid_objs, bad_files
     
     def infer_player(self, player_name, split=True, throw=False, return_img=False):
         if split:
