@@ -106,7 +106,7 @@ class BaseClassifier:
             if train_dir == val_dir:
                 self.data_val = self.data_train
             else:
-                self.data_val = create_dataset(self.data_val))
+                self.data_val = create_dataset(self.data_val)
                 self.data_val = augment_dataset(self.data_val, self.img_size, self.label_count)
         else:
             self.data_val = create_dataset(self.data_val, cast_dtype=tf.float32)
