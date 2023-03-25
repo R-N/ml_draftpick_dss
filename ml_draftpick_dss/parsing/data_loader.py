@@ -1,22 +1,26 @@
 
 import os
 import cv2
+import random
 from .util import create_label_map
 from .preprocessing import bgr2rgb, remove_artifact, circle_mask, BACKGROUNDS, rgba2rgb, circle_border as _circle_border, BORDERS, translate as _translate, TRANSLATIONS
 
 
-def get_data(data_dir, img_size, labels, label_map=None, flip=False, artifact=False, circle=False, circle_border=False, translate=False, batch_size=128, backgrounds=BACKGROUNDS, borders=BORDERS, translations=TRANSLATIONS):
+def get_data(data_dir, img_size, labels, label_map=None, flip=False, artifact=False, circle=False, circle_border=False, translate=False, batch_size=128, backgrounds=BACKGROUNDS, borders=BORDERS, translations=TRANSLATIONS, max_per_class=32):
     data = []
     label_map = label_map or create_label_map(labels)
     for label in labels: 
         path = os.path.join(data_dir, label)
-        for img in os.listdir(path):
+        files = os.listdir(path)
+        files = [os.path.join(path, f) for f in files if (not f.endswith(".db"))]
+        files = [f for f in files if os.path.isfile(img)]
+        truths = [f for f in files if "ground_truth" in f]
+        files = [f for f in files if f not in truths]
+        files = random.sample(files, min(len(files), max_per_class - len(truths)))
+        files = files + truths
+        assert len(files) <= max_per_class
+        for img in files:
             try:
-                if img.endswith(".db"):
-                    continue
-                img = os.path.join(path, img)
-                if not os.path.isfile(img):
-                    continue
                 img = bgr2rgb(cv2.imread(img)) #convert BGR to RGB format
                 img = cv2.resize(img, img_size) # Reshaping images to preferred size
 
