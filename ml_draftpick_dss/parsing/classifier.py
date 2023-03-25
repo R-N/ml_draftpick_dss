@@ -269,7 +269,7 @@ class BaseClassifier:
     def label(self, logits):
         return self.labels[np.argmax(logits)]
     
-    def check_wrongs(self, ds=None, ):
+    def check_wrongs(self, ds=None):
         ds = ds or self.data_val
         wrongs_all = []
         for xs, ys in ds:
