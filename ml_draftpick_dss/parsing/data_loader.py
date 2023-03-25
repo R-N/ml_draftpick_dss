@@ -21,6 +21,7 @@ def get_data(data_dir, img_size, labels, label_map=None, flip=False, artifact=Fa
         assert len(files) <= max_per_class
         for img in files:
             try:
+                img_0 = img
                 img = load_img(img) #convert BGR to RGB format
                 img = cv2.resize(img, img_size) # Reshaping images to preferred size
 
@@ -58,7 +59,9 @@ def get_data(data_dir, img_size, labels, label_map=None, flip=False, artifact=Fa
                 #imgs = [tf.image.convert_image_dtype(img, tf.float32) for img in imgs]
                 for img in imgs:
                     data.append([img, label_map[label]])
-
+            except TypeError as e:
+                print(img_0)
+                raise
             except Exception as e:
                 raise
                 print(e)
