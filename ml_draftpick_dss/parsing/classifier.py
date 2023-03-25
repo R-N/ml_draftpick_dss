@@ -99,11 +99,8 @@ class BaseClassifier:
         if train_dir == val_dir and train_batch_size == val_batch_size:
             self.data_val = self.data_train
         else:
-            print("D")
             self.data_val = get_data(val_dir, self.img_size, self.labels, flip=flip and augment_val, artifact=artifact and augment_val, circle=circle and augment_val, circle_border=circle_border and augment_val, translate=translate and augment_val, batch_size=val_batch_size, translations=translations, borders=borders, max_per_class=max_per_class)
-            print("E")
             self.data_val = create_dataset(self.data_val)
-            print("F")
 
         self.data_train = augment_dataset(self.data_train, self.img_size, self.label_count)
         if augment_val:
