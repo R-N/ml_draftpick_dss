@@ -105,12 +105,12 @@ class BaseClassifier:
             self.data_val = create_dataset(self.data_val)
             print("F")
 
-        self.data_train = augment_dataset(self.data_train, self.img_size, self.label_count, batch_size=train_batch_size)
+        self.data_train = augment_dataset(self.data_train, self.img_size, self.label_count)
         if augment_val:
             if train_dir == val_dir and train_batch_size == val_batch_size:
                 self.data_val = self.data_train
             else:
-                self.data_val = augment_dataset(self.data_val, self.img_size, self.label_count, batch_size=val_batch_size)
+                self.data_val = augment_dataset(self.data_val, self.img_size, self.label_count)
 
         self.data_train = self.data_train.batch(train_batch_size).prefetch(AUTOTUNE)
         self.data_val = self.data_val.batch(val_batch_size).prefetch(AUTOTUNE)
