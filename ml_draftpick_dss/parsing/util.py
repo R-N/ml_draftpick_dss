@@ -35,9 +35,13 @@ def create_label_map(labels):
     label_count = len(labels)
     return dict(zip(labels, [np.array([1 if i==j else 0 for j in range(label_count)]) for i in range(label_count)]))
 
+def index_every_n(len, n):
+    for i in range(len//n + (1 if len % n > 0 else 0)):
+        yield i*n, (i+1) * n
+
 def loop_every_n(arr, n):
-    for i in range(len(arr)//n):
-        yield arr[i*n:n+i*n]
+    for start, end in index_every_n(len(arr), n):
+        yield arr[start:end]
 
 def split_extension(path):
     return path.rsplit(".", maxsplit=1)

@@ -4,7 +4,7 @@ import numpy as np
 
 from .data_loader import get_data
 from .util import create_label_map
-from .augmentation import create_dataset, augment_dataset
+from .augmentation import create_dataset, augment_dataset, cast
 import tensorflow_addons as tfa
 import json
 from ..constants import HERO_LIST
@@ -101,17 +101,15 @@ class BaseClassifier:
             self.data_val = get_data(val_dir, self.img_size, self.labels, flip=flip and augment_val, artifact=artifact and augment_val, circle=circle and augment_val, circle_border=circle_border and augment_val, translate=translate and augment_val, batch_size=val_batch_size, translations=translations, borders=borders, max_per_class=max_per_class)
 
         self.data_train = create_dataset(self.data_train)
-        if train_dir == val_dir :
-            self.data_val = self.data_train
-        else:
-            self.data_val = create_dataset(self.data_val)
-
         self.data_train = augment_dataset(self.data_train, self.img_size, self.label_count)
         if augment_val:
             if train_dir == val_dir:
                 self.data_val = self.data_train
             else:
+                self.data_val = create_dataset(self.data_val)
                 self.data_val = augment_dataset(self.data_val, self.img_size, self.label_count)
+        else:
+            self.data_val = create_dataset(cast(self.data_val))
 
 
         if train_dir != val_dir and add_val_to_train:
@@ -270,6 +268,16 @@ class BaseClassifier:
     
     def label(self, logits):
         return self.labels[np.argmax(logits)]
+    
+    def check_wrongs(self, ds=None, ):
+        ds = ds or self.data_val
+        wrongs_all = []
+        for xs, ys in ds:
+            preds = self.infer(xs)
+            truths = [self.label(y) for y in ys]
+            wrongs = [(xs[i], preds[i], truths[i]) for i in range(len(truths)) if preds[i] != truths[i]]
+            wrongs_all.extend(wrongs)
+        return wrongs_all
 
 MATCH_RESULT_LIST_LABELS = ["Victory", "Defeat", "Invalid", "AFK", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "Bad"]
 MATCH_RESULT_LIST_IMG_SIZE = (96, 224)

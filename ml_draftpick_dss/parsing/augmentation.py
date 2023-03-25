@@ -85,9 +85,11 @@ def apply_aug(ds, img_size, label_count, shuffle_buffer=None):
 
 def create_dataset(data):
     xs, ys = separate_data(data)
-    xs = [tf.cast(img, tf.float32) for img in xs]
     ds = tf.data.Dataset.from_tensor_slices((xs, ys))
     return ds
+
+def cast(xs, dtype=tf.float32):
+    return [tf.cast(img, dtype) for img in xs]
 
 def augment_dataset(ds, img_size, label_count, shuffle_buffer=None):
     ds_len = ds.cardinality().numpy()
