@@ -100,9 +100,6 @@ class BaseClassifier:
         else:
             self.data_val = get_data(val_dir, self.img_size, self.labels, flip=flip and augment_val, artifact=artifact and augment_val, circle=circle and augment_val, circle_border=circle_border and augment_val, translate=translate and augment_val, batch_size=val_batch_size, translations=translations, borders=borders, max_per_class=max_per_class)
 
-        if train_dir != val_dir and add_val_to_train:
-            self.data_train = self.data_train + self.data_val
-
         self.data_train = create_dataset(self.data_train)
         if train_dir == val_dir :
             self.data_val = self.data_train
@@ -115,6 +112,10 @@ class BaseClassifier:
                 self.data_val = self.data_train
             else:
                 self.data_val = augment_dataset(self.data_val, self.img_size, self.label_count)
+
+
+        if train_dir != val_dir and add_val_to_train:
+            self.data_train = self.data_train.concatenate(self.data_val)
 
         self._data_train = self.data_train
         self._data_val = self.data_val
