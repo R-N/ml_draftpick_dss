@@ -90,25 +90,34 @@ class BaseClassifier:
         self.best_metrics["epoch"] = 0
         
 
-    def load_data(self, train_dir, val_dir=None, augment_val=True, flip=False, artifact=False, circle=False,  circle_border=False, translate=False, train_batch_size=32, val_batch_size=None, translations=TRANSLATIONS, borders=BORDERS, max_per_class=32):
+    def load_data(self, train_dir, val_dir=None, augment_val=True, flip=False, artifact=False, circle=False,  circle_border=False, translate=False, train_batch_size=32, val_batch_size=None, translations=TRANSLATIONS, borders=BORDERS, max_per_class=32, add_val_to_train=False):
         val_dir = val_dir or train_dir
         val_batch_size = val_batch_size or train_batch_size
 
         self.data_train = get_data(train_dir, self.img_size, self.labels, flip=flip, artifact=artifact, circle=circle, circle_border=circle_border, translate=translate, batch_size=train_batch_size, translations=translations, borders=borders, max_per_class=max_per_class)
-        self.data_train = create_dataset(self.data_train)
-        if train_dir == val_dir and train_batch_size == val_batch_size:
+        if train_dir == val_dir:
             self.data_val = self.data_train
         else:
             self.data_val = get_data(val_dir, self.img_size, self.labels, flip=flip and augment_val, artifact=artifact and augment_val, circle=circle and augment_val, circle_border=circle_border and augment_val, translate=translate and augment_val, batch_size=val_batch_size, translations=translations, borders=borders, max_per_class=max_per_class)
+
+        if train_dir != val_dir and add_val_to_train:
+            self.data_train = self.data_train + self.data_val
+
+        self.data_train = create_dataset(self.data_train)
+        if train_dir == val_dir :
+            self.data_val = self.data_train
+        else:
             self.data_val = create_dataset(self.data_val)
 
         self.data_train = augment_dataset(self.data_train, self.img_size, self.label_count)
         if augment_val:
-            if train_dir == val_dir and train_batch_size == val_batch_size:
+            if train_dir == val_dir:
                 self.data_val = self.data_train
             else:
                 self.data_val = augment_dataset(self.data_val, self.img_size, self.label_count)
 
+        self._data_train = self.data_train
+        self._data_val = self.data_val
         self.data_train = self.data_train.batch(train_batch_size).prefetch(AUTOTUNE)
         self.data_val = self.data_val.batch(val_batch_size).prefetch(AUTOTUNE)
         
@@ -323,5 +332,5 @@ class HeroIconClassifier(BaseClassifier):
             **kwargs
         )
 
-    def load_data(self, *args, flip=True, artifact=True, circle=True, circle_border=True, translate=True, train_batch_size=None, **kwargs):
-        super().load_data(*args, flip=flip, artifact=artifact, circle=circle, circle_border=circle_border, translate=translate, train_batch_size=train_batch_size, **kwargs)
+    def load_data(self, *args, flip=True, artifact=True, circle=True, circle_border=True, translate=True, train_batch_size=None, add_val_to_train=True, **kwargs):
+        super().load_data(*args, flip=flip, artifact=artifact, circle=circle, circle_border=circle_border, translate=translate, train_batch_size=train_batch_size, add_val_to_train=add_val_to_train, **kwargs)
