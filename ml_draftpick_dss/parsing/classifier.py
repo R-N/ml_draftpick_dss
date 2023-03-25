@@ -256,7 +256,10 @@ class BaseClassifier:
 
     def infer(self, imgs):
         imgs = self.prepare_imgs(imgs)
-        return [self.labels[np.argmax(y)] for y in self.model(imgs)]
+        return [self.label(y) for y in self.model(imgs)]
+    
+    def label(self, logits):
+        return self.labels[np.argmax(logits)]
 
 MATCH_RESULT_LIST_LABELS = ["Victory", "Defeat", "Invalid", "AFK", "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "Bad"]
 MATCH_RESULT_LIST_IMG_SIZE = (96, 224)
