@@ -6,8 +6,11 @@ from .util import create_label_map
 from .preprocessing import bgr2rgb, remove_artifact, circle_mask, BACKGROUNDS, rgba2rgb, circle_border as _circle_border, BORDERS, translate as _translate, TRANSLATIONS, load_img
 
 
-def get_data(data_dir, img_size, labels, label_map=None, flip=False, artifact=False, circle=False, circle_border=False, translate=False, batch_size=128, backgrounds=BACKGROUNDS, borders=BORDERS, translations=TRANSLATIONS, max_per_class=32):
+def get_data(data_dir, img_size, labels, label_map=None, flip=False, artifact=False, circle=False, circle_border=False, translate=False, batch_size=128, backgrounds=BACKGROUNDS, borders=BORDERS, translations=TRANSLATIONS, max_per_class=32, whitelist={}):
     data = []
+    if whitelist:
+        labels = [label for label in labels if label in whitelist]
+        label_map = create_label_map(labels)
     label_map = label_map or create_label_map(labels)
     for label in labels: 
         path = os.path.join(data_dir, label)
