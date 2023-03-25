@@ -83,11 +83,14 @@ def apply_aug(ds, img_size, label_count, shuffle_buffer=None):
     ds = ds.shuffle(shuffle_buffer, reshuffle_each_iteration=False)
     return ds
 
-def create_dataset(data, cast_dtype=None):
+def create_dataset(data, cast_dtype=None, shuffle_buffer=None):
+    ds_len = len(data)
+    shuffle_buffer = shuffle_buffer or ds_len
     xs, ys = separate_data(data)
     if cast_dtype:
         xs = cast(xs, cast_dtype)
     ds = tf.data.Dataset.from_tensor_slices((xs, ys))
+    ds = ds.shuffle(ds_len)
     return ds
 
 def cast(xs, dtype=tf.float32):
