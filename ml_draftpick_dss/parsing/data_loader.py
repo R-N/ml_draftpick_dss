@@ -8,11 +8,10 @@ from .preprocessing import bgr2rgb, remove_artifact, circle_mask, BACKGROUNDS, r
 
 def get_data(data_dir, img_size, labels, label_map=None, flip=False, artifact=False, circle=False, circle_border=False, translate=False, batch_size=128, backgrounds=BACKGROUNDS, borders=BORDERS, translations=TRANSLATIONS, max_per_class=32, whitelist={}):
     data = []
+    label_map = label_map or create_label_map(labels)
     if whitelist:
         labels = [label for label in labels if label in whitelist]
         assert len(labels) == len(whitelist)
-        label_map = create_label_map(labels)
-    label_map = label_map or create_label_map(labels)
     for label in labels: 
         path = os.path.join(data_dir, label)
         files = os.listdir(path)
