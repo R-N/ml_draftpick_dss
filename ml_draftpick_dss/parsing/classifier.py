@@ -93,20 +93,30 @@ class BaseClassifier:
         val_dir = val_dir or train_dir
         val_batch_size = val_batch_size or train_batch_size
 
+        print("A")
         self.data_train = get_data(train_dir, self.img_size, self.labels, flip=flip, artifact=artifact, circle=circle, circle_border=circle_border, translate=translate, batch_size=train_batch_size, translations=translations, borders=borders, max_per_class=max_per_class)
+        print("B")
         self.data_train = create_dataset(self.data_train)
+        print("C")
         if train_dir == val_dir and train_batch_size == val_batch_size:
             self.data_val = self.data_train
         else:
+            print("D")
             self.data_val = get_data(val_dir, self.img_size, self.labels, flip=flip and augment_val, artifact=artifact and augment_val, circle=circle and augment_val, circle_border=circle_border and augment_val, translate=translate and augment_val, batch_size=val_batch_size, translations=translations, borders=borders, max_per_class=max_per_class)
+            print("E")
             self.data_val = create_dataset(self.data_val)
+            print("F")
 
+        print("G")
         self.data_train = augment_dataset(self.data_train, self.img_size, self.label_count, batch_size=train_batch_size)
+        print("H")
         if augment_val:
             if train_dir == val_dir and train_batch_size == val_batch_size:
                 self.data_val = self.data_train
             else:
+                print("I")
                 self.data_val = augment_dataset(self.data_val, self.img_size, self.label_count, batch_size=val_batch_size)
+                print("J")
         else:
             raise Exception("Not implemented")
         
