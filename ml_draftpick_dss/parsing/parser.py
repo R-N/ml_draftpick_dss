@@ -58,7 +58,7 @@ def infer_heroes(img, classifier, scaler, bgr=True):
     img = load_img(img, bgr=bgr)
     hero_imgs = [extract(img, "HERO_LIST", scaler=scaler, split_list=True, crop_list=True, postprocessing=hero_icon_postprocessing(invert=r, scaler=None), reverse_x=r) for r in (False, True)]
     hero_classes = [classifier.infer(hero_imgs[i]) for i in range(2)]
-    hero_classes = [("Lolita" if x == "Novaria" else x) for x in hero_classes]
+    #hero_classes = [("Lolita" if x == "Novaria" else x) for x in hero_classes]
     return hero_classes, hero_imgs
 
 def infer_medals(img, classifier, scaler, bgr=True):

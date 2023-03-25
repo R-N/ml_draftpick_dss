@@ -48,9 +48,9 @@ def create_head_model_v3(label_count):
         tf.keras.layers.MaxPooling2D(pool_size=(2, 2)),
         tf.keras.layers.Flatten(),
         tf.keras.layers.Dropout(0.2),
-        tf.keras.layers.Dense(512, activation="selu"),
+        tf.keras.layers.Dense(512, activation="relu"),
         tf.keras.layers.Dropout(0.2),
-        tf.keras.layers.Dense(128, activation="selu"),
+        tf.keras.layers.Dense(128, activation="relu"),
         tf.keras.layers.Dense(label_count, activation="softmax")      
     ], name="head")
 
@@ -305,7 +305,7 @@ HERO_ICON_LABELS = HERO_LIST + ["Bad"]
 HERO_ICON_IMG_SIZE = (96, 96)
 
 class HeroIconClassifier(BaseClassifier):
-    def __init__(self, *args, labels=HERO_ICON_LABELS, base_model_factory=create_base_model_v1, head_model_factory=create_head_model_v2, **kwargs):
+    def __init__(self, *args, labels=HERO_ICON_LABELS, base_model_factory=create_base_model_v1, head_model_factory=create_head_model_v3, **kwargs):
         super().__init__(
             labels, 
             HERO_ICON_IMG_SIZE, 
