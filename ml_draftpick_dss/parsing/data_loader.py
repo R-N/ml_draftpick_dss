@@ -12,7 +12,7 @@ def get_data(data_dir, img_size, labels, label_map=None, flip=False, artifact=Fa
     for label in labels: 
         path = os.path.join(data_dir, label)
         files = os.listdir(path)
-        files = [os.path.join(path, f) for f in files if (not f.endswith(".db"))]
+        files = [os.path.join(path, f) for f in files if not (f.endswith(".db") or f.endswith(".ini"))]
         files = [f for f in files if os.path.isfile(f)]
         truths = [f for f in files if "ground_truth" in f]
         files = [f for f in files if f not in truths]
