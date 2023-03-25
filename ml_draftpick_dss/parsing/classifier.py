@@ -4,7 +4,7 @@ import numpy as np
 
 from .data_loader import get_data
 from .util import create_label_map
-from .augmentation import prepare_data
+from .augmentation import create_dataset, augment_dataset
 import tensorflow_addons as tfa
 import json
 from ..constants import HERO_LIST
@@ -94,17 +94,19 @@ class BaseClassifier:
         val_batch_size = val_batch_size or train_batch_size
 
         self.data_train = get_data(train_dir, self.img_size, self.labels, flip=flip, artifact=artifact, circle=circle, circle_border=circle_border, translate=translate, batch_size=train_batch_size, translations=translations, borders=borders)
+        self.data_train = create_dataset(self.data_train)
         if train_dir == val_dir and train_batch_size == val_batch_size:
             self.data_val = self.data_train
         else:
             self.data_val = get_data(val_dir, self.img_size, self.labels, flip=flip, artifact=artifact, circle=circle, circle_border=circle_border, translate=translate, batch_size=val_batch_size, translations=translations, borders=borders)
-        
-        self.data_train = prepare_data(self.data_train, self.img_size, self.label_count, batch_size=train_batch_size)
+            self.data_val = create_dataset(self.data_val)
+
+        self.data_train = augment_dataset(self.data_train, self.img_size, self.label_count, batch_size=train_batch_size)
         if augment_val:
             if train_dir == val_dir and train_batch_size == val_batch_size:
                 self.data_val = self.data_train
             else:
-                self.data_val = prepare_data(self.data_val, self.img_size, self.label_count, batch_size=val_batch_size)
+                self.data_val = augment_dataset(self.data_val, self.img_size, self.label_count, batch_size=val_batch_size)
         else:
             raise Exception("Not implemented")
         

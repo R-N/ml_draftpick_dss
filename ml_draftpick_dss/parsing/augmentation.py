@@ -84,11 +84,14 @@ def apply_aug(ds, img_size, label_count, shuffle_buffer=None, batch_size=32):
     ds = ds.batch(batch_size).prefetch(AUTOTUNE)
     return ds
 
-def prepare_data(data, img_size, label_count, shuffle_buffer=None, batch_size=32):
-    shuffle_buffer = shuffle_buffer or len(data)
-    batch_size = batch_size or len(data)
+def create_dataset(data):
     xs, ys = separate_data(data)
     ds = tf.data.Dataset.from_tensor_slices((xs, ys))
+    return ds
+
+def augment_dataset(ds, img_size, label_count, shuffle_buffer=None, batch_size=32):
+    shuffle_buffer = shuffle_buffer or len(data)
+    batch_size = batch_size or len(data)
     ds = apply_aug(ds, img_size, label_count, batch_size=batch_size)
     return ds
 
