@@ -117,8 +117,6 @@ class BaseClassifier:
                 print("I")
                 self.data_val = augment_dataset(self.data_val, self.img_size, self.label_count, batch_size=val_batch_size)
                 print("J")
-        else:
-            raise Exception("Not implemented")
         
     @property
     def input_shape(self):
