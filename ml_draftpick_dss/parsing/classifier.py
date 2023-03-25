@@ -4,7 +4,7 @@ import numpy as np
 
 from .data_loader import get_data
 from .util import create_label_map
-from .augmentation import create_dataset, augment_dataset, cast
+from .augmentation import create_dataset, augment_dataset, cast, postprocess_augmented
 import tensorflow_addons as tfa
 import json
 from ..constants import HERO_LIST
@@ -275,7 +275,7 @@ class BaseClassifier:
         for xs, ys in ds:
             preds = self.infer(xs)
             truths = [self.label(y) for y in ys]
-            wrongs = [(xs[i], preds[i], truths[i]) for i in range(len(truths)) if preds[i] != truths[i]]
+            wrongs = [(postprocess_augmented(xs[i]), preds[i], truths[i]) for i in range(len(truths)) if preds[i] != truths[i]]
             wrongs_all.extend(wrongs)
         return wrongs_all
 
