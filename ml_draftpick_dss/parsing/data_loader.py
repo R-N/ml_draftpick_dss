@@ -60,6 +60,7 @@ def get_data(data_dir, img_size, labels, label_map=None, flip=False, artifact=Fa
                     data.append([img, label_map[label]])
 
             except Exception as e:
+                raise
                 print(e)
 
     batch_size = batch_size or len(data)
