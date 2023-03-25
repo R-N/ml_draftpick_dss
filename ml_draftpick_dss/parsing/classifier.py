@@ -9,6 +9,7 @@ import tensorflow_addons as tfa
 import json
 from ..constants import HERO_LIST
 from .preprocessing import rgba2rgb, TRANSLATIONS, BORDERS
+AUTOTUNE = tf.data.experimental.AUTOTUNE
 
 METRICS = ["loss", "accuracy", "f1_score", "auc"]
 
@@ -110,6 +111,9 @@ class BaseClassifier:
                 self.data_val = self.data_train
             else:
                 self.data_val = augment_dataset(self.data_val, self.img_size, self.label_count, batch_size=val_batch_size)
+
+        self.data_train = self.data_train.batch(train_batch_size).prefetch(AUTOTUNE)
+        self.data_val = self.data_val.batch(val_batch_size).prefetch(AUTOTUNE)
         
     @property
     def input_shape(self):

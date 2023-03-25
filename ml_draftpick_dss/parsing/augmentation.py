@@ -75,13 +75,12 @@ def separate_data(data):
     ys = [y for x, y in data]
     return xs, ys
 
-def apply_aug(ds, img_size, label_count, shuffle_buffer=None, batch_size=32):
-    shuffle_buffer = shuffle_buffer or len(ds)
-    batch_size = batch_size or len(ds)
+def apply_aug(ds, img_size, label_count, shuffle_buffer=None):
+    ds_len = ds.cardinality().numpy()
+    shuffle_buffer = shuffle_buffer or ds_len
     ds = ds.map(partial(process_data, img_size=img_size), num_parallel_calls=AUTOTUNE).prefetch(AUTOTUNE)
     ds = ds.map(partial(set_shapes, img_size=img_size, label_count=label_count), num_parallel_calls=AUTOTUNE)
     ds = ds.shuffle(shuffle_buffer, reshuffle_each_iteration=False)
-    ds = ds.batch(batch_size).prefetch(AUTOTUNE)
     return ds
 
 def create_dataset(data):
@@ -89,11 +88,11 @@ def create_dataset(data):
     ds = tf.data.Dataset.from_tensor_slices((xs, ys))
     return ds
 
-def augment_dataset(ds, img_size, label_count, shuffle_buffer=None, batch_size=32):
+def augment_dataset(ds, img_size, label_count, shuffle_buffer=None):
     ds_len = ds.cardinality().numpy()
     shuffle_buffer = shuffle_buffer or ds_len
     batch_size = batch_size or ds_len
-    ds = apply_aug(ds, img_size, label_count, batch_size=batch_size)
+    ds = apply_aug(ds, img_size, label_count)
     return ds
 
 def sample_augmented(data, i=0):
