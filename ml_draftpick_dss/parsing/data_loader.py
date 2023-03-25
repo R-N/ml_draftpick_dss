@@ -3,7 +3,7 @@ import os
 import cv2
 import random
 from .util import create_label_map
-from .preprocessing import bgr2rgb, remove_artifact, circle_mask, BACKGROUNDS, rgba2rgb, circle_border as _circle_border, BORDERS, translate as _translate, TRANSLATIONS
+from .preprocessing import bgr2rgb, remove_artifact, circle_mask, BACKGROUNDS, rgba2rgb, circle_border as _circle_border, BORDERS, translate as _translate, TRANSLATIONS, load_img
 
 
 def get_data(data_dir, img_size, labels, label_map=None, flip=False, artifact=False, circle=False, circle_border=False, translate=False, batch_size=128, backgrounds=BACKGROUNDS, borders=BORDERS, translations=TRANSLATIONS, max_per_class=32):
@@ -21,7 +21,7 @@ def get_data(data_dir, img_size, labels, label_map=None, flip=False, artifact=Fa
         assert len(files) <= max_per_class
         for img in files:
             try:
-                img = bgr2rgb(cv2.imread(img)) #convert BGR to RGB format
+                img = load_img(img) #convert BGR to RGB format
                 img = cv2.resize(img, img_size) # Reshaping images to preferred size
 
                 imgs = [img]

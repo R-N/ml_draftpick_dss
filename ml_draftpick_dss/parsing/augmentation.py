@@ -90,8 +90,9 @@ def create_dataset(data):
     return ds
 
 def augment_dataset(ds, img_size, label_count, shuffle_buffer=None, batch_size=32):
-    shuffle_buffer = shuffle_buffer or len(data)
-    batch_size = batch_size or len(data)
+    ds_len = ds.cardinality().numpy()
+    shuffle_buffer = shuffle_buffer or ds_len
+    batch_size = batch_size or ds_len
     ds = apply_aug(ds, img_size, label_count, batch_size=batch_size)
     return ds
 
