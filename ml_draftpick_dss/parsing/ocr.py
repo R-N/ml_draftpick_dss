@@ -104,7 +104,11 @@ class OCR:
     
     def read_match_duration(self, img):
         text = self.read(img)
-        time = text.split(" ")[-1].strip()[:5].replace(".", ":").replace("!", ":").replace(";", ":")
+        try:
+            text = text.rsplit(" ", maxsplit=1)[-1]
+        except ValueError as ex:
+            pass
+        time = text.strip()[:5].replace(".", ":").replace("!", ":").replace(";", ":")
         return time
     
     def read_match_duration_mins(self, img, throw=True):
