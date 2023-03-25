@@ -156,7 +156,7 @@ class BaseClassifier:
             "optimizer": self.optim
         } if self.optim else {}
         self.checkpoint = tf.train.Checkpoint(model=self.head_model, **kwargs)
-        self.checkpoint_managers = {m: tf.train.CheckpointManager(self.checkpoint, f"{self.checkpoint_dir}/{m}", max_to_keep=1) for m in self.metrics}
+        self.checkpoint_managers = {m: tf.train.CheckpointManager(self.checkpoint, f"{self.checkpoint_dir}/{m}", max_to_keep=1) for m in [*self.metrics, "latest"]}
 
     def prepare_logging(self):
         self.file_writers = {
@@ -237,6 +237,7 @@ class BaseClassifier:
 
         for m, old, new in new_best_metrics:
             self.save_checkpoint(m)
+        self.save_checkpoint("latest")
 
         self.best_metrics["epoch"] += 1
 
