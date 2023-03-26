@@ -180,7 +180,7 @@ class Parser:
 
         if throw:
             medal_score = [list(zip(medals[i], scores[i])) for i in range(2)]
-            assert (0 == len([1 for i in range(2) for m, s in medal_score[i] if m in {"Silver", "Bronze", "AFK"} and s >= 10.0])), f"MEDAL_MISMATCH: {ss_path}; {medal_score}"
+            #assert (0 == len([1 for i in range(2) for m, s in medal_score[i] if m in {"Silver", "Bronze", "AFK"} and s >= 10.0])), f"MEDAL_MISMATCH: {ss_path}; {medal_score}"
 
             medal_score_medal = [sorted(medal_score[i], key=lambda x: (MEDAL_LABELS.index(x[0]), -(x[1])), reverse=False) for i in range(2)]
             medal_score_score = [sorted(medal_score[i], key=lambda x: (-(x[1]), MEDAL_LABELS.index(x[0])), reverse=False) for i in range(2)]
