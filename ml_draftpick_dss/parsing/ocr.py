@@ -107,13 +107,16 @@ class OCR:
             text = text.rsplit(" ", maxsplit=1)[-1]
         except ValueError as ex:
             pass
-        time = text.strip()[:5].replace(".", ":").replace("!", ":").replace(";", ":")
+        time = text.strip()[:5].replace(".", ":").replace("!", ":").replace(";", ":").strip()
         return time
     
     def read_match_duration_mins(self, img, throw=True):
         time = self.read_match_duration(img)
         try:
-            mins, sec = [int(x) for x in time.split(":")]
+            if ":" in time:
+                mins, sec = [int(x.strip()) for x in time.split(":")]
+            elif len(time) == 4 and time.isnumeric():
+                mins, sec = int(time[:2]), int(time[2:])
             total_mins = mins + sec/60
             return total_mins
         except ValueError as ex:
