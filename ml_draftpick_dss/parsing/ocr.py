@@ -118,5 +118,5 @@ class OCR:
             return total_mins
         except ValueError as ex:
             if throw:
-                raise AssertionError(f"BAD_SS_DURATION: {ex}")
+                raise AssertionError(f"BAD_SS_DURATION: {time}; {ex}")
             return None
