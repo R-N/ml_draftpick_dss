@@ -119,6 +119,8 @@ class OCR:
                 mins, sec = [int(x.strip()) for x in time.split(":")]
             elif len(time) == 4 and time.isnumeric():
                 mins, sec = int(time[:2]), int(time[2:])
+            else:
+                raise ValueError("INVALID_TIME")
             total_mins = mins + sec/60
             return total_mins
         except ValueError as ex:
