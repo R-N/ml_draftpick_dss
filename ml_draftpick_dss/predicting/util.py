@@ -1,3 +1,5 @@
+import pandas as pd
+
 def join_tag(df, col, include_na=True):
     if col is None:
         return df
