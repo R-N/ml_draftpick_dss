@@ -22,6 +22,7 @@ setup(
         'opencv-python',
         'scikit-image',
         'albumentations>=1.3.0',
+        'plotly'
     ],
 
     classifiers=[
