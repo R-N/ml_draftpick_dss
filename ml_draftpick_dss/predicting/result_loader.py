@@ -88,6 +88,6 @@ def load_results(result_path):
     return df
 def load_victory(results_path):
     df = load_results(results_path)
-    double_df = merge_results(df, flip_results(df))
+    double_df = merge_results([df, flip_results(df)])
     victory_df = filter_victory(double_df)
     return victory_df
