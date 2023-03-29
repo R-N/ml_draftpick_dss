@@ -7,6 +7,7 @@ from sklearn import preprocessing
 import pandas as pd
 
 HERO_COLS=["id", "lane", "roles", "specialities"]
+TARGET_COLS=["left_victory", "scores_sum_diff_norm", "match_duration_norm"]
 
 class SymmetricScaler:
     def __init__(self):
@@ -116,3 +117,6 @@ class HeroEmbedder:
 def calc_objective(target):
     target["objective"] = target["left_victory"] + (target["scores_sum_diff_norm"] / (2 + target["match_duration_norm"]))
     return target["objective"]
+
+def extract_target(df):
+    return torch.Tensor(df[TARGET_COLS].to_numpy())
