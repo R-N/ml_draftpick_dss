@@ -128,10 +128,10 @@ class ResultPredictorModel(nn.Module):
         #output = torch.cat(output, dim=-1)
         return output
     
-    def summary(self, batch_size=32, team_size=5):
+    def summary(self, batch_size=32, team_size=5, dim=6):
         return summary(
             self, 
-            [(batch_size, team_size, self.d_model) for i in range(2)], 
+            [(batch_size, team_size, dim) for i in range(2)], 
             dtypes=[torch.int, torch.int]
         )
 
