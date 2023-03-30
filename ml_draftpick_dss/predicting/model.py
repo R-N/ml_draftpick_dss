@@ -103,7 +103,7 @@ class ResultPredictorModel(nn.Module):
 
         final_dim = d_model
         final_dim = (2 if bidirectional else 1) * final_dim
-        final_dim = (1 if self.pooling else 5) * final_dim
+        final_dim = (1 if pooling else 5) * final_dim
         if d_final == 0:
             self.decoder = nn.Identity()
         elif d_final == 1:
