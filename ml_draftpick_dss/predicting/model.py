@@ -133,7 +133,7 @@ class ResultPredictorModel(nn.Module):
             )
         self.victory_decoder = nn.Sequential(*[
             nn.Linear(final_dim, 1, bias=False),
-            nn.Sigmoid()
+            nn.Tanh()
         ])
         self.score_decoder = nn.Sequential(*[
             nn.Linear(final_dim, 1, bias=False),
@@ -265,7 +265,7 @@ class ResultPredictor:
             victory_pred, score_pred, duration_pred = self.model(left, right)
             #victory_pred, norms_pred = preds[..., :1], preds[..., 1:]
             
-            victory_loss = self.victory_crit(victory_pred, victory_true)
+            victory_loss = self.norm_crit(victory_pred, victory_true)
             score_loss = self.norm_crit(score_pred, score_true)
             duration_loss = self.norm_crit(duration_pred, duration_true)
             loss = victory_loss + score_loss + duration_loss

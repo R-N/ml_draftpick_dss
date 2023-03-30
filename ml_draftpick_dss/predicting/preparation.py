@@ -47,7 +47,7 @@ def get_unique(mixed):
 def get_basic_c(c):
     return c.split("_", maxsplit=1)[0]
 
-class HeroEncoder:
+class HeroLabelEncoder:
     def __init__(self, df_heroes):
         mixeds = {x: get_mixed(df_heroes, x) for x in MULTIPLE_ATTRS}
         uniques = {x: get_unique(m) for x, m in mixeds.items()}
