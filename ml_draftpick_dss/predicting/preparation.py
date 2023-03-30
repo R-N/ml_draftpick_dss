@@ -113,7 +113,7 @@ class HeroEmbedder:
         self.embeddings = embeddings
         self.columns = columns
         self.embeddings_list = embeddings_list
-        self.dim = sum(e.weights.shape[-1] for e in embeddings_list)
+        self.dim = sum(e.weight.shape[-1] for e in embeddings_list)
 
     def embed_batch(self, encoded_tensor):
         split_encoded = torch.split(encoded_tensor, 1, dim=-1)
