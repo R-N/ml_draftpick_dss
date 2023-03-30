@@ -51,11 +51,15 @@ class GlobalPooling1D(torch.nn.Module):
 class ResultPredictorModel(nn.Module):
 
     def __init__(self, 
-        d_model, nhead, d_hid,
-        nlayers, d_final,
-        embedder=None, dropout=0.2,
+        d_model, 
+        d_hid=128,
+        nlayers=2,
+        nhead=2,
+        d_final=2,
+        embedder=None,
+        dropout=0.1,
         pooling=GlobalPooling1D,
-        act_final=nn.Tanh,
+        act_final=nn.ReLU,
         bidirectional=False
     ):
         super().__init__()
@@ -176,18 +180,13 @@ class ResultPredictor:
     def __init__(
         self,
         d_model,
-        d_hid=128,
-        nlayers=2,
-        nhead=2,
-        d_final=2,
-        model_embedder=None,
-        dropout=0.2,
-        bidirectional=False,
+        *args,
         device=None,
-        log_dir="logs"
+        log_dir="logs",
+        **kwargs
     ):
         device = device or torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.model = ResultPredictorModel(d_model, nhead, d_hid, nlayers, d_final, embedder=model_embedder, dropout=dropout, bidirectional=bidirectional).to(device)
+        self.model = ResultPredictorModel(d_model, *args, **kwargs).to(device)
         self.epoch = 0
         self.training_prepared = False
         self.log_dir = log_dir
