@@ -126,56 +126,56 @@ class ResultPredictor:
         self.epoch = 0
         self.training_prepared = False
 
-def prepare_training(
-        self,
-        train_loader,
-        val_loader=None,
-        victory_crit=NegativeBCELoss,
-        norm_crit=torch.nn.MSELoss,
-        lr=1e-3,
-        optimizer=torch.optim.SGD
-    ):
-    self.victory_crit = victory_crit()
-    self.norm_crit = norm_crit()
-    self.optimizer = optimizer(self.model.parameters(), lr=lr)
-    self.scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 1.0, gamma=0.95)
-    self.train_loader = train_loader
-    self.val_loader = val_loader
-    self.model.train()
-    self.training_prepared = True
+    def prepare_training(
+            self,
+            train_loader,
+            val_loader=None,
+            victory_crit=NegativeBCELoss,
+            norm_crit=torch.nn.MSELoss,
+            lr=1e-3,
+            optimizer=torch.optim.SGD
+        ):
+        self.victory_crit = victory_crit()
+        self.norm_crit = norm_crit()
+        self.optimizer = optimizer(self.model.parameters(), lr=lr)
+        self.scheduler = torch.optim.lr_scheduler.StepLR(optimizer, 1.0, gamma=0.95)
+        self.train_loader = train_loader
+        self.val_loader = val_loader
+        self.model.train()
+        self.training_prepared = True
 
-def train(self):
-    assert self.training_prepared
-    self.model.train()  # turn on train mode
-    total_victory_loss, total_score_loss, total_duration_loss, total_loss = 0.0, 0.0, 0.0, 0.0
-    start_time = time.time()
+    def train(self):
+        assert self.training_prepared
+        self.model.train()  # turn on train mode
+        total_victory_loss, total_score_loss, total_duration_loss, total_loss = 0.0, 0.0, 0.0, 0.0
+        start_time = time.time()
 
-    batch_count = 0
-    for i, batch in enumerate(self.train_loader):
-        left, right, targets = batch
-        victory_true, score_true, duration_true = split_dim(targets)
-        victory_pred, score_pred, duration_pred = self.model(left, right)
-        #victory_pred, norms_pred = preds[..., :1], preds[..., 1:]
-        
-        victory_loss = self.victory_crit(victory_pred, victory_true)
-        score_loss = self.norm_crit(score_pred, score_true)
-        duration_loss = self.norm_crit(duration_pred, duration_true)
-        loss = victory_loss + score_loss + duration_loss
+        batch_count = 0
+        for i, batch in enumerate(self.train_loader):
+            left, right, targets = batch
+            victory_true, score_true, duration_true = split_dim(targets)
+            victory_pred, score_pred, duration_pred = self.model(left, right)
+            #victory_pred, norms_pred = preds[..., :1], preds[..., 1:]
+            
+            victory_loss = self.victory_crit(victory_pred, victory_true)
+            score_loss = self.norm_crit(score_pred, score_true)
+            duration_loss = self.norm_crit(duration_pred, duration_true)
+            loss = victory_loss + score_loss + duration_loss
 
-        self.optimizer.zero_grad()
-        loss.backward()
-        torch.nn.utils.clip_grad_norm_(self.model.parameters(), 0.5)
-        self.optimizer.step()
+            self.optimizer.zero_grad()
+            loss.backward()
+            torch.nn.utils.clip_grad_norm_(self.model.parameters(), 0.5)
+            self.optimizer.step()
 
-        total_victory_loss += victory_loss.item()
-        total_score_loss += score_loss.item()
-        total_duration_loss += duration_loss.item()
-        total_loss += loss.item()
-        batch_count += 1
-  
-    self.epoch += 1
-    lr = self.scheduler.get_last_lr()[0]
-    ms_per_batch = (time.time() - start_time) * 1000 / batch_count
-    print(f'| epoch {epoch:3d} | step {i:5d} | '
-          f'lr {lr} | ms/batch {ms_per_batch:5.2f} | ')
-    return total_victory_loss / batch_count, total_score_loss / batch_count, total_duration_loss / batch_count, total_loss / batch_count
+            total_victory_loss += victory_loss.item()
+            total_score_loss += score_loss.item()
+            total_duration_loss += duration_loss.item()
+            total_loss += loss.item()
+            batch_count += 1
+    
+        self.epoch += 1
+        lr = self.scheduler.get_last_lr()[0]
+        ms_per_batch = (time.time() - start_time) * 1000 / batch_count
+        print(f'| epoch {epoch:3d} | step {i:5d} | '
+            f'lr {lr} | ms/batch {ms_per_batch:5.2f} | ')
+        return total_victory_loss / batch_count, total_score_loss / batch_count, total_duration_loss / batch_count, total_loss / batch_count
