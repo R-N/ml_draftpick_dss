@@ -1,6 +1,6 @@
 from torch.utils.data import Dataset, DataLoader
-from ml_draftpick_dss.predicting.preparation import TARGET_COLS, extract_target
-from ml_draftpick_dss.predicting.result_loader import flip_results, merge_results
+from .preparation import TARGET_COLS, extract_target
+from .result_loader import flip_results, merge_results
 import torch
 
 class ResultDataset(Dataset):
