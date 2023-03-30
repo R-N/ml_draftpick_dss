@@ -137,11 +137,11 @@ class ResultPredictorModel(nn.Module):
         ])
         self.score_decoder = nn.Sequential(*[
             nn.Linear(final_dim, 1),
-            NegativeSigmoid()
+            nn.Tanh()
         ])
         self.duration_decoder = nn.Sequential(*[
             nn.Linear(final_dim, 1),
-            NegativeSigmoid()
+            nn.Tanh()
         ])
 
         self.init_weights()
