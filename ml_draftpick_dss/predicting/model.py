@@ -10,6 +10,7 @@ import tensorflow as tf
 import numpy as np
 from sklearn.metrics import accuracy_score, roc_auc_score, f1_score, confusion_matrix
 from torchinfo import summary
+import math
 
 
 class NegativeSigmoid(torch.nn.Module):
@@ -47,6 +48,26 @@ class GlobalPooling1D(torch.nn.Module):
 
     def forward(self, x):
         return self.f(x, dim=-2)
+    
+class PositionalEncoding(nn.Module):
+    def __init__(self, d_model, dropout=0.1, max_len=5000):
+        super().__init__()
+        self.dropout = nn.Dropout(p=dropout)
+
+        position = torch.arange(max_len).unsqueeze(1)
+        div_term = torch.exp(torch.arange(0, d_model, 2) * (-math.log(10000.0) / d_model))
+        pe = torch.zeros(max_len, 1, d_model)
+        pe[:, 0, 0::2] = torch.sin(position * div_term)
+        pe[:, 0, 1::2] = torch.cos(position * div_term)
+        self.register_buffer('pe', pe)
+
+    def forward(self, x):
+        """
+        Args:
+            x: Tensor, shape [seq_len, batch_size, embedding_dim]
+        """
+        x = x + self.pe[:x.size(0)]
+        return self.dropout(x)
 
 class ResultPredictorModel(nn.Module):
 
@@ -60,7 +81,8 @@ class ResultPredictorModel(nn.Module):
         dropout=0.1,
         pooling=GlobalPooling1D,
         act_final=nn.ReLU,
-        bidirectional=False
+        bidirectional=False,
+        pos_encoder=True
     ):
         super().__init__()
         if embedder:
@@ -69,7 +91,7 @@ class ResultPredictorModel(nn.Module):
             embedder = nn.Identity()
         self.model_type = 'Transformer'
         self.bidirectional = bidirectional
-        #self.pos_encoder = PositionalEncoding(d_model, dropout)
+        self.pos_encoder = PositionalEncoding(d_model, dropout) if pos_encoder else None
         encoder_layers = TransformerEncoderLayer(d_model, nhead, d_hid, dropout)
         decoder_layers = TransformerDecoderLayer(d_model, nhead, d_hid, dropout)
         self.d_model = d_model
@@ -145,6 +167,11 @@ class ResultPredictorModel(nn.Module):
         memory = self.transformer_encoder(src)#, src_mask)
         tgt = self.transformer_decoder(tgt, memory)
         return tgt
+    
+    def pos_encode(self, x):
+        x = x * math.sqrt(self.d_model)
+        x = self.pos_encoder(x)
+        return x
 
     def forward(self, left, right):
         left = self.encoder(left)# * math.sqrt(self.d_model)
