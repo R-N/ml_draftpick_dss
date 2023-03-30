@@ -101,7 +101,8 @@ class HeroEncoder:
 def create_embedding(n):
     return torch.nn.Embedding(n, math.ceil(math.sqrt(n)))
 class HeroEmbedder(torch.nn.Module):
-    def __init__(self, columns):
+    def __init__(self, columns, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         embeddings = {
             "id": create_embedding(120),
             "lane": create_embedding(5),
