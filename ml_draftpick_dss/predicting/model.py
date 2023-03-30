@@ -190,10 +190,11 @@ class ResultPredictor:
             bin_true.extend(list(torch.squeeze(victory_true, dim=-1) > 0))
             bin_pred.extend(list(torch.squeeze(victory_pred, dim=-1) > 0))
 
-        bin_true, bin_pred = np.array(bin_true), np.array(bin_pred)
+        bin_true, bin_pred = np.array(bin_true).astype(int), np.array(bin_pred).astype(int)
 
         losses = {k: v/batch_count for k, v in losses.items()}
         cur_metrics = {
+            "epoch": self.epoch,
             **losses,
             "accuracy": accuracy_score(bin_true, bin_pred),
             "auc": roc_auc_score(bin_true, bin_pred),
