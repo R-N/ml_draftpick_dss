@@ -128,3 +128,9 @@ def calc_objective(target):
 
 def extract_target(df):
     return torch.Tensor(df[TARGET_COLS].to_numpy().astype(float))
+
+def split_dataframe(df, points, rand=42):
+    return np.split(
+        df.sample(frac=1, random_state=rand), 
+        [int(x*len(df)) for x in points]
+    )
