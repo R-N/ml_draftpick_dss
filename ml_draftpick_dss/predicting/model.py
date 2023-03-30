@@ -144,7 +144,7 @@ class ResultPredictorModel(nn.Module):
             nn.Tanh()
         ])
 
-        self.init_weights()
+        #self.init_weights()
     
     def init_weights(self, layers=None, initrange=0.1):
         layers = layers or [
