@@ -227,13 +227,13 @@ class ResultPredictor:
             self,
             train_loader,
             val_loader=None,
-            victory_crit=torch.nn.BCELoss,
-            norm_crit=torch.nn.MSELoss,
+            victory_crit=torch.nn.BCELoss(),
+            norm_crit=torch.nn.MSELoss(reduction="sum"),
             lr=1e-3,
             optimizer=torch.optim.SGD
         ):
-        self.victory_crit = victory_crit()
-        self.norm_crit = norm_crit()
+        self.victory_crit = victory_crit
+        self.norm_crit = norm_crit
         self.optimizer = optimizer(self.model.parameters(), lr=lr)
         self.scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, 1.0, gamma=0.95)
         self.train_loader = train_loader
