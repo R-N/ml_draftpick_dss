@@ -109,14 +109,17 @@ class ResultPredictorModel(nn.Module):
     def init_weights(self):
         initrange = 0.1
         #self.encoder.weight.data.uniform_(-initrange, initrange)
-        for layer in [
+        for l0 in [
             self.decoder,
             self.victory_decoder,
             self.score_decoder,
             self.duration_decoder
         ]:
-            layer.bias.data.zero_()
-            layer.weight.data.uniform_(-initrange, initrange)
+            if not isinstance(l0, nn.Sequential):
+                l0 = [l0]
+            for l1 in l0:
+                l1.bias.data.zero_()
+                l1.weight.data.uniform_(-initrange, initrange)
     
     def forward(self, src, tgt):
         src = self.encoder(src)# * math.sqrt(self.d_model)
