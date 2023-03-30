@@ -163,7 +163,7 @@ class ResultPredictor:
             victory_crit=NegativeBCELoss,
             norm_crit=torch.nn.MSELoss,
             lr=1e-3,
-            optimizer=torch.optim.Adam
+            optimizer=torch.optim.SGD
         ):
         self.victory_crit = victory_crit()
         self.norm_crit = norm_crit()
