@@ -82,7 +82,8 @@ class ResultPredictorModel(nn.Module):
         pooling=GlobalPooling1D,
         act_final=nn.ReLU,
         bidirectional=False,
-        pos_encoder=True
+        pos_encoder=True,
+        bias_final=True
     ):
         super().__init__()
         if embedder:
@@ -106,27 +107,27 @@ class ResultPredictorModel(nn.Module):
         elif d_final == 1:
             self.decoder = nn.Sequential(
                 *[
-                    nn.Linear(final_dim, final_dim, bias=False),
+                    nn.Linear(final_dim, final_dim, bias=bias_final),
                     act_final()
                 ]
             )
         else:
             self.decoder = nn.Sequential(
                 *[
-                    nn.Linear(final_dim, d_hid, bias=False),
+                    nn.Linear(final_dim, d_hid, bias=bias_final),
                     act_final(),
                     #nn.Dropout(dropout)
                 ],
                 *[
                     nn.Sequential(*[
-                        nn.Linear(d_hid, d_hid, bias=False),
+                        nn.Linear(d_hid, d_hid, bias=bias_final),
                         act_final(),
                         nn.Dropout(dropout)
                     ])
                     for i in range(max(0, d_final-2))
                 ],
                 *[
-                    nn.Linear(d_hid, final_dim, bias=False),
+                    nn.Linear(d_hid, final_dim, bias=bias_final),
                     act_final(),
                     #nn.Dropout(dropout)
                 ],
