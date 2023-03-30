@@ -258,6 +258,7 @@ class ResultPredictor:
         batch_count = 0
         bin_true = []
         bin_pred = []
+        min_victory_pred, max_victory_pred = 2, -2
         for i, batch in enumerate(self.train_loader):
             left, right, targets = batch
             victory_true, score_true, duration_true = split_dim(targets)
@@ -279,6 +280,8 @@ class ResultPredictor:
             losses["total_duration_loss"] += duration_loss.item()
             losses["total_loss"] += loss.item()
             batch_count += 1
+            min_victory_pred = min(min_victory_pred, torch.min(victory_pred).item())
+            max_victory_pred = max(min_victory_pred, torch.max(victory_pred).item())
             bin_true.extend(list(torch.squeeze(victory_true, dim=-1) > 0))
             bin_pred.extend(list(torch.squeeze(victory_pred, dim=-1) > 0))
 
@@ -293,6 +296,8 @@ class ResultPredictor:
             "accuracy": accuracy_score(bin_true, bin_pred),
             "auc": roc_auc_score(bin_true, bin_pred),
             "f1": f1_score(bin_true, bin_pred),
+            "min_victory_pred": min_victory_pred,
+            "max_victory_pred": max_victory_pred,
             **{cm_labels[i]: x for i, x in enumerate(cm.ravel())}
         }
     
