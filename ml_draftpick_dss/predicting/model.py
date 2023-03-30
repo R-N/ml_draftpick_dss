@@ -7,6 +7,8 @@ from torch.nn import TransformerEncoder, TransformerEncoderLayer
 from torch.nn import TransformerDecoder, TransformerDecoderLayer
 import time
 import tensorflow as tf
+import numpy as np
+from sklearn.metrics import accuracy_score, roc_auc_score, f1_score
 
 
 class NegativeSigmoid(torch.nn.Module):
@@ -105,8 +107,6 @@ class ResultPredictorModel(nn.Module):
         output = victory, score, duration
         #output = torch.cat(output, dim=-1)
         return output
-    
-METRICS = ["loss", "accuracy", "f1_score", "auc"]
 
 class ResultPredictor:
     def __init__(
@@ -155,10 +155,17 @@ class ResultPredictor:
     def train(self):
         assert self.training_prepared
         self.model.train()  # turn on train mode
-        total_victory_loss, total_score_loss, total_duration_loss, total_loss = 0.0, 0.0, 0.0, 0.0
+        losses = {
+            "total_victory_loss": 0, 
+            "total_score_loss": 0, 
+            "total_duration_loss": 0, 
+            "total_loss": 0
+        }
         start_time = time.time()
 
         batch_count = 0
+        bin_true = []
+        bin_pred = []
         for i, batch in enumerate(self.train_loader):
             left, right, targets = batch
             victory_true, score_true, duration_true = split_dim(targets)
@@ -170,22 +177,32 @@ class ResultPredictor:
             duration_loss = self.norm_crit(duration_pred, duration_true)
             loss = victory_loss + score_loss + duration_loss
 
-            true_victory_pred = (victory_true > 0) == (victory_pred > 0)
-
             self.optimizer.zero_grad()
             loss.backward()
             torch.nn.utils.clip_grad_norm_(self.model.parameters(), 0.5)
             self.optimizer.step()
 
-            total_victory_loss += victory_loss.item()
-            total_score_loss += score_loss.item()
-            total_duration_loss += duration_loss.item()
-            total_loss += loss.item()
+            losses["total_victory_loss"] += victory_loss.item()
+            losses["total_score_loss"] += score_loss.item()
+            losses["total_duration_loss"] += duration_loss.item()
+            losses["total_loss"] += loss.item()
             batch_count += 1
+            bin_true.extend(list(torch.squeeze(victory_true, dim=-1) > 0))
+            bin_pred.extend(list(torch.squeeze(victory_pred, dim=-1) > 0))
+
+        bin_true, bin_pred = np.array(bin_true), np.array(bin_pred)
+
+        losses = {k: v/batch_count for k, v in losses.items()}
+        cur_metrics = {
+            **losses,
+            "accuracy": accuracy_score(bin_true, bin_pred),
+            "auc": roc_auc_score(bin_true, bin_pred),
+            "f1": f1_score(bin_true, bin_pred),
+        }
     
         lr = self.scheduler.get_last_lr()[0]
         ms_per_batch = (time.time() - start_time) * 1000 / batch_count
         print(f'| epoch {self.epoch:3d} | step {i:5d} | '
             f'lr {lr} | ms/batch {ms_per_batch:5.2f} | ')
         self.epoch += 1
-        return total_victory_loss / batch_count, total_score_loss / batch_count, total_duration_loss / batch_count, total_loss / batch_count
+        return cur_metrics
