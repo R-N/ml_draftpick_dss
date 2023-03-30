@@ -1,4 +1,5 @@
 import pandas as pd
+import torch
 
 def join_tag(df, col, include_na=True):
     if col is None:
@@ -58,3 +59,17 @@ def aggregate(
             pd.DataFrame([agg_val_val], index=[agg_name])[df.columns]
         ])
     return df, sorting
+
+
+def sig_to_tanh_range(x):
+    return x * 2 - 1
+
+def tanh_to_sig_range(x):
+    return (x + 1) / 2.0
+
+
+def split_dim(x, dim=-1, squeeze=False):
+    ret = [y for y in torch.split(x, 1, dim=dim)]
+    if squeeze:
+        ret = [torch.squeeze(y, dim=dim) for y in ret]
+    return ret

@@ -36,3 +36,8 @@ class ResultDataset(Dataset):
         target = extract_target(target_df)
 
         return left, right, target
+    
+def create_dataloader(df, encoder, embedder, batch_size=32, shuffle=True, num_workers=0):
+    dataset = ResultDataset(df, encoder, embedder)
+    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers)
+    return dataloader
