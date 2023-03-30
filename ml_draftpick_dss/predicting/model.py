@@ -106,41 +106,41 @@ class ResultPredictorModel(nn.Module):
         elif d_final == 1:
             self.decoder = nn.Sequential(
                 *[
-                    nn.Linear(final_dim, final_dim),
+                    nn.Linear(final_dim, final_dim, bias=False),
                     act_final()
                 ]
             )
         else:
             self.decoder = nn.Sequential(
                 *[
-                    nn.Linear(final_dim, d_hid),
+                    nn.Linear(final_dim, d_hid, bias=False),
                     act_final(),
                     #nn.Dropout(dropout)
                 ],
                 *[
                     nn.Sequential(*[
-                        nn.Linear(d_hid, d_hid),
+                        nn.Linear(d_hid, d_hid, bias=False),
                         act_final(),
                         nn.Dropout(dropout)
                     ])
                     for i in range(max(0, d_final-2))
                 ],
                 *[
-                    nn.Linear(d_hid, final_dim),
+                    nn.Linear(d_hid, final_dim, bias=False),
                     act_final(),
                     #nn.Dropout(dropout)
                 ],
             )
         self.victory_decoder = nn.Sequential(*[
-            nn.Linear(final_dim, 1),
+            nn.Linear(final_dim, 1, bias=False),
             nn.Sigmoid()
         ])
         self.score_decoder = nn.Sequential(*[
-            nn.Linear(final_dim, 1),
+            nn.Linear(final_dim, 1, bias=False),
             nn.Tanh()
         ])
         self.duration_decoder = nn.Sequential(*[
-            nn.Linear(final_dim, 1),
+            nn.Linear(final_dim, 1, bias=False),
             nn.Tanh()
         ])
 
