@@ -54,7 +54,8 @@ class ResultPredictorModel(nn.Module):
         d_model, nhead, d_hid,
         nlayers, d_final,
         embedder=None, dropout=0.2,
-        pooling=GlobalPooling1D
+        pooling=GlobalPooling1D,
+        act_final=nn.Tanh
     ):
         super().__init__()
         if embedder:
@@ -73,20 +74,20 @@ class ResultPredictorModel(nn.Module):
         self.decoder = nn.Sequential(
             *[
                 nn.Linear(d_model, d_hid),
-                nn.ReLU(),
+                act_final(),
                 #nn.Dropout(dropout)
             ],
             *[
                 nn.Sequential(*[
                     nn.Linear(d_hid, d_hid),
-                    nn.ReLU(),
+                    act_final(),
                     nn.Dropout(dropout)
                 ])
                 for i in range(max(0, d_final))
             ],
             *[
                 nn.Linear(d_hid, d_model),
-                nn.ReLU(),
+                act_final(),
                 #nn.Dropout(dropout)
             ],
         )
