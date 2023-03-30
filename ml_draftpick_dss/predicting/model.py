@@ -118,8 +118,10 @@ class ResultPredictorModel(nn.Module):
             if not isinstance(l0, nn.Sequential):
                 l0 = [l0]
             for l1 in l0:
-                l1.bias.data.zero_()
-                l1.weight.data.uniform_(-initrange, initrange)
+                if hasattr(l1, "bias"):
+                    l1.bias.data.zero_()
+                if hasattr(l1, "weight"):
+                    l1.weight.data.uniform_(-initrange, initrange)
     
     def forward(self, src, tgt):
         src = self.encoder(src)# * math.sqrt(self.d_model)
