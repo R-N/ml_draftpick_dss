@@ -220,6 +220,7 @@ class ResultPredictor:
         self.training_prepared = False
         self.log_dir = log_dir
         self.file_writers = None
+        self.grad_clipping = grad_clipping
 
     def prepare_training(
             self,
