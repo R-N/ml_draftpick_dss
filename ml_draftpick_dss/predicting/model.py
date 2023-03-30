@@ -79,7 +79,7 @@ class ResultPredictorModel(nn.Module):
         d_final=2,
         embedder=None,
         dropout=0.1,
-        pooling=None,
+        pooling=GlobalPooling1D(),
         act_final=nn.ReLU,
         bidirectional=False,
         pos_encoder=True,
