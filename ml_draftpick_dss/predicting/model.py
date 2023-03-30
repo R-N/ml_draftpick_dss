@@ -9,6 +9,7 @@ import time
 import tensorflow as tf
 import numpy as np
 from sklearn.metrics import accuracy_score, roc_auc_score, f1_score, confusion_matrix
+from torchinfo import summary
 
 
 class NegativeSigmoid(torch.nn.Module):
@@ -126,6 +127,14 @@ class ResultPredictorModel(nn.Module):
         output = victory, score, duration
         #output = torch.cat(output, dim=-1)
         return output
+    
+    def summary(self, batch_size=32, team_size=5):
+        return summary(
+            self, 
+            [(batch_size, team_size, self.d_model) for i in range(2)], 
+            dtypes=[torch.int, torch.int]
+        )
+
 
 class ResultPredictor:
     def __init__(
@@ -229,3 +238,6 @@ class ResultPredictor:
             f'lr {lr} | ms/batch {ms_per_batch:5.2f} | ')
         self.epoch += 1
         return cur_metrics
+    
+    def summary(self, *args, **kwargs):
+        return self.model.summary(*args, **kwargs)
