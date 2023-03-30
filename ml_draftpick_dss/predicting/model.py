@@ -34,8 +34,12 @@ class NegativeBCELoss(torch.nn.BCELoss):
         target = tanh_to_sig_range(input)
         return super().forward(input, target)
 
+MEAN = torch.mean
+PROD = torch.prod
+SUM = torch.sum
+
 class GlobalPooling1D(torch.nn.Module):
-    def __init__(self, f=torch.mean, *args, **kwargs):
+    def __init__(self, f=PROD, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.f = f
 
