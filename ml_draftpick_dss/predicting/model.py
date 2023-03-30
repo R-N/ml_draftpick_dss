@@ -73,7 +73,7 @@ class ResultPredictorModel(nn.Module):
         self.decoder = nn.Sequential(
             *[
                 nn.Linear(d_model, d_hid),
-                #nn.ReLU(),
+                nn.ReLU(),
                 #nn.Dropout(dropout)
             ],
             *[
@@ -86,7 +86,7 @@ class ResultPredictorModel(nn.Module):
             ],
             *[
                 nn.Linear(d_hid, d_model),
-                #nn.ReLU(),
+                nn.ReLU(),
                 #nn.Dropout(dropout)
             ],
         )
