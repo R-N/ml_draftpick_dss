@@ -281,7 +281,7 @@ class ResultPredictor:
             losses["total_loss"] += loss.item()
             batch_count += 1
             min_victory_pred = min(min_victory_pred, torch.min(victory_pred).item())
-            max_victory_pred = max(min_victory_pred, torch.max(victory_pred).item())
+            max_victory_pred = max(max_victory_pred, torch.max(victory_pred).item())
             bin_true.extend(list(torch.squeeze(victory_true, dim=-1) > 0))
             bin_pred.extend(list(torch.squeeze(victory_pred, dim=-1) > 0))
 
