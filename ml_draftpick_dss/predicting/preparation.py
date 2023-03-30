@@ -92,7 +92,7 @@ class HeroEncoder:
             encoded = [self.get_encoding(hero) for hero in batch]
         elif dim == 2:
             encoded = [[self.get_encoding(hero) for hero in team] for team in batch]
-        encoded_tensor = torch.LongTensor(encoded)
+        encoded_tensor = torch.Tensor(encoded)
         return encoded_tensor
     
     def __call__(self, batch):

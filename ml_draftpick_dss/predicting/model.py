@@ -1,15 +1,12 @@
 from .util import sig_to_tanh_range, tanh_to_sig_range, split_dim
 import torch
-import math
 import torch
-from torch import nn, Tensor
+from torch import nn
 import torch.nn.functional as F
 from torch.nn import TransformerEncoder, TransformerEncoderLayer
 from torch.nn import TransformerDecoder, TransformerDecoderLayer
-from torch.utils.data import dataset
-import copy
 import time
-
+import tensorflow as tf
 
 
 class NegativeSigmoid(torch.nn.Module):
@@ -109,6 +106,8 @@ class ResultPredictorModel(nn.Module):
         #output = torch.cat(output, dim=-1)
         return output
     
+METRICS = ["loss", "accuracy", "f1_score", "auc"]
+
 class ResultPredictor:
     def __init__(
         self,
@@ -119,12 +118,15 @@ class ResultPredictor:
         d_final=2,
         model_embedder=None,
         dropout=0.2,
-        device=None
+        device=None,
+        log_dir="logs"
     ):
         device = device or torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model = ResultPredictorModel(d_model, nhead, d_hid, nlayers, d_final, embedder=model_embedder, dropout=dropout).to(device)
         self.epoch = 0
         self.training_prepared = False
+        self.log_dir = log_dir
+        self.file_writers = None
 
     def prepare_training(
             self,
@@ -144,6 +146,12 @@ class ResultPredictor:
         self.model.train()
         self.training_prepared = True
 
+    def prepare_logging(self):
+        self.file_writers = {
+            "train": tf.summary.create_file_writer(self.log_dir + f"/train"),
+            "val": tf.summary.create_file_writer(self.log_dir + f"/val"),
+        }
+
     def train(self):
         assert self.training_prepared
         self.model.train()  # turn on train mode
@@ -161,6 +169,8 @@ class ResultPredictor:
             score_loss = self.norm_crit(score_pred, score_true)
             duration_loss = self.norm_crit(duration_pred, duration_true)
             loss = victory_loss + score_loss + duration_loss
+
+            true_victory_pred = (victory_true > 0) == (victory_pred > 0)
 
             self.optimizer.zero_grad()
             loss.backward()

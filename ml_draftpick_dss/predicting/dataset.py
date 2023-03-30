@@ -29,8 +29,8 @@ class ResultDataset(Dataset):
             left = self.embedder.embed_batch(left)
             right = self.embedder.embed_batch(right)
         else:
-            left = torch.LongTensor(left)
-            right = torch.LongTensor(right)
+            left = torch.Tensor(left)
+            right = torch.Tensor(right)
 
         target_df = sample[TARGET_COLS]
         target = extract_target(target_df)
