@@ -44,7 +44,7 @@ class GlobalPooling1D(torch.nn.Module):
         self.f = f
 
     def forward(self, x):
-        return self.f(x, dim=[-2])
+        return self.f(x, dim=-2)
 
 class ResultPredictorModel(nn.Module):
 
