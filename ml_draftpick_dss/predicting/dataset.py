@@ -32,11 +32,17 @@ class ResultDataset(Dataset):
             left = torch.Tensor(left)
             right = torch.Tensor(right)
 
+        left = shuffle_hero(left)
+        right = shuffle_hero(right)
+
         target_df = sample[TARGET_COLS]
         target = extract_target(target_df)
 
         return left, right, target
     
+def shuffle_hero(t):
+    return t[..., torch.randperm(t.shape[-2]), :]
+
 def create_dataloader(df, encoder, embedder, batch_size=32, shuffle=True, num_workers=0):
     dataset = ResultDataset(df, encoder, embedder)
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers)
