@@ -96,7 +96,7 @@ class HeroEncoder:
         return encoded_tensor
     
     def __call__(self, batch):
-        self.encode_batch(batch)
+        return self.encode_batch(batch)
     
 def create_embedding(n):
     return torch.nn.Embedding(n, math.ceil(math.sqrt(n)))
@@ -128,7 +128,7 @@ class HeroEmbedder:
         return embedded
 
     def __call__(self, encoded_tensor):
-        self.embed_batch(encoded_tensor)
+        return self.embed_batch(encoded_tensor)
     
 def calc_objective(target):
     target["objective"] = target["left_victory"] + (target["scores_sum_diff_norm"] / (2 + target["match_duration_norm"]))
