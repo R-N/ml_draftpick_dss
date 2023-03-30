@@ -79,7 +79,7 @@ class ResultPredictorModel(nn.Module):
         d_final=2,
         embedder=None,
         dropout=0.1,
-        pooling=GlobalPooling1D,
+        pooling=None,
         act_final=nn.ReLU,
         bidirectional=False,
         pos_encoder=True,
@@ -99,9 +99,11 @@ class ResultPredictorModel(nn.Module):
         self.encoder = embedder
         self.transformer_encoder = TransformerEncoder(encoder_layers, nlayers)
         self.transformer_decoder = TransformerDecoder(decoder_layers, nlayers)
-        self.pooling = pooling()
+        self.pooling = pooling or torch.nn.Flatten(start_dim=-2, end_dim=-1)
 
-        final_dim = (2 if bidirectional else 1) * d_model
+        final_dim = d_model
+        final_dim = (2 if bidirectional else 1) * final_dim
+        final_dim = (1 if self.pooling else 5) * final_dim
         if d_final == 0:
             self.decoder = nn.Identity()
         elif d_final == 1:
