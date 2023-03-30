@@ -158,9 +158,9 @@ class ResultPredictorModel(nn.Module):
             if hasattr(layer, "__iter__"):
                 self.init_weights(layer)
             else:
-                if hasattr(layer, "bias"):
+                if hasattr(layer, "bias") and layer.bias is not None:
                     layer.bias.data.zero_()
-                if hasattr(layer, "weight"):
+                if hasattr(layer, "weight") and layer.weight is not None:
                     layer.weight.data.uniform_(-initrange, initrange)
     
     def transform(self, src, tgt):
