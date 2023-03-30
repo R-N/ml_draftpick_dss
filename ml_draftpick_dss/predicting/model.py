@@ -104,14 +104,20 @@ class ResultPredictorModel(nn.Module):
             NegativeSigmoid()
         ])
 
-        #self.init_weights()
-    """
+        self.init_weights()
+    
     def init_weights(self):
         initrange = 0.1
-        self.encoder.weight.data.uniform_(-initrange, initrange)
-        self.decoder.bias.data.zero_()
-        self.decoder.weight.data.uniform_(-initrange, initrange)
-    """
+        #self.encoder.weight.data.uniform_(-initrange, initrange)
+        for layer in [
+            self.decoder,
+            self.victory_decoder,
+            self.score_decoder,
+            self.duration_decoder
+        ]:
+            layer.bias.data.zero_()
+            layer.weight.data.uniform_(-initrange, initrange)
+    
     def forward(self, src, tgt):
         src = self.encoder(src)# * math.sqrt(self.d_model)
         #src = self.pos_encoder(src)
