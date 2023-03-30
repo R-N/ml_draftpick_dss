@@ -260,7 +260,8 @@ class ResultPredictor:
         batch_count = 0
         bin_true = []
         bin_pred = []
-        min_victory_pred, max_victory_pred = 2, -2
+        #min_victory_pred, max_victory_pred = 2, -2
+        victory_preds= []
         for i, batch in enumerate(self.train_loader):
             left, right, targets = batch
             victory_true, score_true, duration_true = split_dim(targets)
@@ -283,14 +284,20 @@ class ResultPredictor:
             losses["total_duration_loss"] += duration_loss.item()
             losses["total_loss"] += loss.item()
             batch_count += 1
-            min_victory_pred = min(min_victory_pred, torch.min(victory_pred).item())
-            max_victory_pred = max(max_victory_pred, torch.max(victory_pred).item())
+            #min_victory_pred = min(min_victory_pred, torch.min(victory_pred).item())
+            #max_victory_pred = max(max_victory_pred, torch.max(victory_pred).item())
+
             bin_true.extend(list(torch.squeeze(victory_true, dim=-1) > 0))
             bin_pred.extend(list(torch.squeeze(victory_pred, dim=-1) > 0))
+            victory_preds.extend(list(torch.squeeze(victory_pred, dim=-1)))
 
         bin_true, bin_pred = np.array(bin_true).astype(int), np.array(bin_pred).astype(int)
         cm = confusion_matrix(bin_true, bin_pred)
         cm_labels = ["tn", "fp", "fn", "tp"]
+
+        min_victory_pred = min(victory_preds)
+        max_victory_pred = max(victory_preds)
+        mean_victory_pred = sum(victory_preds)/len(victory_preds)
 
         losses = {k: v/batch_count for k, v in losses.items()}
         cur_metrics = {
@@ -299,6 +306,7 @@ class ResultPredictor:
             "accuracy": accuracy_score(bin_true, bin_pred),
             "auc": roc_auc_score(bin_true, bin_pred),
             "f1": f1_score(bin_true, bin_pred),
+            "mean_victory_pred": mean_victory_pred,
             "min_victory_pred": min_victory_pred,
             "max_victory_pred": max_victory_pred,
             **{cm_labels[i]: x for i, x in enumerate(cm.ravel())}
@@ -308,6 +316,7 @@ class ResultPredictor:
         ms_per_batch = (time.time() - start_time) * 1000 / batch_count
         print(f'| epoch {self.epoch:3d} | step {i:5d} | '
             f'lr {lr} | ms/batch {ms_per_batch:5.2f} | ')
+        self.scheduler.step()
         self.epoch += 1
         return cur_metrics
     
