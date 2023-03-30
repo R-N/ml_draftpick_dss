@@ -174,9 +174,9 @@ class ResultPredictorModel(nn.Module):
         return x
 
     def forward(self, left, right):
-        left = self.encoder(left)# * math.sqrt(self.d_model)
+        left = self.encoder(left) * math.sqrt(self.d_model)
         #left = self.pos_encoder(left)
-        right = self.encoder(right)# * math.sqrt(self.d_model)
+        right = self.encoder(right) * math.sqrt(self.d_model)
         #right = self.pos_encoder(right)
         
         if self.bidirectional:
