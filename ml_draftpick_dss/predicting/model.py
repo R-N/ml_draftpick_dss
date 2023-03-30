@@ -93,8 +93,8 @@ class ResultPredictorModel(nn.Module):
         self.model_type = 'Transformer'
         self.bidirectional = bidirectional
         self.pos_encoder = PositionalEncoding(d_model, dropout) if pos_encoder else None
-        encoder_layers = TransformerEncoderLayer(d_model, nhead, d_hid, dropout)
-        decoder_layers = TransformerDecoderLayer(d_model, nhead, d_hid, dropout)
+        encoder_layers = TransformerEncoderLayer(d_model, nhead, d_hid, dropout, batch_first=True)
+        decoder_layers = TransformerDecoderLayer(d_model, nhead, d_hid, dropout, batch_first=True)
         self.d_model = d_model
         self.encoder = embedder
         self.transformer_encoder = TransformerEncoder(encoder_layers, nlayers)
@@ -224,14 +224,14 @@ class ResultPredictor:
         self.grad_clipping = grad_clipping
 
     def prepare_training(
-            self,
-            train_loader,
-            val_loader=None,
-            victory_crit=torch.nn.BCELoss(),
-            norm_crit=torch.nn.MSELoss(reduction="sum"),
-            lr=1e-3,
-            optimizer=torch.optim.SGD
-        ):
+        self,
+        train_loader,
+        val_loader=None,
+        victory_crit=torch.nn.BCELoss(),
+        norm_crit=torch.nn.MSELoss(reduction="mean"),
+        lr=1e-3,
+        optimizer=torch.optim.SGD
+    ):
         self.victory_crit = victory_crit
         self.norm_crit = norm_crit
         self.optimizer = optimizer(self.model.parameters(), lr=lr)
