@@ -169,15 +169,16 @@ class ResultPredictorModel(nn.Module):
         return tgt
     
     def pos_encode(self, x):
-        x = x * math.sqrt(self.d_model)
-        x = self.pos_encoder(x)
+        if self.pos_encoder:
+            x = x * math.sqrt(self.d_model)
+            x = self.pos_encoder(x)
         return x
 
     def forward(self, left, right):
-        left = self.encoder(left) * math.sqrt(self.d_model)
-        #left = self.pos_encoder(left)
-        right = self.encoder(right) * math.sqrt(self.d_model)
-        #right = self.pos_encoder(right)
+        left = self.encoder(left)
+        left = self.pos_encoder(left)
+        right = self.encoder(right)
+        right = self.pos_encoder(right)
         
         if self.bidirectional:
             left = self.transform(left, right)
