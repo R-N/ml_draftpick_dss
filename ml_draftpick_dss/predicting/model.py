@@ -262,7 +262,7 @@ class ResultPredictor:
         bin_true = []
         bin_pred = []
         #min_victory_pred, max_victory_pred = 2, -2
-        victory_preds= []
+        victory_preds = torch.Tensor([])
         for i, batch in enumerate(self.train_loader):
             left, right, targets = batch
             victory_true, score_true, duration_true = split_dim(targets)
@@ -288,9 +288,10 @@ class ResultPredictor:
             #min_victory_pred = min(min_victory_pred, torch.min(victory_pred).item())
             #max_victory_pred = max(max_victory_pred, torch.max(victory_pred).item())
 
+            squeezed_pred = torch.squeeze(victory_pred, dim=-1)
             bin_true.extend(list(torch.squeeze(victory_true, dim=-1) > 0))
-            bin_pred.extend(list(torch.squeeze(victory_pred, dim=-1) > 0))
-            victory_preds.extend(list(torch.squeeze(victory_pred, dim=-1)))
+            bin_pred.extend(list(squeezed_pred > 0))
+            victory_preds = torch.cat([victory_preds, squeezed_pred], dim=-1)
 
         bin_true, bin_pred = np.array(bin_true).astype(int), np.array(bin_pred).astype(int)
         cm = confusion_matrix(bin_true, bin_pred)
