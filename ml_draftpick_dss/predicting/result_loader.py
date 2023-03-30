@@ -75,7 +75,7 @@ def load_results(result_path):
             df[[f"{attr_lr}_{i}" for i in range(5)]] = pd.DataFrame(df[attr_lr].tolist(), index=df.index)
     """
     df["count"] = 1
-    df["left_victory"] = (df["match_result"] == "Victory").replace({True: 1, False: -1})
+    df["left_victory"] = (df["match_result"] == "Victory").replace({True: 1, False: 0})
     del df[df.columns[0]]
     df.drop_duplicates(
     subset = ['battle_id'],

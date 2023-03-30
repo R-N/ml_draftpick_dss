@@ -133,7 +133,7 @@ class ResultPredictorModel(nn.Module):
             )
         self.victory_decoder = nn.Sequential(*[
             nn.Linear(final_dim, 1),
-            nn.Tanh()
+            nn.Sigmoid()
         ])
         self.score_decoder = nn.Sequential(*[
             nn.Linear(final_dim, 1),
@@ -224,7 +224,7 @@ class ResultPredictor:
             self,
             train_loader,
             val_loader=None,
-            victory_crit=NegativeBCELoss,
+            victory_crit=torch.nn.BCELoss,
             norm_crit=torch.nn.MSELoss,
             lr=1e-3,
             optimizer=torch.optim.SGD
