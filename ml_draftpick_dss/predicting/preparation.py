@@ -76,6 +76,7 @@ class HeroEncoder:
         self.x = df_heroes_x2
         self.mixeds = mixeds
         self.uniques = uniques
+        self.dim = len(df_heroes_x.columns)
 
     def get_encoding(self, hero):
         return self.encoding[hero]
@@ -109,6 +110,7 @@ class HeroEmbedder:
         self.embeddings = embeddings
         self.columns = columns
         self.embeddings_list = embeddings_list
+        self.dim = len(embeddings_list)
 
     def embed_batch(self, encoded_tensor):
         split_encoded = torch.split(encoded_tensor, 1, dim=-1)
