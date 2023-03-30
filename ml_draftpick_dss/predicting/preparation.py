@@ -137,7 +137,7 @@ class HeroEmbedder(torch.nn.Module):
         return self.embed_batch(encoded_tensor)
     
 def calc_objective(target):
-    target["objective"] = sig_to_tanh_range(target["left_victory"]) + (target["scores_sum_diff_norm"] / (2 + target["match_duration_norm"]))
+    target["objective"] = target["left_victory"] + (target["scores_sum_diff_norm"] / (2 + target["match_duration_norm"]))
     return target["objective"]
 
 def extract_target(df):
