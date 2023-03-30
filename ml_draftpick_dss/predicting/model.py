@@ -296,9 +296,9 @@ class ResultPredictor:
         cm = confusion_matrix(bin_true, bin_pred)
         cm_labels = ["tn", "fp", "fn", "tp"]
 
-        min_victory_pred = min(victory_preds)
-        max_victory_pred = max(victory_preds)
-        mean_victory_pred = sum(victory_preds)/len(victory_preds)
+        min_victory_pred = torch.min(victory_preds).item()
+        max_victory_pred = torch.max(victory_preds).item()
+        mean_victory_pred = torch.mean(victory_preds).item()
 
         losses = {k: v/batch_count for k, v in losses.items()}
         cur_metrics = {
