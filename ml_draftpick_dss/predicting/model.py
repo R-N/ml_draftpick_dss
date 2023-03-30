@@ -37,9 +37,10 @@ class NegativeBCELoss(torch.nn.BCELoss):
 MEAN = torch.mean
 PROD = torch.prod
 SUM = torch.sum
+MAX = torch.max
 
 class GlobalPooling1D(torch.nn.Module):
-    def __init__(self, f=PROD, *args, **kwargs):
+    def __init__(self, f=MEAN, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.f = f
 
