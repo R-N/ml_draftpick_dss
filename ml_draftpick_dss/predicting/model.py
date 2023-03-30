@@ -118,10 +118,10 @@ class ResultPredictorModel(nn.Module):
             if hasattr(layer, "__iter__"):
                 self.init_weights(layer)
             else:
-                if hasattr(l1, "bias"):
-                    l1.bias.data.zero_()
-                if hasattr(l1, "weight"):
-                    l1.weight.data.uniform_(-initrange, initrange)
+                if hasattr(layer, "bias"):
+                    layer.bias.data.zero_()
+                if hasattr(layer, "weight"):
+                    layer.weight.data.uniform_(-initrange, initrange)
     
     def forward(self, src, tgt):
         src = self.encoder(src)# * math.sqrt(self.d_model)
