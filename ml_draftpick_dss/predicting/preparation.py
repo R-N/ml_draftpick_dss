@@ -100,7 +100,7 @@ class HeroEncoder:
     
 def create_embedding(n):
     return torch.nn.Embedding(n, math.ceil(math.sqrt(n)))
-class HeroEmbedder:
+class HeroEmbedder(torch.nn.Module):
     def __init__(self, columns):
         embeddings = {
             "id": create_embedding(120),
@@ -109,6 +109,7 @@ class HeroEmbedder:
             "specialities": create_embedding(16),
         }
         embeddings_list = [embeddings[get_basic_c(c)] for c in columns]
+        embeddings_list = torch.nn.ModuleList(embeddings_list)
         #print(len(embeddings_list), sum([e.weight.shape[-1] for e in embeddings_list]))
         self.embeddings = embeddings
         self.columns = columns
@@ -126,6 +127,9 @@ class HeroEmbedder:
         embedded = torch.cat(split_embed, dim=-1)
         #print(split_embed.shape)
         return embedded
+
+    def forward(self, encoded_tensor):
+        return self.embed_batch(encoded_tensor)
 
     def __call__(self, encoded_tensor):
         return self.embed_batch(encoded_tensor)
