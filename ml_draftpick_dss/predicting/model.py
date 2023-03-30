@@ -282,8 +282,8 @@ class ResultPredictor:
             batch_count += 1
             min_victory_pred = min(min_victory_pred, torch.min(victory_pred).item())
             max_victory_pred = max(min_victory_pred, torch.max(victory_pred).item())
-            bin_true.extend(list(torch.squeeze(victory_true, dim=-1) > 0))
-            bin_pred.extend(list(torch.squeeze(victory_pred, dim=-1) > 0))
+            bin_true.extend(list(torch.squeeze(victory_true, dim=-1) > 0.5))
+            bin_pred.extend(list(torch.squeeze(victory_pred, dim=-1) > 0.5))
 
         bin_true, bin_pred = np.array(bin_true).astype(int), np.array(bin_pred).astype(int)
         cm = confusion_matrix(bin_true, bin_pred)
