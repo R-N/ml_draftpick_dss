@@ -56,7 +56,7 @@ class ResultPredictorModel(nn.Module):
         embedder=None, dropout=0.2,
         pooling=GlobalPooling1D,
         act_final=nn.Tanh,
-        bidirectional=True
+        bidirectional=False
     ):
         super().__init__()
         if embedder:
@@ -182,11 +182,12 @@ class ResultPredictor:
         d_final=2,
         model_embedder=None,
         dropout=0.2,
+        bidirectional=False,
         device=None,
         log_dir="logs"
     ):
         device = device or torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.model = ResultPredictorModel(d_model, nhead, d_hid, nlayers, d_final, embedder=model_embedder, dropout=dropout).to(device)
+        self.model = ResultPredictorModel(d_model, nhead, d_hid, nlayers, d_final, embedder=model_embedder, dropout=dropout, bidirectional=bidirectional).to(device)
         self.epoch = 0
         self.training_prepared = False
         self.log_dir = log_dir
