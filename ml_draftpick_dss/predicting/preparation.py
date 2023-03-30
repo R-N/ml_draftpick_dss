@@ -81,8 +81,16 @@ class HeroEncoder:
         return self.encoding[hero]
     
     def encode_batch(self, batch):
-        batch = np.array(batch.tolist())
-        encoded = [[self.get_encoding(hero) for hero in team] for team in batch]
+        if isinstance(batch, pd.DataFrame):
+            batch = batch.tolist()
+        if not (torch.is_tensor(batch) or isinstance(batch, np.ndarray)):
+            batch = np.array(batch)
+        dim = len(batch.shape)
+        assert (dim < 3), f"Invalid batch dim: {dim}"
+        if dim == 1:
+            encoded = [self.get_encoding(hero) for hero in batch]
+        elif dim == 2:
+            encoded = [[self.get_encoding(hero) for hero in team] for team in batch]
         encoded_tensor = torch.LongTensor(encoded)
         return encoded_tensor
     
@@ -119,4 +127,4 @@ def calc_objective(target):
     return target["objective"]
 
 def extract_target(df):
-    return torch.Tensor(df[TARGET_COLS].to_numpy())
+    return torch.Tensor(df[TARGET_COLS].to_numpy().astype(float))
