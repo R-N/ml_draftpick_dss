@@ -55,7 +55,8 @@ class ResultPredictorModel(nn.Module):
         nlayers, d_final,
         embedder=None, dropout=0.2,
         pooling=GlobalPooling1D,
-        act_final=nn.Tanh
+        act_final=nn.Tanh,
+        bidirectional=True
     ):
         super().__init__()
         if embedder:
@@ -63,6 +64,7 @@ class ResultPredictorModel(nn.Module):
         else:
             embedder = nn.Identity()
         self.model_type = 'Transformer'
+        self.bidirectional = bidirectional
         #self.pos_encoder = PositionalEncoding(d_model, dropout)
         encoder_layers = TransformerEncoderLayer(d_model, nhead, d_hid, dropout)
         decoder_layers = TransformerDecoderLayer(d_model, nhead, d_hid, dropout)
@@ -71,19 +73,21 @@ class ResultPredictorModel(nn.Module):
         self.transformer_encoder = TransformerEncoder(encoder_layers, nlayers)
         self.transformer_decoder = TransformerDecoder(decoder_layers, nlayers)
         self.pooling = pooling()
+
+        final_dim = (2 if bidirectional else 1) * d_model
         if d_final == 0:
             self.decoder = nn.Identity()
         elif d_final == 1:
             self.decoder = nn.Sequential(
                 *[
-                    nn.Linear(d_model, d_model),
+                    nn.Linear(final_dim, final_dim),
                     act_final()
                 ]
             )
         else:
             self.decoder = nn.Sequential(
                 *[
-                    nn.Linear(d_model, d_hid),
+                    nn.Linear(final_dim, d_hid),
                     act_final(),
                     #nn.Dropout(dropout)
                 ],
@@ -96,21 +100,21 @@ class ResultPredictorModel(nn.Module):
                     for i in range(max(0, d_final-2))
                 ],
                 *[
-                    nn.Linear(d_hid, d_model),
+                    nn.Linear(d_hid, final_dim),
                     act_final(),
                     #nn.Dropout(dropout)
                 ],
             )
         self.victory_decoder = nn.Sequential(*[
-            nn.Linear(d_model, 1),
+            nn.Linear(final_dim, 1),
             nn.Tanh()
         ])
         self.score_decoder = nn.Sequential(*[
-            nn.Linear(d_model, 1),
+            nn.Linear(final_dim, 1),
             NegativeSigmoid()
         ])
         self.duration_decoder = nn.Sequential(*[
-            nn.Linear(d_model, 1),
+            nn.Linear(final_dim, 1),
             NegativeSigmoid()
         ])
 
@@ -133,14 +137,24 @@ class ResultPredictorModel(nn.Module):
                 if hasattr(layer, "weight"):
                     layer.weight.data.uniform_(-initrange, initrange)
     
-    def forward(self, src, tgt):
-        src = self.encoder(src)# * math.sqrt(self.d_model)
-        #src = self.pos_encoder(src)
-        
+    def transform(self, src, tgt):
         memory = self.transformer_encoder(src)#, src_mask)
-        tgt = self.encoder(tgt)# * math.sqrt(self.d_model)
-        #tgt = self.pos_encoder(tgt)
         tgt = self.transformer_decoder(tgt, memory)
+        return tgt
+
+    def forward(self, left, right):
+        left = self.encoder(left)# * math.sqrt(self.d_model)
+        #left = self.pos_encoder(left)
+        right = self.encoder(right)# * math.sqrt(self.d_model)
+        #right = self.pos_encoder(right)
+        
+        if self.bidirectional:
+            left = self.transform(left, right)
+            right = self.transform(right, left)
+            tgt = torch.cat([left, right], dim=-1)
+        else:
+            tgt = self.transform(left, right)
+
         tgt = self.pooling(tgt)
         tgt = self.decoder(tgt)
         victory = self.victory_decoder(tgt)
