@@ -106,18 +106,18 @@ class ResultPredictorModel(nn.Module):
 
         self.init_weights()
     
-    def init_weights(self):
-        initrange = 0.1
-        #self.encoder.weight.data.uniform_(-initrange, initrange)
-        for l0 in [
+    def init_weights(self, layers=None, initrange=0.1):
+        layers = layers or [
             self.decoder,
             self.victory_decoder,
             self.score_decoder,
             self.duration_decoder
-        ]:
-            if not isinstance(l0, nn.Sequential):
-                l0 = [l0]
-            for l1 in l0:
+        ]
+        #self.encoder.weight.data.uniform_(-initrange, initrange)
+        for layer in layers:
+            if hasattr(layer, "__iter__"):
+                self.init_weights(layer)
+            else:
                 if hasattr(l1, "bias"):
                     l1.bias.data.zero_()
                 if hasattr(l1, "weight"):
