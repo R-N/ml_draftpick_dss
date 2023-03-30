@@ -176,6 +176,6 @@ class ResultPredictor:
         self.epoch += 1
         lr = self.scheduler.get_last_lr()[0]
         ms_per_batch = (time.time() - start_time) * 1000 / batch_count
-        print(f'| epoch {epoch:3d} | step {i:5d} | '
+        print(f'| epoch {self.epoch:3d} | step {i:5d} | '
             f'lr {lr} | ms/batch {ms_per_batch:5.2f} | ')
         return total_victory_loss / batch_count, total_score_loss / batch_count, total_duration_loss / batch_count, total_loss / batch_count
