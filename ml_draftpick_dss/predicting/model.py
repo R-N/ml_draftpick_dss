@@ -211,6 +211,7 @@ class ResultPredictor:
         *args,
         device=None,
         log_dir="logs",
+        grad_clipping=0,
         **kwargs
     ):
         device = device or torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -272,7 +273,8 @@ class ResultPredictor:
 
             self.optimizer.zero_grad()
             loss.backward()
-            torch.nn.utils.clip_grad_norm_(self.model.parameters(), 0.5)
+            if self.grad_clipping:
+                torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.grad_clipping)
             self.optimizer.step()
 
             losses["total_victory_loss"] += victory_loss.item()
