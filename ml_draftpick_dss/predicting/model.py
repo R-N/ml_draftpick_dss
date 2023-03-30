@@ -8,7 +8,7 @@ from torch.nn import TransformerDecoder, TransformerDecoderLayer
 import time
 import tensorflow as tf
 import numpy as np
-from sklearn.metrics import accuracy_score, roc_auc_score, f1_score
+from sklearn.metrics import accuracy_score, roc_auc_score, f1_score, confusion_matrix
 
 
 class NegativeSigmoid(torch.nn.Module):
@@ -191,6 +191,8 @@ class ResultPredictor:
             bin_pred.extend(list(torch.squeeze(victory_pred, dim=-1) > 0))
 
         bin_true, bin_pred = np.array(bin_true).astype(int), np.array(bin_pred).astype(int)
+        cm = confusion_matrix(bin_true, bin_pred)
+        cm_labels = ["tn", "fp", "fn", "tp"]
 
         losses = {k: v/batch_count for k, v in losses.items()}
         cur_metrics = {
@@ -199,6 +201,7 @@ class ResultPredictor:
             "accuracy": accuracy_score(bin_true, bin_pred),
             "auc": roc_auc_score(bin_true, bin_pred),
             "f1": f1_score(bin_true, bin_pred),
+            **{cm_labels[i]: x for i, x in enumerate(cm.ravel())}
         }
     
         lr = self.scheduler.get_last_lr()[0]
