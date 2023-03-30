@@ -71,26 +71,36 @@ class ResultPredictorModel(nn.Module):
         self.transformer_encoder = TransformerEncoder(encoder_layers, nlayers)
         self.transformer_decoder = TransformerDecoder(decoder_layers, nlayers)
         self.pooling = pooling()
-        self.decoder = nn.Sequential(
-            *[
-                nn.Linear(d_model, d_hid),
-                act_final(),
-                #nn.Dropout(dropout)
-            ],
-            *[
-                nn.Sequential(*[
-                    nn.Linear(d_hid, d_hid),
+        if d_final == 0:
+            self.decoder = nn.Identity()
+        elif d_final == 1:
+            self.decoder = nn.Sequential(
+                *[
+                    nn.Linear(d_model, d_model),
+                    act_final()
+                ]
+            )
+        else:
+            self.decoder = nn.Sequential(
+                *[
+                    nn.Linear(d_model, d_hid),
                     act_final(),
-                    nn.Dropout(dropout)
-                ])
-                for i in range(max(0, d_final))
-            ],
-            *[
-                nn.Linear(d_hid, d_model),
-                act_final(),
-                #nn.Dropout(dropout)
-            ],
-        )
+                    #nn.Dropout(dropout)
+                ],
+                *[
+                    nn.Sequential(*[
+                        nn.Linear(d_hid, d_hid),
+                        act_final(),
+                        nn.Dropout(dropout)
+                    ])
+                    for i in range(max(0, d_final-2))
+                ],
+                *[
+                    nn.Linear(d_hid, d_model),
+                    act_final(),
+                    #nn.Dropout(dropout)
+                ],
+            )
         self.victory_decoder = nn.Sequential(*[
             nn.Linear(d_model, 1),
             nn.Tanh()
