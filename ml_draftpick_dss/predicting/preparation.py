@@ -81,7 +81,7 @@ class HeroEncoder:
         return self.encoding[hero]
     
     def encode_batch(self, batch):
-        if isinstance(batch, pd.DataFrame):
+        if isinstance(batch, pd.DataFrame) or isinstance(batch, pd.Series):
             batch = batch.tolist()
         if not (torch.is_tensor(batch) or isinstance(batch, np.ndarray)):
             batch = np.array(batch)
