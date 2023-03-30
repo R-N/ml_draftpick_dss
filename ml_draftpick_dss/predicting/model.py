@@ -103,6 +103,8 @@ class ResultPredictorModel(nn.Module):
         #src = self.pos_encoder(src)
         
         memory = self.transformer_encoder(src)#, src_mask)
+        tgt = self.encoder(tgt)# * math.sqrt(self.d_model)
+        #tgt = self.pos_encoder(tgt)
         tgt = self.transformer_decoder(tgt, memory)
         tgt = self.pooling(tgt)
         tgt = self.decoder(tgt)
