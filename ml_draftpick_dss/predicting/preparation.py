@@ -69,10 +69,8 @@ class HeroLabelEncoder:
         uniques["id"] = df_heroes["id"]
         uniques["name"] = df_heroes["name"]
 
-        #print(len(uniques["roles"]), len(uniques["specialities"]))
-        #print(df_heroes['roles_1'].isna().sum(), df_heroes['specialities_1'].isna().sum())
-        #df_heroes.head()
-        df_heroes_x = df_heroes[["id", "lane", *[f"roles_{i}" for i in range(2)], *[f"specialities_{i}" for i in range(2)]]]
+        cols = ["id", "lane", *[f"roles_{i}" for i in range(2)], *[f"specialities_{i}" for i in range(2)]]
+        df_heroes_x = df_heroes[cols]
         
         encoders = {c:preprocessing.LabelEncoder().fit(uniques[c]) for c in HERO_COLS}
 
@@ -103,7 +101,7 @@ class HeroLabelEncoder:
         return self.encode_batch(batch)
 
 class HeroOneHotEncoder:
-    def __init__(self, df_heroes):
+    def __init__(self, df_heroes, include_name=True):
 
         mixeds = {x: get_mixed(df_heroes, x) for x in MULTIPLE_ATTRS}
         uniques = {x: get_unique(m) for x, m in mixeds.items()}
@@ -111,14 +109,18 @@ class HeroOneHotEncoder:
         uniques["id"] = df_heroes["id"]
         uniques["name"] = df_heroes["name"]
 
-        df_heroes_x = df_heroes[["name", "lane", *[f"roles_{i}" for i in range(2)], *[f"specialities_{i}" for i in range(2)]]]
+        cols = ["name", "lane", *[f"roles_{i}" for i in range(2)], *[f"specialities_{i}" for i in range(2)]]
+        df_heroes_x = df_heroes[cols]
 
-        categories=[uniques[get_basic_c(c)] for c in df_heroes_x.columns]
+        if not include_name:
+            cols = cols[1:]
+
+        categories=[uniques[get_basic_c(c)] for c in cols]
         encoder = preprocessing.OneHotEncoder(
             categories=categories,
             sparse_output=False
-        ).fit(df_heroes_x)
-        encoded = encoder.transform(df_heroes_x)
+        ).fit(df_heroes_x[cols])
+        encoded = encoder.transform(df_heroes_x[cols])
         dim = encoded.shape[-1]
         dims = [len(c) for c in categories]
         slices = []
