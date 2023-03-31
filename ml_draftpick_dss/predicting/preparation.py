@@ -120,15 +120,17 @@ class HeroOneHotEncoder:
         encoded = encoder.transform(df_heroes_x)
         dim = encoded.shape[-1]
         df_encoded = pd.DataFrame(encoded, index=df_heroes_x["name"])
+        encoding = {hero: df_encoded.loc[hero] for hero in uniques["name"]}
 
         self.mixeds = mixeds
         self.uniques = uniques
         self.encoder = encoder
-        self.encoding = df_encoded
+        self.x = df_encoded
+        self.encoding = encoding
         self.dim = dim
 
     def get_encoding(self, hero):
-        return self.encoding.loc[hero]
+        return self.encoding[hero]
     
     def encode_batch(self, batch):
         return encode_batch(self.get_encoding, batch)
