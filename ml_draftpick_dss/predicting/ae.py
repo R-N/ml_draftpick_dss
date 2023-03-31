@@ -26,7 +26,7 @@ def CosineLoss(*args, **kwargs):
     return __CosineLoss
 
 class HeroAEModel(torch.nn.Module):
-    def __init__(self, dims, dropout=0.1, bias=True):
+    def __init__(self, dims, dropout=0, bias=True):
         super().__init__()
         d_model = sum(dims)
         self.d_model = d_model
