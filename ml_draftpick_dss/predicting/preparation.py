@@ -47,6 +47,20 @@ def get_unique(mixed):
 def get_basic_c(c):
     return c.split("_", maxsplit=1)[0]
 
+def encode_batch(f, batch):
+    if isinstance(batch, pd.DataFrame) or isinstance(batch, pd.Series):
+        batch = batch.tolist()
+    if not (torch.is_tensor(batch) or isinstance(batch, np.ndarray)):
+        batch = np.array(batch)
+    dim = len(batch.shape)
+    assert (dim < 3), f"Invalid batch dim: {dim}"
+    if dim == 1:
+        encoded = [f(hero) for hero in batch]
+    elif dim == 2:
+        encoded = [[f(hero) for hero in team] for team in batch]
+    encoded_tensor = torch.IntTensor(encoded)
+    return encoded_tensor
+
 class HeroLabelEncoder:
     def __init__(self, df_heroes):
         mixeds = {x: get_mixed(df_heroes, x) for x in MULTIPLE_ATTRS}
@@ -83,24 +97,48 @@ class HeroLabelEncoder:
         return self.encoding[hero]
     
     def encode_batch(self, batch):
-        if isinstance(batch, pd.DataFrame) or isinstance(batch, pd.Series):
-            batch = batch.tolist()
-        if not (torch.is_tensor(batch) or isinstance(batch, np.ndarray)):
-            batch = np.array(batch)
-        dim = len(batch.shape)
-        assert (dim < 3), f"Invalid batch dim: {dim}"
-        if dim == 1:
-            encoded = [self.get_encoding(hero) for hero in batch]
-        elif dim == 2:
-            encoded = [[self.get_encoding(hero) for hero in team] for team in batch]
-        encoded_tensor = torch.IntTensor(encoded)
-        return encoded_tensor
+        return encode_batch(self.get_encoding, batch)
+    
+    def __call__(self, batch):
+        return self.encode_batch(batch)
+
+class HeroOneHotEncoder:
+    def __init__(self, df_heroes):
+
+        mixeds = {x: get_mixed(df_heroes, x) for x in MULTIPLE_ATTRS}
+        uniques = {x: get_unique(m) for x, m in mixeds.items()}
+        uniques["lane"] = get_unique(df_heroes["lane"])
+        uniques["id"] = df_heroes["id"]
+        uniques["name"] = df_heroes["name"]
+
+        df_heroes_x = df_heroes[["name", "lane", *[f"roles_{i}" for i in range(2)], *[f"specialities_{i}" for i in range(2)]]]
+
+        encoder = preprocessing.OneHotEncoder(
+            categories=[uniques[get_basic_c(c)] for c in df_heroes_x.columns],
+            sparse_output=False
+        ).fit(df_heroes_x)
+        encoded = encoder.transform(df_heroes_x)
+        dim = encoded.shape[-1]
+        df_encoded = pd.DataFrame(encoded, index=df_heroes_x["name"])
+
+        self.mixeds = mixeds
+        self.uniques = uniques
+        self.encoder = encoder
+        self.encoding = df_encoded
+        self.dim = dim
+
+    def get_encoding(self, hero):
+        return self.encoding.loc[hero]
+    
+    def encode_batch(self, batch):
+        return encode_batch(self.get_encoding, batch)
     
     def __call__(self, batch):
         return self.encode_batch(batch)
     
 def create_embedding(n):
     return torch.nn.Embedding(n, math.ceil(math.sqrt(n)))
+
 class HeroEmbedder(torch.nn.Module):
     def __init__(self, columns, *args, **kwargs):
         super().__init__(*args, **kwargs)
