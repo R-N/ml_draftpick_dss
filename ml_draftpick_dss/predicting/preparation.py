@@ -113,12 +113,19 @@ class HeroOneHotEncoder:
 
         df_heroes_x = df_heroes[["name", "lane", *[f"roles_{i}" for i in range(2)], *[f"specialities_{i}" for i in range(2)]]]
 
+        categories=[uniques[get_basic_c(c)] for c in df_heroes_x.columns]
         encoder = preprocessing.OneHotEncoder(
-            categories=[uniques[get_basic_c(c)] for c in df_heroes_x.columns],
+            categories=categories,
             sparse_output=False
         ).fit(df_heroes_x)
         encoded = encoder.transform(df_heroes_x)
         dim = encoded.shape[-1]
+        dims = [len(c) for c in categories]
+        slices = []
+        prev = 0
+        for d in dims:
+            slices.append((prev, d))
+            prev = d
         df_encoded = pd.DataFrame(encoded, index=df_heroes_x["name"])
         encoding = {hero: df_encoded.loc[hero] for hero in uniques["name"]}
 
@@ -128,6 +135,8 @@ class HeroOneHotEncoder:
         self.x = df_encoded
         self.encoding = encoding
         self.dim = dim
+        self.dims = dims
+        self.slices = slices
 
     def get_encoding(self, hero):
         return self.encoding[hero]
