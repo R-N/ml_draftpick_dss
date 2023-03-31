@@ -43,7 +43,7 @@ class ResultDataset(Dataset):
 def shuffle_hero(t):
     return t[..., torch.randperm(t.shape[-2]), :]
 
-def create_dataloader(df, encoder, embedder, batch_size=32, shuffle=True, num_workers=0):
+def create_dataloader(df, encoder, embedder=None, batch_size=32, shuffle=True, num_workers=0):
     dataset = ResultDataset(df, encoder, embedder)
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers)
     return dataloader
