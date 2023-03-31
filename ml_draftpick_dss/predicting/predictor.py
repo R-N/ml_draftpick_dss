@@ -1,11 +1,9 @@
 from .util import split_dim
 import torch
 import time
-import tensorflow as tf
 import numpy as np
 from sklearn.metrics import accuracy_score, roc_auc_score, f1_score, confusion_matrix
 from .model import ResultPredictorModel
-import json
 from .checkpoint import CheckpointManager, METRICS, init_metrics
 from .logging import TrainingLogger
 
