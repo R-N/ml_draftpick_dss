@@ -39,7 +39,7 @@ class CheckpointManager:
         try:
             checkpoint = torch.load(self.checkpoint_path)
             self.model.epoch = checkpoint['epoch']
-            self.model.best_metric = checkpoint["best_metric"]
+            self.model.best_metrics = checkpoint["best_metrics"]
             self.model.model.load_state_dict(checkpoint['model_state_dict'])
             self.load_best_metrics(True)
             self.model.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
@@ -53,7 +53,7 @@ class CheckpointManager:
             'model_state_dict': self.model.model.state_dict(),
             'optimizer_state_dict': self.model.optimizer.state_dict(),
             'scheduler_state_dict': self.model.scheduler.state_dict(),
-            'best_metric': self.model.best_metric,
+            'best_metrics': self.model.best_metrics,
         }, self.checkpoint_path)
         self.save_best_metrics()
 
