@@ -57,7 +57,7 @@ class ResultPredictor:
 
     def prepare_checkpoint(self, checkpoint_dir="checkpoints"):
         self.checkpoint_dir = checkpoint_dir
-        self.checkpoint_managers = {CheckpointManager(self, m, self.checkpoint_dir) for m in self.metrics}
+        self.checkpoint_managers = {m: CheckpointManager(self, m, self.checkpoint_dir) for m in self.metrics}
 
     def prepare_logging(self, log_dir="logs"):
         self.log_dir = log_dir
