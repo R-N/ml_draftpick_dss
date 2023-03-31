@@ -31,26 +31,26 @@ class HeroAEModel(torch.nn.Module):
         d_model = sum(dims)
         self.d_model = d_model
         self.encoder = torch.nn.Sequential(
-            torch.nn.Linear(d_model, 256, bias=bias),
-            torch.nn.ReLU(),
-            torch.nn.Dropout(dropout),
-            torch.nn.Linear(256, 128, bias=bias),
+            torch.nn.Linear(d_model, 128, bias=bias),
             torch.nn.ReLU(),
             torch.nn.Dropout(dropout),
             torch.nn.Linear(128, 64, bias=bias),
             torch.nn.ReLU(),
+            torch.nn.Dropout(dropout),
+            torch.nn.Linear(64, 32, bias=bias),
+            torch.nn.ReLU(),
         )
         self.decoder = torch.nn.Sequential(
-            torch.nn.Linear(64, 128, bias=bias),
+            torch.nn.Linear(32, 64, bias=bias),
             torch.nn.ReLU(),
             torch.nn.Dropout(dropout),
-            torch.nn.Linear(128, 256, bias=bias),
+            torch.nn.Linear(64, 128, bias=bias),
             torch.nn.ReLU(),
             torch.nn.Dropout(dropout),
         )
         self.heads = torch.nn.ModuleList([
             torch.nn.Sequential(*[
-                torch.nn.Linear(256, d, bias=bias),
+                torch.nn.Linear(128, d, bias=bias),
                 torch.nn.Softmax(-1)
             ])
             for d in dims
