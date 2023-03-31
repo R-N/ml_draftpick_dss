@@ -3,7 +3,6 @@ import numpy as np
 from .preprocessing import load_img
 import os
 import cv2
-from pathlib import Path
 from ..util import mkdir
 
 def show_imgs(imgs, cols=10, fig_title="", show=True):
