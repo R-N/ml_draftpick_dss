@@ -4,6 +4,7 @@ from .preprocessing import load_img
 import os
 import cv2
 from pathlib import Path
+from ..util import mkdir
 
 def show_imgs(imgs, cols=10, fig_title="", show=True):
     rows = (len(imgs) // cols) + (1 if len(imgs) % cols > 0 else 0)
@@ -70,10 +71,6 @@ def save_inference(obj, path_factory, feature):
         dir = os.path.dirname(path)
         mkdir(dir)
         cv2.imwrite(path, rgb2bgr(img))
-
-def mkdir(path):
-    path = Path(path)
-    path.mkdir(parents=True, exist_ok=True)
 
 def exception_message(ex):
     return ex.message if hasattr(ex, "message") else str(ex)

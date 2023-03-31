@@ -116,6 +116,7 @@ class HeroEmbedder(torch.nn.Module):
         self.embeddings = embeddings
         self.columns = columns
         self.embeddings_list = embeddings_list
+        self.main_dim = embeddings_list[0].weight.shape[-1]
         self.dim = sum(e.weight.shape[-1] for e in embeddings_list)
 
     def embed_batch(self, encoded_tensor):
@@ -135,6 +136,12 @@ class HeroEmbedder(torch.nn.Module):
 
     def __call__(self, encoded_tensor):
         return self.embed_batch(encoded_tensor)
+    
+    def reverse(self, sample):
+        sample = sample[..., :self.main_dim]
+        distance = torch.norm(self.embeddings_list[0].weight.data - sample, dim=1)
+        nearest = torch.argmin(distance)
+        return nearest
     
 def calc_objective(target):
     target["objective"] = target["left_victory"] + (target["scores_sum_diff_norm"] / (2 + target["match_duration_norm"]))
