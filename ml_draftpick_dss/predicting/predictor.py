@@ -14,7 +14,6 @@ class ResultPredictor:
         d_model,
         *args,
         device=None,
-        log_dir="logs",
         grad_clipping=0,
         **kwargs
     ):
@@ -22,7 +21,6 @@ class ResultPredictor:
         self.model = ResultPredictorModel(d_model, *args, **kwargs).to(device)
         self.epoch = 0
         self.training_prepared = False
-        self.log_dir = log_dir
         self.file_writers = None
         self.grad_clipping = grad_clipping
 
