@@ -5,7 +5,7 @@ from torch.nn import TransformerEncoder, TransformerEncoderLayer
 from torch.nn import TransformerDecoder, TransformerDecoderLayer
 from torchinfo import summary
 import math
-from .modules import PositionalEncoding
+from .modules import PositionalEncoding, GlobalPooling1D
 
 
 
