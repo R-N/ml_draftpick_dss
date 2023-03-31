@@ -124,7 +124,7 @@ class HeroOneHotEncoder:
         slices = []
         prev = 0
         for d in dims:
-            slices.append((prev, d))
+            slices.append((prev, prev+d))
             prev += d
         df_encoded = pd.DataFrame(encoded, index=df_heroes_x["name"])
         encoding = {hero: df_encoded.loc[hero] for hero in uniques["name"]}
