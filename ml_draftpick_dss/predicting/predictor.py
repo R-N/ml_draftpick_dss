@@ -21,7 +21,6 @@ class ResultPredictor:
         self.model = ResultPredictorModel(d_model, *args, **kwargs).to(device)
         self.epoch = 0
         self.training_prepared = False
-        self.file_writers = None
         self.grad_clipping = grad_clipping
 
     def prepare_training(
