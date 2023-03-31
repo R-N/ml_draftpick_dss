@@ -38,6 +38,7 @@ class ResultPredictor:
         optimizer=torch.optim.Adam,
         metrics=METRICS,
         checkpoint_dir="checkpoints",
+        log_dir="logs",
     ):
         self.bin_crit = bin_crit
         self.norm_crit = norm_crit
@@ -51,13 +52,14 @@ class ResultPredictor:
         self.best_metrics = init_metrics(self.metrics)
 
         self.prepare_checkpoint(checkpoint_dir)
+        self.prepare_logging(log_dir)
 
         self.training_prepared = True
 
 
     def prepare_checkpoint(self, checkpoint_dir="checkpoints"):
         self.checkpoint_dir = checkpoint_dir
-        self.checkpoint_managers = {CheckpointManager(self.checkpoint_dir) for m in [*self.metrics]}
+        self.checkpoint_managers = {CheckpointManager(self, m, self.checkpoint_dir) for m in self.metrics}
 
     def prepare_logging(self, log_dir="logs"):
         self.log_dir = log_dir
