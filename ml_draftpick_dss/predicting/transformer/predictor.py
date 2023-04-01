@@ -1,4 +1,4 @@
-from .util import split_dim
+from ..util import split_dim
 import torch
 import time
 import numpy as np
