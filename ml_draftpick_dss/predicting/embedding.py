@@ -31,15 +31,28 @@ ATTR_CLASSES = {
 }
 def scaled_sqrt_factory(scale=1):
     return lambda x: int(scale*math.ceil(math.sqrt(x)))
+
 def create_embedding_sizes(
     columns, 
     f=scaled_sqrt_factory(2)
 ):
     if isinstance(columns[0], int):
         classes = columns
+        return [(cl, f(cl)) for cl in classes]
     else:
-        classes = [ATTR_CLASSES[get_basic_c(c)] for c in columns]
-    return [(c, f(c)) for c in classes]
+        embedded = []
+        classes = []
+        for c in columns:
+            bc = get_basic_c(c)
+            try:
+                index = embedded.index(bc)
+                classes.append(index)
+            except ValueError as ex:
+                cl = ATTR_CLASSES[get_basic_c(c)]
+                classes.append((cl, f(cl)))
+                embedded.append(bc)
+        return classes
+
 
 class HeroEmbedder(torch.nn.Module):
     def __init__(self, sizes, *args, **kwargs):
