@@ -74,7 +74,7 @@ class ResultPredictorModel(nn.Module):
                     activation(),
                     #nn.Dropout(dropout)
                 ],
-                [
+                *[
                     Residual(nn.Sequential(*[
                         nn.Dropout(dropout),
                         nn.Linear(d_hid, d_hid, bias=bias),
