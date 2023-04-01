@@ -43,11 +43,11 @@ class ResultPredictorModel(nn.Module):
 
     def _create_encoder(self, n_head, d_hid, n_layers, dropout=0.1):
         encoder_layers = TransformerEncoderLayer(self.d_embed, n_head, d_hid, dropout, batch_first=True)
-        self.transformer_encoder = TransformerEncoder(encoder_layers, n_layers)
+        self.encoder = TransformerEncoder(encoder_layers, n_layers)
 
     def _create_decoder(self, n_head, d_hid, n_layers, dropout=0.1):
         decoder_layers = TransformerDecoderLayer(self.d_embed, n_head, d_hid, dropout, batch_first=True)
-        self.transformer_decoder = TransformerDecoder(decoder_layers, n_layers)
+        self.decoder = TransformerDecoder(decoder_layers, n_layers)
 
     def _create_final(self, d_hid, n_layers, activation=torch.nn.ReLU, bias=True, dropout=0.1):
         d_final = self.d_embed
@@ -104,10 +104,8 @@ class ResultPredictorModel(nn.Module):
     
     def init_weights(self, layers=None, initrange=0.1):
         layers = layers or [
-            self.decoder,
-            self.victory_decoder,
-            self.score_decoder,
-            self.duration_decoder
+            self.final,
+            self.heads,
         ]
         #self.encoder.weight.data.uniform_(-initrange, initrange)
         for layer in layers:
