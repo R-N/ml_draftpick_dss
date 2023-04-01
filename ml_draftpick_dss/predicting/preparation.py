@@ -160,7 +160,7 @@ ATTR_CLASSES = {
 }
 def create_embedding_sizes(
     columns, 
-    f=lambda x: math.ceil(int(math.sqrt(x)))
+    f=lambda x: int(2*math.ceil(math.sqrt(x)))
 ):
     if isinstance(columns[0], int):
         classes = columns
