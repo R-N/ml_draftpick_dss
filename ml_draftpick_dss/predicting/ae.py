@@ -5,8 +5,8 @@ from ml_draftpick_dss.predicting.checkpoint import CheckpointManager, init_metri
 from ml_draftpick_dss.predicting.logging import TrainingLogger
 
 class DiceLoss(torch.nn.Module):
-    def __init__(self, weight=None, size_average=True):
-        super(DiceLoss, self).__init__()
+    def __init__(self, size_average=True):
+        super().__init__()
 
     def forward(self, inputs, targets, smooth=1):  
         
