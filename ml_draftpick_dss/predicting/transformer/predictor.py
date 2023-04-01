@@ -13,10 +13,11 @@ class ResultPredictor:
         self,
         *args,
         device=None,
+        model=ResultPredictorModel,
         **kwargs
     ):
         device = device or torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.model = ResultPredictorModel(*args, **kwargs).to(device)
+        self.model = model(*args, **kwargs).to(device)
         self.epoch = 0
         self.training_prepared = False
 

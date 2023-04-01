@@ -1,10 +1,9 @@
 from torch.utils.data import Dataset, DataLoader
-from .preparation import TARGET_COLS, extract_target
-from .result_loader import flip_results, merge_results
+from ..preparation import TARGET_COLS, extract_target
+from ..result_loader import flip_results, merge_results
 import torch
 
 class ResultDataset(Dataset):
-    """Face Landmarks dataset."""
 
     def __init__(self, df, encoder, embedder=None, flip=True):
         if flip:

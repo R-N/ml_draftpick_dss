@@ -5,7 +5,7 @@ from torch.nn import TransformerEncoder, TransformerEncoderLayer
 from torch.nn import TransformerDecoder, TransformerDecoderLayer
 from torchinfo import summary
 import math
-from ..modules import GlobalPooling1D, Residual
+from ..modules import GlobalPooling1D, Residual, create_mlp_stack
 from ..embedding import PositionalEncoding, HeroEmbedder
 
 
@@ -21,9 +21,10 @@ class ResultPredictorModel(nn.Module):
         pos_encoder=False,
         dropout=0.1,
         bidirectional=False,
+        dim=3
     ):
         super().__init__()
-        if isinstance(embedding, HeroEmbedder):
+        if isinstance(embedding, torch.nn.Module):
             self.embedding = embedding
             self.d_embed = self.embedding.dim
         elif isinstance(embedding, int):
@@ -32,6 +33,7 @@ class ResultPredictorModel(nn.Module):
         elif embedding and hasattr(embedding, "__iter__"):
             self.embedding = HeroEmbedder(embedding)
             self.d_embed = self.embedding.dim
+        self.dim = dim
         self.model_type = 'Transformer'
         self.bidirectional = bidirectional
         self.pos_encoder = PositionalEncoding(self.d_embed, dropout) if pos_encoder else None
@@ -42,10 +44,12 @@ class ResultPredictorModel(nn.Module):
         self._create_heads(**head_kwargs)
 
     def _create_encoder(self, n_heads, d_hid, n_layers, dropout=0.1):
+        d = self.d_embed if self.dim == 3 else 1
         encoder_layers = TransformerEncoderLayer(self.d_embed, n_heads, d_hid, dropout, batch_first=True)
         self.encoder = TransformerEncoder(encoder_layers, n_layers)
 
     def _create_decoder(self, n_heads, d_hid, n_layers, dropout=0.1):
+        d = self.d_embed if self.dim == 3 else 1
         decoder_layers = TransformerDecoderLayer(self.d_embed, n_heads, d_hid, dropout, batch_first=True)
         self.decoder = TransformerDecoder(decoder_layers, n_layers)
 
@@ -56,39 +60,7 @@ class ResultPredictorModel(nn.Module):
             self.pooling and not isinstance(self.pooling, torch.nn.Flatten)
         ) else 5) * d_final
 
-        if n_layers == 0:
-            self.final = nn.Identity()
-        elif n_layers == 1:
-            self.final = nn.Sequential(
-                *[
-                    nn.Dropout(dropout),
-                    nn.Linear(d_final, d_final, bias=bias),
-                    activation()
-                ]
-            )
-        else:
-            self.final = nn.Sequential(
-                *[
-                    nn.Dropout(dropout),
-                    nn.Linear(d_final, d_hid, bias=bias),
-                    activation(),
-                    #nn.Dropout(dropout)
-                ],
-                *[
-                    Residual(nn.Sequential(*[
-                        nn.Dropout(dropout),
-                        nn.Linear(d_hid, d_hid, bias=bias),
-                        activation(),
-                    ]))
-                    for i in range(max(0, n_layers-2))
-                ],
-                *[
-                    nn.Dropout(dropout),
-                    nn.Linear(d_hid, d_final, bias=bias),
-                    activation(),
-                    #nn.Dropout(dropout)
-                ],
-            )
+        self.final = create_mlp_stack(d_final, d_hid, d_final, n_layers, activation=activation, bias=bias, dropout=dropout)
         self.d_final = d_final
         return d_final
 
@@ -129,9 +101,15 @@ class ResultPredictorModel(nn.Module):
         return x
 
     def forward(self, left, right):
+
         left = self.embedding(left)
-        left = self.pos_encode(left)
         right = self.embedding(right)
+
+        if self.dim == 2:
+            left = left[:, :, None]
+            right = right[:, :, None]
+
+        left = self.pos_encode(left)
         right = self.pos_encode(right)
         
         if self.bidirectional:
@@ -141,7 +119,11 @@ class ResultPredictorModel(nn.Module):
         else:
             tgt = self.transform(left, right)
 
-        tgt = self.pooling(tgt)
+        if self.dim == 2:
+            left = torch.squeeze(left, start_dim=-1)
+            right = torch.squeeze(right, start_dim=-1)
+        else:
+            tgt = self.pooling(tgt)
         tgt = self.final(tgt)
         output = [f(tgt) for f in self.heads]
         return output
