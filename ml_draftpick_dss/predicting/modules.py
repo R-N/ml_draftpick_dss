@@ -59,23 +59,23 @@ def create_mlp(d_input, d_output, activation=torch.nn.ReLU, bias=True, dropout=0
             nn.Dropout(dropout),
             nn.Linear(d_input, d_output or d_hid, bias=bias),
             activation()
-        ]), d_input==d_output
+        ]), residual and d_input==d_output
     )
 
 def create_mlp_stack(d_input, d_hid, d_output, n_layers, activation=torch.nn.ReLU, bias=True, dropout=0.1, residual=True):
     if n_layers == 0:
         mlp = nn.Identity()
     elif n_layers == 1:
-        mlp = create_mlp_stack(d_input, d_output or d_hid, activation=activation, bias=bias, dropout=dropout, residual=residual)
+        mlp = create_mlp(d_input, d_output or d_hid, activation=activation, bias=bias, dropout=dropout, residual=residual)
     else:
         modules = [
-            create_mlp_stack(d_input, d_hid, activation=activation, bias=bias, dropout=dropout, residual=residual),
+            create_mlp(d_input, d_hid, activation=activation, bias=bias, dropout=dropout, residual=residual),
             *[
                 mlp(d_hid, d_hid, activation=activation, bias=bias, dropout=dropout, residual=residual)
                 for i in range(max(0, n_layers-(2 if d_output else 1)))
             ],
         ]
         if d_output:
-            modules.append(mlp(d_hid, d_output, activation=activation, bias=bias, dropout=dropout, residual=residual))
+            modules.append(create_mlp(d_hid, d_output, activation=activation, bias=bias, dropout=dropout, residual=residual))
         mlp = nn.Sequential(*modules)
     return mlp
