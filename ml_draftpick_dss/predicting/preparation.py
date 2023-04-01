@@ -158,11 +158,11 @@ ATTR_CLASSES = {
     "roles": 7,
     "specialities": 16,
 }
-def scaled_sqrt(scale=1):
+def scaled_sqrt_factory(scale=1):
     return lambda x: int(scale*math.ceil(math.sqrt(x)))
 def create_embedding_sizes(
     columns, 
-    f=scaled_sqrt(2)
+    f=scaled_sqrt_factory(2)
 ):
     if isinstance(columns[0], int):
         classes = columns
