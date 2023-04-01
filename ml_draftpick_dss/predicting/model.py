@@ -25,13 +25,13 @@ class ResultPredictorModel(nn.Module):
         super().__init__()
         if isinstance(embedding, HeroEmbedder):
             self.embedding = embedding
-            self.d_embed = embedding.dim
+            self.d_embed = self.embedding.dim
         elif isinstance(embedding, int):
-            self.embedding = nn.Identity()
             self.d_embed = embedding
+            self.embedding = nn.Identity()
         elif embedding and hasattr(embedding, "__iter__"):
             self.embedding = HeroEmbedder(embedding)
-            self.d_embed = embedding.dim
+            self.d_embed = self.embedding.dim
         self.model_type = 'Transformer'
         self.bidirectional = bidirectional
         self.pos_encoder = PositionalEncoding(self.d_embed, dropout) if pos_encoder else None
@@ -61,6 +61,7 @@ class ResultPredictorModel(nn.Module):
         elif n_layers == 1:
             self.final = nn.Sequential(
                 *[
+                    nn.Dropout(dropout),
                     nn.Linear(d_final, d_final, bias=bias),
                     activation()
                 ]
@@ -68,19 +69,21 @@ class ResultPredictorModel(nn.Module):
         else:
             self.final = nn.Sequential(
                 *[
+                    nn.Dropout(dropout),
                     nn.Linear(d_final, d_hid, bias=bias),
                     activation(),
                     #nn.Dropout(dropout)
                 ],
                 *[
                     nn.Sequential(*[
+                        nn.Dropout(dropout),
                         nn.Linear(d_hid, d_hid, bias=bias),
                         activation(),
-                        nn.Dropout(dropout)
                     ])
                     for i in range(max(0, n_layers-2))
                 ],
                 *[
+                    nn.Dropout(dropout),
                     nn.Linear(d_hid, d_final, bias=bias),
                     activation(),
                     #nn.Dropout(dropout)
@@ -89,12 +92,13 @@ class ResultPredictorModel(nn.Module):
         self.d_final = d_final
         return d_final
 
-    def _create_heads(self, heads=["victory", "score", "duration"], bias=True):
+    def _create_heads(self, heads=["victory", "score", "duration"], activation=nn.Tanh, bias=True, dropout=0.1):
         self.head_labels = heads
         self.heads = [
             nn.Sequential(*[
+                nn.Dropout(dropout),
                 nn.Linear(self.final_dim, 1, bias=bias),
-                nn.Tanh()
+                activation()
             ]) for i in range(len(heads))
         ]
     
