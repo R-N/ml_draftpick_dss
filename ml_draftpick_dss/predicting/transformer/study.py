@@ -1,11 +1,11 @@
 import torch
-from ..dataset import create_dataloader
+from .dataset import create_dataloader, ResultDataset
 from .model import GlobalPooling1D
 from .predictor import ResultPredictor
 from ..embedding import scaled_sqrt_factory, create_embedding_sizes
 
 def study(
-    dfs,
+    datasets,
     encoder,
     id=1,
     n_heads = 2,
@@ -25,10 +25,10 @@ def study(
     grad_clipping = 0,
     batch_size = 128,
 ):
-    train_df, val_df, test_df = dfs
-    train_loader = create_dataloader(train_df, encoder, batch_size=batch_size)
-    val_loader = create_dataloader(val_df, encoder, batch_size=batch_size)
-    test_loader = create_dataloader(test_df, encoder, batch_size=batch_size)
+    train_set, val_set, test_set = datasets
+    train_loader = create_dataloader(train_set, batch_size=batch_size)
+    val_loader = create_dataloader(val_set, batch_size=batch_size)
+    test_loader = create_dataloader(test_set, batch_size=batch_size)
 
     sizes = create_embedding_sizes(
         encoder.x.columns[1:], 
