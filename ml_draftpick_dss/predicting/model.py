@@ -6,88 +6,97 @@ from torch.nn import TransformerDecoder, TransformerDecoderLayer
 from torchinfo import summary
 import math
 from .modules import PositionalEncoding, GlobalPooling1D
-
+from .preparation import HeroEmbedder
 
 
 class ResultPredictorModel(nn.Module):
-
-    def __init__(self, 
-        d_model, 
-        d_hid=128,
-        nlayers=2,
-        nhead=2,
-        d_final=2,
-        embedder=None,
-        dropout=0.1,
+    def __init__(
+        self, 
+        embedding,
+        encoder_kwargs,
+        decoder_kwargs,
+        final_kwargs,
+        head_kwargs,
         pooling=GlobalPooling1D(),
-        act_final=nn.ReLU,
-        bidirectional=False,
         pos_encoder=False,
-        bias_final=True
+        dropout=0.1,
+        bidirectional=False,
     ):
         super().__init__()
-        if embedder:
-            d_model = embedder.dim
-        else:
-            embedder = nn.Identity()
+        if isinstance(embedding, HeroEmbedder):
+            self.embedding = embedding
+            self.d_embed = embedding.dim
+        elif isinstance(embedding, int):
+            self.embedding = nn.Identity()
+            self.d_embed = embedding
+        elif embedding and hasattr(embedding, "__iter__"):
+            self.embedding = HeroEmbedder(embedding)
+            self.d_embed = embedding.dim
         self.model_type = 'Transformer'
         self.bidirectional = bidirectional
-        self.pos_encoder = PositionalEncoding(d_model, dropout) if pos_encoder else None
-        encoder_layers = TransformerEncoderLayer(d_model, nhead, d_hid, dropout, batch_first=True)
-        decoder_layers = TransformerDecoderLayer(d_model, nhead, d_hid, dropout, batch_first=True)
-        self.d_model = d_model
-        self.encoder = embedder
-        self.transformer_encoder = TransformerEncoder(encoder_layers, nlayers)
-        self.transformer_decoder = TransformerDecoder(decoder_layers, nlayers)
+        self.pos_encoder = PositionalEncoding(self.d_embed, dropout) if pos_encoder else None
+        self._create_encoder(**encoder_kwargs)
+        self._create_decoder(**decoder_kwargs)
+        self._create_final(**final_kwargs)
+        self._create_heads(**head_kwargs)
         self.pooling = pooling or torch.nn.Flatten(start_dim=-2, end_dim=-1)
 
-        final_dim = d_model
-        final_dim = (2 if bidirectional else 1) * final_dim
-        final_dim = (1 if pooling else 5) * final_dim
-        if d_final == 0:
-            self.decoder = nn.Identity()
-        elif d_final == 1:
-            self.decoder = nn.Sequential(
+    def _create_encoder(self, n_head, d_hid, n_layers, dropout=0.1):
+        encoder_layers = TransformerEncoderLayer(self.d_embed, n_head, d_hid, dropout, batch_first=True)
+        self.transformer_encoder = TransformerEncoder(encoder_layers, n_layers)
+
+    def _create_decoder(self, n_head, d_hid, n_layers, dropout=0.1):
+        decoder_layers = TransformerDecoderLayer(self.d_embed, n_head, d_hid, dropout, batch_first=True)
+        self.transformer_decoder = TransformerDecoder(decoder_layers, n_layers)
+
+    def _create_final(self, d_hid, n_layers, activation=torch.nn.ReLU, bias=True, dropout=0.1):
+        d_final = self.d_embed
+        d_final = (2 if self.bidirectional else 1) * d_final
+        d_final = (1 if (
+            self.pooling and not isinstance(self.pooling, torch.nn.Flatten)
+        ) else 5) * d_final
+
+        if n_layers == 0:
+            self.final = nn.Identity()
+        elif n_layers == 1:
+            self.final = nn.Sequential(
                 *[
-                    nn.Linear(final_dim, final_dim, bias=bias_final),
-                    act_final()
+                    nn.Linear(d_final, d_final, bias=bias),
+                    activation()
                 ]
             )
         else:
-            self.decoder = nn.Sequential(
+            self.final = nn.Sequential(
                 *[
-                    nn.Linear(final_dim, d_hid, bias=bias_final),
-                    act_final(),
+                    nn.Linear(d_final, d_hid, bias=bias),
+                    activation(),
                     #nn.Dropout(dropout)
                 ],
                 *[
                     nn.Sequential(*[
-                        nn.Linear(d_hid, d_hid, bias=bias_final),
-                        act_final(),
+                        nn.Linear(d_hid, d_hid, bias=bias),
+                        activation(),
                         nn.Dropout(dropout)
                     ])
-                    for i in range(max(0, d_final-2))
+                    for i in range(max(0, n_layers-2))
                 ],
                 *[
-                    nn.Linear(d_hid, final_dim, bias=bias_final),
-                    act_final(),
+                    nn.Linear(d_hid, d_final, bias=bias),
+                    activation(),
                     #nn.Dropout(dropout)
                 ],
             )
-        self.victory_decoder = nn.Sequential(*[
-            nn.Linear(final_dim, 1, bias=False),
-            nn.Tanh()
-        ])
-        self.score_decoder = nn.Sequential(*[
-            nn.Linear(final_dim, 1, bias=False),
-            nn.Tanh()
-        ])
-        self.duration_decoder = nn.Sequential(*[
-            nn.Linear(final_dim, 1, bias=False),
-            nn.Tanh()
-        ])
+        self.d_final = d_final
+        return d_final
 
-        #self.init_weights()
+    def _create_heads(self, heads=["victory", "score", "duration"], bias=True):
+        self.head_labels = heads
+        self.heads = [
+            nn.Sequential(*[
+                nn.Linear(self.final_dim, 1, bias=bias),
+                nn.Tanh()
+            ]) for i in range(len(heads))
+        ]
     
     def init_weights(self, layers=None, initrange=0.1):
         layers = layers or [
@@ -107,8 +116,8 @@ class ResultPredictorModel(nn.Module):
                     layer.weight.data.uniform_(-initrange, initrange)
     
     def transform(self, src, tgt):
-        memory = self.transformer_encoder(src)#, src_mask)
-        tgt = self.transformer_decoder(tgt, memory)
+        memory = self.encoder(src)#, src_mask)
+        tgt = self.decoder(tgt, memory)
         return tgt
     
     def pos_encode(self, x):
@@ -118,9 +127,9 @@ class ResultPredictorModel(nn.Module):
         return x
 
     def forward(self, left, right):
-        left = self.encoder(left)
+        left = self.embedding(left)
         left = self.pos_encode(left)
-        right = self.encoder(right)
+        right = self.embedding(right)
         right = self.pos_encode(right)
         
         if self.bidirectional:
@@ -131,12 +140,8 @@ class ResultPredictorModel(nn.Module):
             tgt = self.transform(left, right)
 
         tgt = self.pooling(tgt)
-        tgt = self.decoder(tgt)
-        victory = self.victory_decoder(tgt)
-        score = self.score_decoder(tgt)
-        duration = self.duration_decoder(tgt)
-        output = victory, score, duration
-        #output = torch.cat(output, dim=-1)
+        tgt = self.final(tgt)
+        output = [f(tgt) for f in self.heads]
         return output
     
     def summary(self, batch_size=32, team_size=5, dim=6):

@@ -26,31 +26,37 @@ def CosineLoss(*args, **kwargs):
     return __CosineLoss
 
 class HeroAEModel(torch.nn.Module):
-    def __init__(self, dims, dropout=0, bias=True):
+    def __init__(self, dims, d_encoder=[128, 64, 32], d_decoder=[32, 64, 128], dropout=0, bias=True, activation=torch.nn.ReLU):
         super().__init__()
-        d_model = sum(dims)
-        self.d_model = d_model
-        self.encoder = torch.nn.Sequential(
-            torch.nn.Linear(d_model, 128, bias=bias),
-            torch.nn.ReLU(),
-            torch.nn.Dropout(dropout),
-            torch.nn.Linear(128, 64, bias=bias),
-            torch.nn.ReLU(),
-            torch.nn.Dropout(dropout),
-            torch.nn.Linear(64, 32, bias=bias),
-            torch.nn.ReLU(),
-        )
-        self.decoder = torch.nn.Sequential(
-            torch.nn.Linear(32, 64, bias=bias),
-            torch.nn.ReLU(),
-            torch.nn.Dropout(dropout),
-            torch.nn.Linear(64, 128, bias=bias),
-            torch.nn.ReLU(),
-            torch.nn.Dropout(dropout),
-        )
+        self.d_input = sum(dims)
+        assert len(d_encoder) > 0, "encoder must be provided"
+        assert len(d_decoder) > 0, "decoder must be provided"
+        assert d_encoder[-1] == d_decoder[0], "encoder and decoder dim mismatch"
+        self.encoder = torch.nn.Sequential(*[
+            torch.nn.Linear(self.d_input, d_encoder[0], bias=bias),
+            activation(),
+            *[
+                torch.nn.Sequential(
+                    torch.nn.Dropout(dropout),
+                    torch.nn.Linear(a, b, bias=bias),
+                    activation(),
+                ) for a, b in zip(d_encoder, d_encoder[1:])
+            ]
+        ]) 
+        self.decoder = torch.nn.Sequential(*[
+            *[
+                torch.nn.Sequential(
+                    torch.nn.Dropout(dropout),
+                    torch.nn.Linear(a, b, bias=bias),
+                    activation(),
+                ) for a, b in zip(d_decoder, d_decoder[1:])
+            ]
+            #torch.nn.Linear(d_decoder[-1], self.d_input, bias=bias),
+            #activation(),
+        ]) 
         self.heads = torch.nn.ModuleList([
             torch.nn.Sequential(*[
-                torch.nn.Linear(128, d, bias=bias),
+                torch.nn.Linear(d_decoder[-1], d, bias=bias),
                 torch.nn.Softmax(-1)
             ])
             for d in dims

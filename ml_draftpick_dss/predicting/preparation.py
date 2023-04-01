@@ -152,30 +152,41 @@ class HeroOneHotEncoder:
 def create_embedding(n):
     return torch.nn.Embedding(n, math.ceil(math.sqrt(n)))
 
+ATTR_CLASSES = {
+    "id": 120,
+    "lane": 5,
+    "roles": 7,
+    "specialities": 16,
+}
+def create_embedding_sizes(
+    columns, 
+    f=lambda x: math.ceil(int(math.sqrt(x)))
+):
+    if isinstance(columns[0], int):
+        classes = columns
+    else:
+        classes = [ATTR_CLASSES[get_basic_c(c)] for c in columns]
+    return [(c, f(c)) for c in classes]
+
+
 class HeroEmbedder(torch.nn.Module):
-    def __init__(self, columns, *args, **kwargs):
+    def __init__(self, sizes, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        embeddings = {
-            "id": create_embedding(120),
-            "lane": create_embedding(5),
-            "roles": create_embedding(7),
-            "specialities": create_embedding(16),
-        }
-        embeddings_list = [embeddings[get_basic_c(c)] for c in columns]
-        embeddings_list = torch.nn.ModuleList(embeddings_list)
-        #print(len(embeddings_list), sum([e.weight.shape[-1] for e in embeddings_list]))
+        embeddings = [
+            torch.nn.Embedding(size, dim)
+            for size, dim in sizes
+        ]
+        embeddings = torch.nn.ModuleList(embeddings)
         self.embeddings = embeddings
-        self.columns = columns
-        self.embeddings_list = embeddings_list
-        self.main_dim = embeddings_list[0].weight.shape[-1]
-        self.dim = sum(e.weight.shape[-1] for e in embeddings_list)
+        self.main_dim = embeddings[0].weight.shape[-1]
+        self.dim = sum(e.weight.shape[-1] for e in embeddings)
 
     def embed_batch(self, encoded_tensor):
         split_encoded = torch.split(encoded_tensor, 1, dim=-1)
         split_encoded = [torch.squeeze(e, dim=-1) for e in split_encoded]
         #print(len(split_encoded), split_encoded[0].shape)
         split_embed = [
-            self.embeddings_list[i](split_encoded[i]) 
+            self.embeddings[i](split_encoded[i]) 
             for i in range(len(split_encoded))
         ]
         embedded = torch.cat(split_embed, dim=-1)
@@ -190,7 +201,7 @@ class HeroEmbedder(torch.nn.Module):
     
     def reverse(self, sample):
         sample = sample[..., :self.main_dim]
-        distance = torch.norm(self.embeddings_list[0].weight.data - sample, dim=1)
+        distance = torch.norm(self.embeddings[0].weight.data - sample, dim=1)
         nearest = torch.argmin(distance)
         return nearest
     
