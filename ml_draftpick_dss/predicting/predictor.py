@@ -80,9 +80,13 @@ class ResultPredictor:
             g['lr'] = lr
         self.create_scheduler()
 
-    def train(self):
+    def train(self, val=False):
         assert self.training_prepared
-        self.model.train()  # turn on train mode
+        if val:
+            self.model.eval()
+            assert self.val_loader is not None, "Please provide validation dataloader"
+        else:
+            self.model.train()  # turn on train mode
         losses = {
             "victory_loss": 0, 
             "score_loss": 0, 
@@ -96,7 +100,8 @@ class ResultPredictor:
         bin_pred = []
         #min_victory_pred, max_victory_pred = 2, -2
         victory_preds = torch.Tensor([])
-        for i, batch in enumerate(self.train_loader):
+        loader = self.val_loader if val else self.train_loader
+        for i, batch in enumerate(loader):
             left, right, targets = batch
             victory_true, score_true, duration_true = split_dim(targets)
             victory_pred, score_pred, duration_pred = self.model(left, right)
@@ -107,11 +112,12 @@ class ResultPredictor:
             duration_loss = self.norm_crit(duration_pred, duration_true)
             loss = victory_loss + score_loss + duration_loss
 
-            self.optimizer.zero_grad()
-            loss.backward()
-            if self.grad_clipping:
-                torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.grad_clipping)
-            self.optimizer.step()
+            if not val:
+                self.optimizer.zero_grad()
+                loss.backward()
+                if self.grad_clipping:
+                    torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.grad_clipping)
+                self.optimizer.step()
 
             losses["victory_loss"] += victory_loss.item()
             losses["score_loss"] += score_loss.item()
@@ -147,11 +153,14 @@ class ResultPredictor:
             **{cm_labels[i]: x for i, x in enumerate(cm.ravel())}
         }
     
-        lr = self.scheduler.get_last_lr()[0]
-        ms_per_batch = (time.time() - start_time) * 1000 / batch_count
-        print(f'| epoch {self.epoch:3d} | step {i:5d} | '
-            f'lr {lr} | ms/batch {ms_per_batch:5.2f} | ')
-        self.scheduler.step()
+        if val:
+            cur_metrics = {f"val_{k}": v for k, v in cur_metrics.items()}
+        else:
+            lr = self.scheduler.get_last_lr()[0]
+            ms_per_batch = (time.time() - start_time) * 1000 / batch_count
+            print(f'| epoch {self.epoch:3d} | step {i:5d} | '
+                f'lr {lr} | ms/batch {ms_per_batch:5.2f} | ')
+            self.scheduler.step()
         
         for m, v in cur_metrics.items():
             self.log_scalar(m, v, self.epoch)
