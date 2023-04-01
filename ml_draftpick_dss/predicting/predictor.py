@@ -11,17 +11,14 @@ from .logging import TrainingLogger
 class ResultPredictor:
     def __init__(
         self,
-        d_model,
         *args,
         device=None,
-        grad_clipping=0,
         **kwargs
     ):
         device = device or torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.model = ResultPredictorModel(d_model, *args, **kwargs).to(device)
+        self.model = ResultPredictorModel(*args, **kwargs).to(device)
         self.epoch = 0
         self.training_prepared = False
-        self.grad_clipping = grad_clipping
 
     def prepare_training(
         self,
@@ -31,6 +28,7 @@ class ResultPredictor:
         norm_crit=torch.nn.MSELoss(reduction="mean"),
         lr=1e-3,
         optimizer=torch.optim.Adam,
+        grad_clipping=0,
         metrics=METRICS,
         checkpoint_dir="checkpoints",
         log_dir="logs",
@@ -41,6 +39,7 @@ class ResultPredictor:
         self.create_scheduler()
         self.train_loader = train_loader
         self.val_loader = val_loader
+        self.grad_clipping = grad_clipping
         self.model.train()
 
         self.metrics = metrics
