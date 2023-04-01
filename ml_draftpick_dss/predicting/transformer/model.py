@@ -5,7 +5,7 @@ from torch.nn import TransformerEncoder, TransformerEncoderLayer
 from torch.nn import TransformerDecoder, TransformerDecoderLayer
 from torchinfo import summary
 import math
-from ..modules import GlobalPooling1D
+from ..modules import GlobalPooling1D, Residual
 from ..embedding import PositionalEncoding, HeroEmbedder
 
 
@@ -74,12 +74,12 @@ class ResultPredictorModel(nn.Module):
                     activation(),
                     #nn.Dropout(dropout)
                 ],
-                *[
-                    nn.Sequential(*[
+                [
+                    Residual(nn.Sequential(*[
                         nn.Dropout(dropout),
                         nn.Linear(d_hid, d_hid, bias=bias),
                         activation(),
-                    ])
+                    ]))
                     for i in range(max(0, n_layers-2))
                 ],
                 *[
