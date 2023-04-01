@@ -4,8 +4,8 @@ import time
 import numpy as np
 from sklearn.metrics import accuracy_score, roc_auc_score, f1_score, confusion_matrix
 from .model import ResultPredictorModel
-from .checkpoint import CheckpointManager, METRICS, init_metrics
-from .logging import TrainingLogger
+from ..checkpoint import CheckpointManager, METRICS, init_metrics
+from ..logging import TrainingLogger
 
 
 class ResultPredictor:
@@ -79,11 +79,12 @@ class ResultPredictor:
             g['lr'] = lr
         self.create_scheduler()
 
-    def train(self, val=False):
+    def train(self, val=False, val_loader=None):
         assert self.training_prepared
         if val:
             self.model.eval()
-            assert self.val_loader is not None, "Please provide validation dataloader"
+            val_loader = self.val_loader if val_loader is None else val_loader
+            assert val_loader is not None, "Please provide validation dataloader"
         else:
             self.model.train()  # turn on train mode
         losses = {
@@ -99,7 +100,7 @@ class ResultPredictor:
         bin_pred = []
         #min_victory_pred, max_victory_pred = 2, -2
         victory_preds = torch.Tensor([])
-        loader = self.val_loader if val else self.train_loader
+        loader = val_loader if val else self.train_loader
         for i, batch in enumerate(loader):
             left, right, targets = batch
             victory_true, score_true, duration_true = split_dim(targets)

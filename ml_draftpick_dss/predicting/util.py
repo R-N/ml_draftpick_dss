@@ -73,3 +73,8 @@ def split_dim(x, dim=-1, squeeze=False):
     if squeeze:
         ret = [torch.squeeze(y, dim=dim) for y in ret]
     return ret
+
+def get_unique(mixed):
+    return sorted(list(set(mixed)), key=lambda x: (x is None, x))
+def get_basic_c(c):
+    return c.split("_", maxsplit=1)[0]

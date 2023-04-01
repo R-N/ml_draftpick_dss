@@ -5,8 +5,8 @@ from torch.nn import TransformerEncoder, TransformerEncoderLayer
 from torch.nn import TransformerDecoder, TransformerDecoderLayer
 from torchinfo import summary
 import math
-from .modules import PositionalEncoding, GlobalPooling1D
-from .preparation import HeroEmbedder
+from ..modules import GlobalPooling1D
+from ..embedding import PositionalEncoding, HeroEmbedder
 
 
 class ResultPredictorModel(nn.Module):
