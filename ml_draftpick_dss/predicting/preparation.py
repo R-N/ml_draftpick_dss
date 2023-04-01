@@ -172,10 +172,13 @@ def create_embedding_sizes(
 class HeroEmbedder(torch.nn.Module):
     def __init__(self, sizes, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        embeddings = [
-            torch.nn.Embedding(size, dim)
-            for size, dim in sizes
-        ]
+        embeddings = []
+        for s in sizes:
+            if isinstance(s, int):
+                embedding = embeddings[s]
+            else:
+                embedding = torch.nn.Embedding(*s)
+            embeddings.append(embedding)
         embeddings = torch.nn.ModuleList(embeddings)
         self.embeddings = embeddings
         self.main_dim = embeddings[0].weight.shape[-1]
