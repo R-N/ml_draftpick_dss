@@ -71,7 +71,7 @@ def create_mlp_stack(d_input, d_hid, d_output, n_layers, activation=torch.nn.ReL
         modules = [
             create_mlp(d_input, d_hid, activation=activation, bias=bias, dropout=dropout, residual=residual),
             *[
-                mlp(d_hid, d_hid, activation=activation, bias=bias, dropout=dropout, residual=residual)
+                create_mlp(d_hid, d_hid, activation=activation, bias=bias, dropout=dropout, residual=residual)
                 for i in range(max(0, n_layers-(2 if d_output else 1)))
             ],
         ]
