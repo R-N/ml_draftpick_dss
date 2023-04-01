@@ -37,9 +37,9 @@ class ResultPredictorModel(nn.Module):
         self.pos_encoder = PositionalEncoding(self.d_embed, dropout) if pos_encoder else None
         self._create_encoder(**encoder_kwargs)
         self._create_decoder(**decoder_kwargs)
+        self.pooling = pooling or torch.nn.Flatten(start_dim=-2, end_dim=-1)
         self._create_final(**final_kwargs)
         self._create_heads(**head_kwargs)
-        self.pooling = pooling or torch.nn.Flatten(start_dim=-2, end_dim=-1)
 
     def _create_encoder(self, n_head, d_hid, n_layers, dropout=0.1):
         encoder_layers = TransformerEncoderLayer(self.d_embed, n_head, d_hid, dropout, batch_first=True)
