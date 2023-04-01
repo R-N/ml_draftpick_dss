@@ -5,6 +5,7 @@ from sklearn import preprocessing
 import pandas as pd
 from .util import get_unique, get_basic_c
 
+HERO_COLS=["id", "lane", "roles", "specialities"]
 
 def get_mixed(df_heroes, x, n=2):
     return [a for i in range(n) for a in df_heroes[f"{x}_{i}"].tolist()]

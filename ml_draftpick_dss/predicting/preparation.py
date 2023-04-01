@@ -2,7 +2,6 @@ import numpy as np
 from .result_loader import NORMALIZE_COLS, NORMALIZED_COLS
 import torch
 
-HERO_COLS=["id", "lane", "roles", "specialities"]
 TARGET_COLS=["left_victory", "scores_sum_diff_norm", "match_duration_norm"]
 
 class SymmetricScaler:
