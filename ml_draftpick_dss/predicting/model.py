@@ -41,12 +41,12 @@ class ResultPredictorModel(nn.Module):
         self._create_final(**final_kwargs)
         self._create_heads(**head_kwargs)
 
-    def _create_encoder(self, n_head, d_hid, n_layers, dropout=0.1):
-        encoder_layers = TransformerEncoderLayer(self.d_embed, n_head, d_hid, dropout, batch_first=True)
+    def _create_encoder(self, n_heads, d_hid, n_layers, dropout=0.1):
+        encoder_layers = TransformerEncoderLayer(self.d_embed, n_heads, d_hid, dropout, batch_first=True)
         self.encoder = TransformerEncoder(encoder_layers, n_layers)
 
-    def _create_decoder(self, n_head, d_hid, n_layers, dropout=0.1):
-        decoder_layers = TransformerDecoderLayer(self.d_embed, n_head, d_hid, dropout, batch_first=True)
+    def _create_decoder(self, n_heads, d_hid, n_layers, dropout=0.1):
+        decoder_layers = TransformerDecoderLayer(self.d_embed, n_heads, d_hid, dropout, batch_first=True)
         self.decoder = TransformerDecoder(decoder_layers, n_layers)
 
     def _create_final(self, d_hid, n_layers, activation=torch.nn.ReLU, bias=True, dropout=0.1):
