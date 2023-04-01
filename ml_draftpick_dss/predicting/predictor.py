@@ -38,7 +38,7 @@ class ResultPredictor:
         self.bin_crit = bin_crit
         self.norm_crit = norm_crit
         self.optimizer = optimizer(self.model.parameters(), lr=lr)
-        self.scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, 1.0, gamma=0.95)
+        self.create_scheduler()
         self.train_loader = train_loader
         self.val_loader = val_loader
         self.model.train()
@@ -51,6 +51,8 @@ class ResultPredictor:
 
         self.training_prepared = True
 
+    def create_scheduler(self, step_size=3, gamma=0.95):
+        self.scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=step_size, gamma=gamma)
 
     def prepare_checkpoint(self, checkpoint_dir="checkpoints"):
         self.checkpoint_dir = checkpoint_dir
@@ -74,8 +76,9 @@ class ResultPredictor:
         cm.save_checkpoint()
 
     def set_lr(self, lr):
-        for g in self.optim.param_groups:
+        for g in self.optimizer.param_groups:
             g['lr'] = lr
+        self.create_scheduler()
 
     def train(self):
         assert self.training_prepared
