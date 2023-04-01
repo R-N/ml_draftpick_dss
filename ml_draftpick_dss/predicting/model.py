@@ -97,7 +97,7 @@ class ResultPredictorModel(nn.Module):
         self.heads = [
             nn.Sequential(*[
                 nn.Dropout(dropout),
-                nn.Linear(self.final_dim, 1, bias=bias),
+                nn.Linear(self.d_final, 1, bias=bias),
                 activation()
             ]) for i in range(len(heads))
         ]
