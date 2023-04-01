@@ -121,7 +121,8 @@ class ResultPredictorModel(nn.Module):
         left = self.pos_encode(left)
         right = self.pos_encode(right)
 
-        left = 
+        left = self.expander(left)
+        right = self.expander(right)
         
         if self.bidirectional:
             left = self.transform(left, right)
@@ -130,9 +131,10 @@ class ResultPredictorModel(nn.Module):
         else:
             tgt = self.transform(left, right)
 
+        tgt = self.reducer(tgt)
+
         if self.dim == 2:
-            left = torch.squeeze(left, start_dim=-1)
-            right = torch.squeeze(right, start_dim=-1)
+            tgt = torch.squeeze(tgt, start_dim=-1)
         else:
             tgt = self.pooling(tgt)
         tgt = self.final(tgt)
