@@ -171,8 +171,8 @@ class ResultPredictor:
             ret = cm.check_metric(cur_metrics)
             if ret:
                 new_best_metrics.append(ret)
-
-        self.epoch += 1
+        if not val:
+            self.epoch += 1
         return self.epoch, cur_metrics, new_best_metrics
     
     def summary(self, *args, **kwargs):
