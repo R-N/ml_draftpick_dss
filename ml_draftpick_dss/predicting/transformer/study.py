@@ -6,7 +6,6 @@ from ..embedding import scaled_sqrt_factory, create_embedding_sizes
 
 def study(
     datasets,
-    encoder,
     id=1,
     n_heads = 2,
     d_hid_tf = 128,
