@@ -50,7 +50,7 @@ def create_embedding_sizes(
             except ValueError as ex:
                 cl = ATTR_CLASSES[get_basic_c(c)]
                 classes.append((cl, f(cl)))
-                embedded.append(bc)
+            embedded.append(bc)
         return classes
 
 
