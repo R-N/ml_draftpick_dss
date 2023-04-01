@@ -13,7 +13,7 @@ def study(
     n_layers_tf = 2,
     d_hid_reducer = 128,
     n_layers_reducer = 1,
-    bias_reducer = True,
+    bias_reducer = False,
     d_hid_final = 128,
     n_layers_final = 3,
     bias_final = True,
