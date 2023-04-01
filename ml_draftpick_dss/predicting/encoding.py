@@ -3,7 +3,7 @@ from .heroes_loader import MULTIPLE_ATTRS
 import torch
 from sklearn import preprocessing
 import pandas as pd
-from .util import get_mixed, get_basic_c
+from .util import get_unique, get_basic_c
 
 
 def get_mixed(df_heroes, x, n=2):
