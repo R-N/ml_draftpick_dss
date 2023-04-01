@@ -79,3 +79,11 @@ def create_mlp_stack(d_input, d_hid, d_output, n_layers, activation=torch.nn.ReL
             modules.append(create_mlp(d_hid, d_output, activation=activation, bias=bias, dropout=dropout, residual=residual))
         mlp = nn.Sequential(*modules)
     return mlp
+
+class AttentionHeadExpander(torch.nn.Module):
+    def __init__(self, n_heads, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.n_heads = n_heads
+
+    def forward(self, x):
+        return x.repeat(*((x.dim()-1)*[1]), self.n_heads)

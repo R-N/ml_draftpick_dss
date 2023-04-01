@@ -11,9 +11,13 @@ def study(
     n_heads = 2,
     d_hid_tf = 128,
     n_layers_tf = 2,
+    d_hid_reducer = 128,
+    n_layers_reducer = 1,
+    bias_reducer = True,
     d_hid_final = 128,
     n_layers_final = 3,
     bias_final = True,
+    dropout_reducer = 0,
     dropout = 0.1,
     pos_encoder = False,
     bidirectional = False,
@@ -32,7 +36,7 @@ def study(
 
     sizes = create_embedding_sizes(
         encoder.x.columns[1:], 
-        f=scaled_sqrt_factory(n_heads)
+        #f=scaled_sqrt_factory(2)
     )
     predictor = ResultPredictor(
         sizes, 
@@ -47,6 +51,13 @@ def study(
             "d_hid": d_hid_tf,
             "n_layers": n_layers_tf,
             "dropout": dropout,
+        },
+        reducer_kwargs={
+            "d_hid": d_hid_reducer,
+            "n_layers": n_layers_reducer,
+            "activation": torch.nn.Identity,
+            "bias": bias_reducer,
+            "dropout": dropout_reducer,
         },
         final_kwargs={
             "d_hid": d_hid_final,

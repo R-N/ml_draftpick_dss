@@ -5,9 +5,8 @@ from torch.nn import TransformerEncoder, TransformerEncoderLayer
 from torch.nn import TransformerDecoder, TransformerDecoderLayer
 from torchinfo import summary
 import math
-from ..modules import GlobalPooling1D, Residual, create_mlp_stack
+from ..modules import GlobalPooling1D, Residual, create_mlp_stack, AttentionHeadExpander
 from ..embedding import PositionalEncoding, HeroEmbedder
-
 
 class ResultPredictorModel(nn.Module):
     def __init__(
@@ -15,6 +14,7 @@ class ResultPredictorModel(nn.Module):
         embedding,
         encoder_kwargs,
         decoder_kwargs,
+        reducer_kwargs,
         final_kwargs,
         head_kwargs,
         pooling=GlobalPooling1D(),
@@ -40,29 +40,38 @@ class ResultPredictorModel(nn.Module):
         self._create_encoder(**encoder_kwargs)
         self._create_decoder(**decoder_kwargs)
         self.pooling = pooling or torch.nn.Flatten(start_dim=-2, end_dim=-1)
+        self._calc_d_final()
+        self.expander = AttentionHeadExpander(self.encoder_heads)
+        self._create_reducer(**reducer_kwargs)
         self._create_final(**final_kwargs)
         self._create_heads(**head_kwargs)
 
     def _create_encoder(self, n_heads, d_hid, n_layers, dropout=0.1):
         d = self.d_embed if self.dim == 3 else 1
-        encoder_layers = TransformerEncoderLayer(self.d_embed, n_heads, d_hid, dropout, batch_first=True)
+        encoder_layers = TransformerEncoderLayer(n_heads*self.d_embed, n_heads, d_hid, dropout, batch_first=True)
+        self.encoder_heads = n_heads
         self.encoder = TransformerEncoder(encoder_layers, n_layers)
 
     def _create_decoder(self, n_heads, d_hid, n_layers, dropout=0.1):
         d = self.d_embed if self.dim == 3 else 1
-        decoder_layers = TransformerDecoderLayer(self.d_embed, n_heads, d_hid, dropout, batch_first=True)
+        decoder_layers = TransformerDecoderLayer(n_heads*self.d_embed, n_heads, d_hid, dropout, batch_first=True)
+        self.decoder_heads = n_heads
         self.decoder = TransformerDecoder(decoder_layers, n_layers)
 
-    def _create_final(self, d_hid, n_layers, activation=torch.nn.ReLU, bias=True, dropout=0.1):
+    def _create_reducer(self, d_hid, n_layers=1, activation=torch.nn.Identity, bias=False, dropout=0):
+        self.reducer = create_mlp_stack(self.d_final*self.decoder_heads, d_hid, self.d_final, n_layers, activation=activation, bias=bias, dropout=dropout)
+    
+    def _calc_d_final(self):
         d_final = self.d_embed
         d_final = (2 if self.bidirectional else 1) * d_final
         d_final = (1 if (
             self.pooling and not isinstance(self.pooling, torch.nn.Flatten)
         ) else 5) * d_final
-
-        self.final = create_mlp_stack(d_final, d_hid, d_final, n_layers, activation=activation, bias=bias, dropout=dropout)
         self.d_final = d_final
         return d_final
+
+    def _create_final(self, d_hid, n_layers, activation=torch.nn.ReLU, bias=True, dropout=0.1):
+        self.final = create_mlp_stack(self.d_final, d_hid, self.d_final, n_layers, activation=activation, bias=bias, dropout=dropout)
 
     def _create_heads(self, heads=["victory", "score", "duration"], activation=nn.Tanh, bias=True, dropout=0.1):
         self.head_labels = heads
@@ -111,6 +120,8 @@ class ResultPredictorModel(nn.Module):
 
         left = self.pos_encode(left)
         right = self.pos_encode(right)
+
+        left = 
         
         if self.bidirectional:
             left = self.transform(left, right)
