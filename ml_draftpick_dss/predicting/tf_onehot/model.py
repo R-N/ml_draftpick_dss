@@ -3,8 +3,8 @@ import torch
 from ..transformer.model import ResultPredictorModel as _ResultPredictorModel
 
 class ResultPredictorModel(_ResultPredictorModel):
-    def __init__(self, d_input, *args, **kwargs):
-        super().__init__(d_input, *args, **kwargs)
+    def __init__(self, d_input, *args, dim=2, **kwargs):
+        super().__init__(d_input, *args, dim=dim, **kwargs)
         self.d_input = d_input
 
     def summary(self, batch_size=32, dtype=torch.float):

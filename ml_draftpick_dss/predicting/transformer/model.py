@@ -133,17 +133,11 @@ class ResultPredictorModel(nn.Module):
 
         tgt = self.reducer(tgt)
 
-        print(tgt.shape)
-
-        if self.dim > 2:
+        if self.dim == 2:
+            tgt = torch.squeeze(tgt, start_dim=-1)
+        else:
             tgt = self.pooling(tgt)
-
-        print(tgt.shape)
-
         tgt = self.final(tgt)
-
-        print(tgt.shape)
-
         output = [f(tgt) for f in self.heads]
         return output
     
