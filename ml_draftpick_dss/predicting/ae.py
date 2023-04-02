@@ -70,7 +70,7 @@ class HeroAEModel(torch.nn.Module):
         return combined
     
     def summary(self, batch_size=32, dim=0):
-        dim = dim or self.d_model
+        dim = dim or self.d_input
         return summary(
             self, 
             [(batch_size, dim)], 
