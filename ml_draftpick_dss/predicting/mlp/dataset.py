@@ -26,8 +26,8 @@ class ResultDataset(Dataset):
         left = torch.Tensor(left)
         right = torch.Tensor(right)
 
-        left = torch.squeeze(torch.sum(left, dim=-2), dim=-2)
-        right = torch.squeeze(torch.sum(right, dim=-2), dim=-2)
+        left = torch.sum(left, dim=-2)
+        right = torch.sum(right, dim=-2)
 
         target_df = sample[TARGET_COLS]
         target = extract_target(target_df)
