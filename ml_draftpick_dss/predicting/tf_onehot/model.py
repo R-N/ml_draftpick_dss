@@ -1,6 +1,6 @@
 from torchinfo import summary
 import torch
-from ..transformer import ResultPredictorModel as _ResultPredictorModel
+from ..transformer.model import ResultPredictorModel as _ResultPredictorModel
 
 class ResultPredictorModel(_ResultPredictorModel):
     def __init__(self, d_input, *args, **kwargs):
