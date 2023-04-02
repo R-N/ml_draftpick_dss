@@ -43,10 +43,10 @@ class ResultPredictorModel(nn.Module):
         output = [f(final) for f in self.heads]
         return output
     
-    def summary(self, batch_size=32, team_size=5, dim=6):
+    def summary(self, batch_size=32):
         return summary(
             self, 
-            [(batch_size, team_size, dim) for i in range(2)], 
+            [(batch_size, self.d_input) for i in range(2)], 
             dtypes=[torch.int, torch.int]
         )
 
