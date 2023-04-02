@@ -129,14 +129,24 @@ class ResultPredictorModel(nn.Module):
         else:
             tgt = self.transform(left, right)
 
+        print(tgt.shape)
+
         tgt = self.reducer(tgt)
+
+        print(tgt.shape)
 
         if self.dim == 2:
             tgt = torch.squeeze(tgt, -1)
         else:
             tgt = self.pooling(tgt)
+
+        print(tgt.shape)
         tgt = self.final(tgt)
+
+        print(tgt.shape)
         output = [f(tgt) for f in self.heads]
+
+        print([o.shape for o in output])
         return output
     
     def summary(self, batch_size=32, team_size=5, dim=6, dtype=torch.int):
