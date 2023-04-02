@@ -1,4 +1,4 @@
-from ..transformer.predictor import _ResultPredictor
+from ..transformer.predictor import ResultPredictor as _ResultPredictor
 from .model import ResultPredictorModel
 
 class ResultPredictor(_ResultPredictor):
