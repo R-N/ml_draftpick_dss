@@ -29,6 +29,7 @@ def study(
     optimizer = torch.optim.Adam,
     grad_clipping = 0,
     batch_size = 128,
+    predictor=ResultPredictor
 ):
     train_set, val_set, test_set = datasets
     train_loader = create_dataloader(train_set, batch_size=batch_size)
@@ -44,7 +45,7 @@ def study(
             encoder.x.columns[1:], 
             #f=scaled_sqrt_factory(2)
         )
-    predictor = ResultPredictor(
+    predictor = predictor(
         sizes, 
         encoder_kwargs={
             "n_heads": n_heads,
