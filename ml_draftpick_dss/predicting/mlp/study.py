@@ -1,8 +1,6 @@
 import torch
 from .dataset import create_dataloader, ResultDataset
-from .model import GlobalPooling1D
 from .predictor import ResultPredictor
-from ..embedding import scaled_sqrt_factory, create_embedding_sizes
 
 def study(
     datasets,
