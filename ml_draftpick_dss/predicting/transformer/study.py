@@ -34,10 +34,13 @@ def study(
     val_loader = create_dataloader(val_set, batch_size=batch_size)
     test_loader = create_dataloader(test_set, batch_size=batch_size)
 
-    sizes = create_embedding_sizes(
-        encoder.x.columns[1:], 
-        #f=scaled_sqrt_factory(2)
-    )
+    if isinstance(encoder, int):
+        sizes = encoder
+    else:
+        sizes = create_embedding_sizes(
+            encoder.x.columns[1:], 
+            #f=scaled_sqrt_factory(2)
+        )
     predictor = ResultPredictor(
         sizes, 
         encoder_kwargs={
