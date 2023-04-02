@@ -47,6 +47,6 @@ class ResultPredictorModel(nn.Module):
         return summary(
             self, 
             [(batch_size, self.d_input) for i in range(2)], 
-            dtypes=[torch.int, torch.int]
+            dtypes=[torch.float, torch.float]
         )
 

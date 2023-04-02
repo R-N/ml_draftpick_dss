@@ -10,7 +10,7 @@ HERO_COLS=["id", "lane", "roles", "specialities"]
 def get_mixed(df_heroes, x, n=2):
     return [a for i in range(n) for a in df_heroes[f"{x}_{i}"].tolist()]
 
-def encode_batch(f, batch):
+def encode_batch(f, batch, dtype=torch.IntTensor):
     if isinstance(batch, pd.DataFrame) or isinstance(batch, pd.Series):
         batch = batch.tolist()
     if not (torch.is_tensor(batch) or isinstance(batch, np.ndarray)):
@@ -21,7 +21,7 @@ def encode_batch(f, batch):
         encoded = [f(hero) for hero in batch]
     elif dim == 2:
         encoded = [[f(hero) for hero in team] for team in batch]
-    encoded_tensor = torch.IntTensor(encoded)
+    encoded_tensor = dtype(encoded)
     return encoded_tensor
 
 class HeroLabelEncoder:
@@ -57,8 +57,8 @@ class HeroLabelEncoder:
     def get_encoding(self, hero):
         return self.encoding[hero]
     
-    def encode_batch(self, batch):
-        return encode_batch(self.get_encoding, batch)
+    def encode_batch(self, batch, dtype=torch.IntTensor):
+        return encode_batch(self.get_encoding, batch, dtype=dtype)
     
     def __call__(self, batch):
         return self.encode_batch(batch)
@@ -106,8 +106,8 @@ class HeroOneHotEncoder:
     def get_encoding(self, hero):
         return self.encoding[hero]
     
-    def encode_batch(self, batch):
-        return encode_batch(self.get_encoding, batch)
+    def encode_batch(self, batch, dtype=torch.FloatTensor):
+        return encode_batch(self.get_encoding, batch, dtype=dtype)
     
     def __call__(self, batch):
         return self.encode_batch(batch)
