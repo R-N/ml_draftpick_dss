@@ -59,7 +59,8 @@ class ResultPredictorModel(nn.Module):
         self.decoder = TransformerDecoder(decoder_layers, n_layers)
 
     def _create_reducer(self, d_hid, n_layers=1, activation=torch.nn.Identity, bias=False, dropout=0):
-        self.reducer = create_mlp_stack(self.d_reducer, d_hid, self.d_final, n_layers, activation=activation, bias=bias, dropout=dropout)
+        d_out = 1 if self.dim == 2 else self.d_final
+        self.reducer = create_mlp_stack(self.d_reducer, d_hid, d_out, n_layers, activation=activation, bias=bias, dropout=dropout)
     
     def _calc_d_final(self, d_final):
         d_final = (2 if self.bidirectional else 1) * d_final
