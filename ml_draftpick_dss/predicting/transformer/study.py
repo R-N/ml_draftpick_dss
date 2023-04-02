@@ -3,6 +3,7 @@ from .dataset import create_dataloader, ResultDataset
 from .model import GlobalPooling1D
 from .predictor import ResultPredictor
 from ..embedding import scaled_sqrt_factory, create_embedding_sizes
+from ..encoding import HeroLabelEncoder, HeroOneHotEncoder
 
 def study(
     datasets,
@@ -36,6 +37,8 @@ def study(
 
     if isinstance(encoder, int):
         sizes = encoder
+    elif isinstance(encoder, HeroOneHotEncoder):
+        sizes = encoder.dim
     else:
         sizes = create_embedding_sizes(
             encoder.x.columns[1:], 
