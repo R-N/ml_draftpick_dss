@@ -74,3 +74,8 @@ def sample_parameters(trial, param_space, param_map={}):
             param = map_parameter(param, param_map[type_0])
         params[k] = param
     return params
+
+def create_objective(objective, sampler, objective_kwargs={}, sampler_kwargs={}):
+    def f(trial):
+        return objective(**sampler(trial, **sampler_kwargs), **objective_kwargs)
+    return f
