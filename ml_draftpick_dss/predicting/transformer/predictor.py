@@ -120,8 +120,8 @@ class ResultPredictor:
             duration_loss = self.norm_crit(duration_pred, duration_true)
 
             raw_losses = (victory_loss, score_loss, duration_loss)
-            reduced_losses = (self.reduce_loss(x) for x in raw_losses)
-            scaled_losses = (self.scale_loss(x) * y for x, y in zip(raw_losses, reduced_losses))
+            reduced_losses = [self.reduce_loss(x) for x in raw_losses]
+            scaled_losses = [self.scale_loss(x) * y for x, y in zip(raw_losses, reduced_losses)]
             scaled_loss = torch.sum(scaled_losses)
             extra_loss = self.extra_loss(raw_losses)
             loss = scaled_loss + extra_loss
