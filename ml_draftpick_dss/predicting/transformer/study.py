@@ -37,7 +37,7 @@ PARAM_SPACE = {
 }
 
 LRS = [
-    [1e-3]
+    [1e-2]
 ]
 EPOCHS = [
     [200]
