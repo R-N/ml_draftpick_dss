@@ -73,6 +73,7 @@ def sample_parameters(trial, param_space, param_map={}):
         if type_0 in param_map:
             param = map_parameter(param, param_map[type_0])
         params[k] = param
+    params["id"] = trial.number
     return params
 
 def create_objective(objective, sampler=sample_parameters, objective_kwargs={}, sampler_kwargs={}):
