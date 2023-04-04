@@ -104,12 +104,12 @@ def create_objective(
             _checkpoint_dir = f"{study_dir}/{checkpoint_dir}"
         if log_dir:
             _log_dir = f"{study_dir}/{log_dir}"
-        objective_kwargs = {
+        _objective_kwargs = {
             **params, 
             **objective_kwargs,
         }
         return objective(
-            **objective_kwargs,
+            **_objective_kwargs,
             checkpoint_dir=_checkpoint_dir,
             log_dir=_log_dir,
         )
