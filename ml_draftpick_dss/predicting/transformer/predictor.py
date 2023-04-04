@@ -16,7 +16,7 @@ class ResultPredictor:
         model=ResultPredictorModel,
         reduce_loss=torch.mean,
         scale_loss=lambda x: 1.0/(2*torch.var(x)),
-        extra_loss=lambda losses: torch.log(torch.prod([torch.std(loss) for loss in losses])),
+        extra_loss=lambda losses: torch.log(torch.prod(torch.stack([torch.std(loss) for loss in losses]))),
         **kwargs
     ):
         device = device or torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -120,8 +120,8 @@ class ResultPredictor:
             duration_loss = self.norm_crit(duration_pred, duration_true)
 
             raw_losses = (victory_loss, score_loss, duration_loss)
-            reduced_losses = [self.reduce_loss(x) for x in raw_losses]
-            scaled_losses = [self.scale_loss(x) * y for x, y in zip(raw_losses, reduced_losses)]
+            reduced_losses = torch.stack([self.reduce_loss(x) for x in raw_losses])
+            scaled_losses = torch.stack([self.scale_loss(x) * y for x, y in zip(raw_losses, reduced_losses)])
             scaled_loss = torch.sum(scaled_losses)
             extra_loss = self.extra_loss(raw_losses)
             loss = scaled_loss + extra_loss
