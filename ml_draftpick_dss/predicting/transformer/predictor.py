@@ -10,7 +10,7 @@ from ..logging import TrainingLogger
 TARGETS = ["victory", "score", "duration"]
 
 def scale_loss(x):
-    return (1.0/(2*torch.var(x))) if x else x
+    return (1.0/(2*torch.var(x)))
 
 def extra_loss(losses):
     return torch.log(torch.prod(torch.stack([torch.std(loss) for loss in losses])))
