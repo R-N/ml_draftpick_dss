@@ -97,14 +97,14 @@ def create_objective(objective, sampler=sample_parameters, objective_kwargs={}, 
             json.dump(params_raw, f, indent=4)
         print(json.dumps(params_raw, indent=4))
         if checkpoint_dir:
-            checkpoint_dir = f"{study_dir}/checkpoints"
+            checkpoint_dir = f"{study_dir}/{checkpoint_dir}"
         if log_dir:
-            log_dir = f"{study_dir}/logs"
+            log_dir = f"{study_dir}/{log_dir}"
 
         return objective(
             **params, 
+            **objective_kwargs,
             checkpoint_dir=checkpoint_dir,
             log_dir=log_dir,
-            **objective_kwargs
         )
     return f
