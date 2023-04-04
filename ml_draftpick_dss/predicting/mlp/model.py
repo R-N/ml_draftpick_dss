@@ -23,13 +23,17 @@ class ResultPredictorModel(nn.Module):
         self._create_heads(**head_kwargs)
 
 
-    def _create_heads(self, heads=["victory", "score", "duration"], activation=nn.Tanh, bias=True, dropout=0.1):
+    def _create_heads(self, d_hid=0, n_layers=1, heads=["victory", "score", "duration"], activation=torch.nn.ReLU, bias=True, dropout=0.1):
         self.head_labels = heads
+        d_hid = d_hid or self.d_final_2
         self.heads = [
             nn.Sequential(*[
-                nn.Dropout(dropout),
-                nn.Linear(self.d_final_2, 1, bias=bias),
-                activation()
+                create_mlp_stack(self.d_final_2, d_hid, self.d_final, n_layers-1, activation=activation, bias=bias, dropout=dropout),
+                nn.Sequential(*[
+                    nn.Dropout(dropout),
+                    nn.Linear(self.d_final, 1, bias=bias),
+                    nn.Tanh()
+                ])
             ]) for i in range(len(heads))
         ]
 
