@@ -64,9 +64,16 @@ class ResultPredictor:
 
         self.training_prepared = True
 
-    def create_scheduler(self, step_size=3, gamma=0.95):
-        self.scheduler = torch.optim.lr_scheduler.StepLR(self.optimizer, step_size=step_size, gamma=gamma)
-
+    def create_scheduler(self, patience=10, cooldown=5, threshold=1e-4, min_lr=0, eps=1e-8, verbose=True):
+        self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+            self.optimizer, 
+            patience=patience,
+            cooldown=cooldown,
+            threshold=threshold,
+            min_lr=min_lr,
+            eps=eps,
+            verbose=verbose,
+        )
     def prepare_checkpoint(self, checkpoint_dir="checkpoints"):
         self.checkpoint_dir = checkpoint_dir
         self.checkpoint_managers = {m: CheckpointManager(self, m, self.checkpoint_dir) for m in self.metrics} if checkpoint_dir else {}
