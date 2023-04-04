@@ -7,12 +7,6 @@ from ..encoding import HeroLabelEncoder, HeroOneHotEncoder
 from ..study import POOLINGS, LOSSES, OPTIMS, ACTIVATIONS, BOOLEAN, map_parameter, get_metric
 import optuna
 
-LRS = [
-    [1e-3, 1e-4, 1e-5]
-]
-EPOCHS = [
-    [100, 100, 100]
-]
 
 PARAM_SPACE = {
     "s_embed": ("int", 2, 8),
@@ -42,6 +36,12 @@ PARAM_SPACE = {
     "batch_size": ("int", 32, 128, 32),
 }
 
+LRS = [
+    [1e-3]
+]
+EPOCHS = [
+    [200]
+]
 PARAM_MAP = {
     "lrs": LRS,
     "epochs": EPOCHS,

@@ -1,15 +1,9 @@
 import torch
 from .dataset import create_dataloader, ResultDataset
 from .predictor import ResultPredictor
-from ..study import BOOLEAN, get_metric
+from ..study import BOOLEAN, get_metric, LRS as _LRS, EPOCHS as _EPOCHS
 import optuna
 
-LRS = [
-    [1e-3, 1e-4, 1e-5]
-]
-EPOCHS = [
-    [100, 100, 100]
-]
 
 PARAM_SPACE = {
     "d_final": ("int", 32, 512, 32),
@@ -31,10 +25,23 @@ PARAM_SPACE = {
     "batch_size": ("int", 32, 128, 32),
 }
 
+PARAM_MAP = {}
+"""
+LRS = [
+    [1e-3, 1e-4, 1e-5]
+]
+EPOCHS = [
+    [100, 100, 100]
+]
+"""
+"""
+LRS = _LRS
+EPOCHS = _EPOCHS
 PARAM_MAP = {
     "lrs": LRS,
     "epochs": EPOCHS,
 }
+"""
 
 def objective(
     datasets,
