@@ -28,10 +28,10 @@ ACTIVATIONS = {
     #"gelu": torch.nn.GELU,
 }
 LRS = [
-    [1e-3, 1e-4, 1e-5]
+    [1e-2]
 ]
 EPOCHS = [
-    [100, 100, 100]
+    [200]
 ]
 PARAM_MAP = {
     "pooling": POOLINGS,

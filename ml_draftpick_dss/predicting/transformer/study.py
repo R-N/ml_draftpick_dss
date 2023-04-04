@@ -4,7 +4,7 @@ from .model import GlobalPooling1D
 from .predictor import ResultPredictor
 from ..embedding import scaled_sqrt_factory, create_embedding_sizes
 from ..encoding import HeroLabelEncoder, HeroOneHotEncoder
-from ..study import POOLINGS, LOSSES, OPTIMS, ACTIVATIONS, BOOLEAN, map_parameter, get_metric
+from ..study import POOLINGS, LOSSES, OPTIMS, ACTIVATIONS, BOOLEAN, map_parameter, get_metric, LRS as _LRS, EPOCHS as _EPOCHS
 import optuna
 
 
@@ -36,16 +36,23 @@ PARAM_SPACE = {
     "batch_size": ("int", 32, 128, 32),
 }
 
+PARAM_MAP = {}
+"""
 LRS = [
     [1e-2]
 ]
 EPOCHS = [
     [200]
 ]
+"""
+"""
+LRS = _LRS
+EPOCHS = _EPOCHS
 PARAM_MAP = {
     "lrs": LRS,
     "epochs": EPOCHS,
 }
+"""
 
 def objective(
     datasets,
