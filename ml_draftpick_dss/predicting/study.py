@@ -58,6 +58,7 @@ def sample_parameters(trial, param_space, param_map={}):
         **param_map,
     }
     params = {}
+    params_raw = {}
     for k, v in param_space.items():
         type_0, *args = v
         type_1 = type_0
@@ -72,11 +73,12 @@ def sample_parameters(trial, param_space, param_map={}):
         elif type_0 in param_map:
             type_1 = "categorical"
         param = sample_parameter(trial, k, type_1, args)
+        params_raw[k] = param
         if type_0 in param_map:
             param = map_parameter(param, param_map[type_0])
         params[k] = param
-    params["id"] = trial.number
-    return params
+    #params["id"] = trial.number
+    return params, params_raw
 
 def create_objective(objective, sampler=sample_parameters, objective_kwargs={}, sampler_kwargs={}):
     def f(trial):
@@ -84,10 +86,10 @@ def create_objective(objective, sampler=sample_parameters, objective_kwargs={}, 
         study_dir = f"studies/{id}"
         mkdir(study_dir)
 
-        params = sampler(trial, **sampler_kwargs)
+        params, params_raw = sampler(trial, **sampler_kwargs)
         param_path = f"{study_dir}/params.json"
         with open(param_path, 'w') as f:
-            json.dump(params, f)
+            json.dump(params_raw, f)
 
         return objective(
             **params, 
