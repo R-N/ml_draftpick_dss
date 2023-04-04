@@ -43,6 +43,11 @@ PARAM_MAP = {
 }
 BOOLEAN = ("categorical", [True, False])
 
+def get_metric(best_metrics, metric):
+    if isinstance(metric, str):
+        return best_metrics[metric]
+    return [best_metrics[m] for m in metric]
+
 def map_parameter(param, source):
     try:
         return source[param]

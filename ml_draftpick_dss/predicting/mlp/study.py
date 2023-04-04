@@ -1,7 +1,8 @@
 import torch
 from .dataset import create_dataloader, ResultDataset
 from .predictor import ResultPredictor
-from ..study import BOOLEAN
+from ..study import BOOLEAN, get_metric
+import optuna
 
 LRS = [
     [1e-3, 1e-4, 1e-5]
@@ -58,6 +59,8 @@ def objective(
     metric="val_loss",
     checkpoint_dir=f"checkpoints",
     log_dir=f"logs",
+    autosave=False,
+    trial=None,
 ):
     train_set, val_set, test_set = datasets
     train_loader = create_dataloader(train_set, batch_size=batch_size)
@@ -107,10 +110,17 @@ def objective(
     for lr, epoch in zip(lrs, epochs):
         predictor.set_lr(lr)
         for i in range(epoch):
-            print(predictor.train())
-            print(predictor.train(val=True))
+            train_results = predictor.train(autosave=autosave)
+            print(train_results)
+            val_results = predictor.train(autosave=autosave, val=True)
+            print(val_results)
+            if trial:
+                intermediate_value = get_metric({**train_results[1], **val_results[1]}, metric)
+                trial.report(intermediate_value, predictor.epoch)
+                if trial.should_prune():
+                    raise optuna.TrialPruned()
+
     #last_metrics = predictor.train(val=True)[1]
     best_metrics = predictor.best_metrics
-    if isinstance(metric, str):
-        return best_metrics[metric]
-    return [best_metrics[m] for m in metric]
+    final_value = get_metric(best_metrics, metric)
+    return final_value

@@ -69,11 +69,11 @@ class ResultPredictor:
 
     def prepare_checkpoint(self, checkpoint_dir="checkpoints"):
         self.checkpoint_dir = checkpoint_dir
-        self.checkpoint_managers = {m: CheckpointManager(self, m, self.checkpoint_dir) for m in self.metrics}
+        self.checkpoint_managers = {m: CheckpointManager(self, m, self.checkpoint_dir) for m in self.metrics} if checkpoint_dir else {}
 
     def prepare_logging(self, log_dir="logs"):
         self.log_dir = log_dir
-        self.logger = TrainingLogger(log_dir)
+        self.logger = TrainingLogger(log_dir) if log_dir else {}
 
     def log_scalar(self, *args, **kwargs):
         self.logger.log_scalar(*args, **kwargs)
@@ -93,7 +93,7 @@ class ResultPredictor:
             g['lr'] = lr
         self.create_scheduler()
 
-    def train(self, val=False, val_loader=None):
+    def train(self, val=False, val_loader=None, autosave=True):
         assert self.training_prepared
         if val:
             self.model.eval()
@@ -189,15 +189,17 @@ class ResultPredictor:
                 f'lr {lr} | ms/batch {ms_per_batch:5.2f} | ')
             self.scheduler.step()
         
-        for m, v in cur_metrics.items():
-            self.log_scalar(m, v, self.epoch)
+        if self.logger:
+            for m, v in cur_metrics.items():
+                self.log_scalar(m, v, self.epoch)
 
         new_best_metrics = []
-        for m in self.metrics:
-            cm = self.checkpoint_managers[m]
-            ret = cm.check_metric(cur_metrics)
-            if ret:
-                new_best_metrics.append(ret)
+        if self.checkpoint_managers:
+            for m in self.metrics:
+                cm = self.checkpoint_managers[m]
+                ret = cm.check_metric(cur_metrics, save=autosave)
+                if ret:
+                    new_best_metrics.append(ret)
         if not val:
             self.epoch += 1
         return self.epoch, cur_metrics, new_best_metrics

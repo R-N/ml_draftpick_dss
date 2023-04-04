@@ -23,7 +23,8 @@ setup(
         'scikit-image',
         'albumentations>=1.3.0',
         'plotly',
-        'torchinfo'
+        'torchinfo',
+        'optuna'
     ],
 
     classifiers=[

@@ -57,7 +57,7 @@ class CheckpointManager:
         }, self.checkpoint_path)
         self.save_best_metrics()
 
-    def check_metric(self, cur_metrics):
+    def check_metric(self, cur_metrics, save=True):
         if not self.best_metrics:
             self.best_metrics = cur_metrics
             self.save_best_metrics()
@@ -75,7 +75,8 @@ class CheckpointManager:
             ret = (m, best_val, cur_val)
             self.model.best_metrics[m] = cur_val
             self.best_metrics = self.model.best_metrics.copy()
-            self.save_checkpoint()
+            if save:
+                self.save_checkpoint()
         return ret
 
     def save_best_metrics(self):
