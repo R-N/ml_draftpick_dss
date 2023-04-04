@@ -100,6 +100,9 @@ class ResultPredictor:
             g['lr'] = lr
         self.create_scheduler()
 
+    def get_lr(self, index=0):
+        return self.optimizer.param_groups[index]["lr"]
+
     def train(self, val=False, val_loader=None, autosave=True):
         assert self.training_prepared
         if val:
@@ -190,7 +193,7 @@ class ResultPredictor:
         if val:
             cur_metrics = {f"val_{k}": v for k, v in cur_metrics.items()}
         else:
-            lr = self.scheduler._last_lr[0]
+            lr = self.get_lr()
             ms_per_batch = (time.time() - start_time) * 1000 / batch_count
             print(f'| epoch {self.epoch:3d} | step {i:5d} | '
                 f'lr {lr} | ms/batch {ms_per_batch:5.2f} | ')
