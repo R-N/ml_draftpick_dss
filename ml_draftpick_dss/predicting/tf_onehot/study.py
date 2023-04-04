@@ -1,9 +1,9 @@
-from ..transformer.study import objective as _objective, LRS as _LRS, EPOCHS as _EPOCHS, PARAM_SPACE as _PARAM_SPACE
+from ..transformer.study import objective as _objective, LRS, EPOCHS, PARAM_SPACE
 from .predictor import ResultPredictor
 
 
 PARAM_SPACE = {
-    **_PARAM_SPACE,
+    **PARAM_SPACE,
     "lrs": ("categorical", list(range(len(LRS)))),
     "epochs": ("categorical", list(range(len(EPOCHS)))),
 }
@@ -11,8 +11,8 @@ PARAM_SPACE.pop("s_embed")
 
 PARAM_MAP = {}
 """
-LRS = _LRS
-EPOCHS = _EPOCHS
+LRS = LRS
+EPOCHS = EPOCHS
 PARAM_MAP = {
     "lrs": LRS,
     "epochs": EPOCHS,

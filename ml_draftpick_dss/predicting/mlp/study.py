@@ -1,7 +1,7 @@
 import torch
 from .dataset import create_dataloader, ResultDataset
 from .predictor import ResultPredictor
-from ..study import BOOLEAN, get_metric, LRS as _LRS, EPOCHS as _EPOCHS
+from ..study import BOOLEAN, get_metric, LRS, EPOCHS
 import optuna
 
 
@@ -35,8 +35,8 @@ EPOCHS = [
 ]
 """
 """
-LRS = _LRS
-EPOCHS = _EPOCHS
+LRS = LRS
+EPOCHS = EPOCHS
 PARAM_MAP = {
     "lrs": LRS,
     "epochs": EPOCHS,
