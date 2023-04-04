@@ -37,7 +37,10 @@ class GlobalPooling1D(torch.nn.Module):
         self.f = f
 
     def forward(self, x):
-        return self.f(x, dim=-2)
+        ret = self.f(x, dim=-2)
+        if isinstance(ret, tuple):
+            return ret[0]
+        return ret
     
 class Residual(torch.nn.Module):
     def __init__(self, module, *args, **kwargs):
