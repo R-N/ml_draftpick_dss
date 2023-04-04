@@ -95,8 +95,8 @@ class ResultPredictor:
         else:
             self.model.train()  # turn on train mode
         losses = {
-            **{f"{t}_loss" for t in TARGETS},
-            **{f"scaled_{t}_loss" for t in TARGETS},
+            **{f"{t}_loss": 0 for t in TARGETS},
+            **{f"scaled_{t}_loss": 0 for t in TARGETS},
             "scaled_loss": 0,
             "extra_loss": 0,
             "loss": 0
