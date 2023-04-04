@@ -7,26 +7,32 @@ from .model import ResultPredictorModel
 from ..checkpoint import CheckpointManager, METRICS, init_metrics
 from ..logging import TrainingLogger
 
-
+TARGETS = ["victory", "score", "duration"]
 class ResultPredictor:
     def __init__(
         self,
         *args,
         device=None,
         model=ResultPredictorModel,
+        reduce_loss=torch.mean,
+        scale_loss=lambda x: 1.0/(2*torch.var(x)),
+        extra_loss=lambda losses: torch.log(torch.prod([torch.std(loss) for loss in losses])),
         **kwargs
     ):
         device = device or torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model = model(*args, **kwargs).to(device)
         self.epoch = 0
         self.training_prepared = False
+        self.reduce_loss = reduce_loss
+        self.scale_loss = scale_loss
+        self.extra_loss = extra_loss
 
     def prepare_training(
         self,
         train_loader,
         val_loader=None,
-        bin_crit=torch.nn.BCELoss(),
-        norm_crit=torch.nn.MSELoss(reduction="mean"),
+        bin_crit=torch.nn.BCELoss(reduction="none"),
+        norm_crit=torch.nn.MSELoss(reduction="none"),
         lr=1e-3,
         optimizer=torch.optim.Adam,
         grad_clipping=0,
@@ -89,9 +95,10 @@ class ResultPredictor:
         else:
             self.model.train()  # turn on train mode
         losses = {
-            "victory_loss": 0, 
-            "score_loss": 0, 
-            "duration_loss": 0, 
+            **{f"{t}_loss" for t in TARGETS},
+            **{f"scaled_{t}_loss" for t in TARGETS},
+            "scaled_loss": 0,
+            "extra_loss": 0,
             "loss": 0
         }
         start_time = time.time()
@@ -111,7 +118,13 @@ class ResultPredictor:
             victory_loss = self.norm_crit(victory_pred, victory_true)
             score_loss = self.norm_crit(score_pred, score_true)
             duration_loss = self.norm_crit(duration_pred, duration_true)
-            loss = victory_loss + score_loss + duration_loss
+
+            raw_losses = (victory_loss, score_loss, duration_loss)
+            reduced_losses = (self.reduce_loss(x) for x in raw_losses)
+            scaled_losses = (self.scale_loss(x) * y for x, y in zip(raw_losses, reduced_losses))
+            scaled_loss = torch.sum(scaled_losses)
+            extra_loss = self.extra_loss(raw_losses)
+            loss = scaled_loss + extra_loss
 
             if not val:
                 self.optimizer.zero_grad()
@@ -120,10 +133,15 @@ class ResultPredictor:
                     torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.grad_clipping)
                 self.optimizer.step()
 
-            losses["victory_loss"] += victory_loss.item()
-            losses["score_loss"] += score_loss.item()
-            losses["duration_loss"] += duration_loss.item()
-            losses["loss"] += loss.item()
+            new_losses = {
+                **{f"{t}_loss": l for t, l in zip(TARGETS, reduced_losses)},
+                **{f"scaled_{t}_loss": l for t, l in zip(TARGETS, scaled_losses)},
+                "scaled_loss": scaled_loss,
+                "extra_loss": extra_loss, 
+                "loss": loss
+            }
+            for k, v in new_losses.items():
+                losses[k] += v.item()
             batch_count += 1
             #min_victory_pred = min(min_victory_pred, torch.min(victory_pred).item())
             #max_victory_pred = max(max_victory_pred, torch.max(victory_pred).item())

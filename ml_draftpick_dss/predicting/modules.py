@@ -57,7 +57,7 @@ def create_mlp(d_input, d_output, activation=torch.nn.ReLU, bias=True, dropout=0
     return try_residual(
         torch.nn.Sequential(*[
             nn.Dropout(dropout),
-            nn.Linear(d_input, d_output or d_hid, bias=bias),
+            nn.Linear(d_input, d_output, bias=bias),
             activation()
         ]), residual and d_input==d_output
     )

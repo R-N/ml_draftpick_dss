@@ -8,7 +8,7 @@ POOLINGS = {
     "global_max": GlobalPooling1D(MAX),
 }
 LOSSES = {
-    "mse": torch.nn.MSELoss(),
+    "mse": torch.nn.MSELoss(reduction="none"),
 }
 OPTIMS = {
     "adam": torch.optim.Adam,
