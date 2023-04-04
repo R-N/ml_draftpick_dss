@@ -120,11 +120,23 @@ class ResultPredictor:
             duration_loss = self.norm_crit(duration_pred, duration_true)
 
             raw_losses = (victory_loss, score_loss, duration_loss)
-            reduced_losses = torch.stack([self.reduce_loss(x) for x in raw_losses])
+            if True in [torch.isnan(l).any() for l in raw_losses]:
+                print(self.epoch, "raw_losses", [torch.isnan(l) for l in raw_losses])
+            reduced_losses = torch.stack([self.reduce_loss(x).any() for x in raw_losses])
+            if True in [torch.isnan(l).any() for l in reduced_losses]:
+                print(self.epoch, "reduced_losses", [torch.isnan(l).any() for l in reduced_losses])
             scaled_losses = torch.stack([self.scale_loss(x) * y for x, y in zip(raw_losses, reduced_losses)])
+            if True in [torch.isnan(l).any() for l in scaled_losses]:
+                print(self.epoch, "scaled_losses", [torch.isnan(l).any() for l in scaled_losses])
             scaled_loss = torch.sum(scaled_losses)
+            if True == torch.isnan(scaled_loss).any():
+                print(self.epoch, "scaled_loss", torch.isnan(scaled_loss).any())
             extra_loss = self.extra_loss(raw_losses)
+            if True == torch.isnan(extra_loss).any():
+                print(self.epoch, "extra_loss", torch.isnan(extra_loss).any())
             loss = scaled_loss + extra_loss
+            if True == torch.isnan(loss).any():
+                print(self.epoch, "loss", torch.isnan(loss).any())
 
             if not val:
                 self.optimizer.zero_grad()
