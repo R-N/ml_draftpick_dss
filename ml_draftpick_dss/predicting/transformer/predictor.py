@@ -197,7 +197,7 @@ class ResultPredictor:
             ms_per_batch = (time.time() - start_time) * 1000 / batch_count
             print(f'| epoch {self.epoch:3d} | step {i:5d} | '
                 f'lr {lr} | ms/batch {ms_per_batch:5.2f} | ')
-            self.scheduler.step()
+            self.scheduler.step(loss.item())
         
         if self.logger:
             for m, v in cur_metrics.items():
