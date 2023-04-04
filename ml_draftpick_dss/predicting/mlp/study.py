@@ -37,7 +37,6 @@ PARAM_MAP = {
 
 def objective(
     datasets,
-    id=1,
     d_input=171,
     d_final=128,
     d_hid_encoder=128,
@@ -56,7 +55,9 @@ def objective(
     optimizer=torch.optim.Adam,
     grad_clipping=0,
     batch_size=128,
-    metric="val_loss"
+    metric="val_loss",
+    checkpoint_dir=f"checkpoints",
+    log_dir=f"logs",
 ):
     train_set, val_set, test_set = datasets
     train_loader = create_dataloader(train_set, batch_size=batch_size)
@@ -99,8 +100,8 @@ def objective(
         norm_crit=norm_crit,
         optimizer=optimizer,
         grad_clipping=grad_clipping,
-        checkpoint_dir=f"studies/{id}/checkpoints",
-        log_dir=f"studies/{id}/logs",
+        checkpoint_dir=checkpoint_dir,
+        log_dir=log_dir,
     )
     for lr, epoch in zip(lrs, epochs):
         predictor.set_lr(lr)

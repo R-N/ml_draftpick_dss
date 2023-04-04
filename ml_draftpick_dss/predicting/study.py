@@ -1,5 +1,7 @@
 from .modules import GlobalPooling1D, MEAN, PROD, SUM, MAX
 import torch
+import json
+from ..util import mkdir
 
 POOLINGS = {
     "global_average": GlobalPooling1D(MEAN),
@@ -78,5 +80,19 @@ def sample_parameters(trial, param_space, param_map={}):
 
 def create_objective(objective, sampler=sample_parameters, objective_kwargs={}, sampler_kwargs={}):
     def f(trial):
-        return objective(**sampler(trial, **sampler_kwargs), **objective_kwargs)
+        id = trial.number
+        study_dir = f"studies/{id}"
+        mkdir(study_dir)
+
+        params = sampler(trial, **sampler_kwargs)
+        param_path = f"{study_dir}/params.json"
+        with open(param_path, 'w') as f:
+            json.dump(params, f)
+
+        return objective(
+            **params, 
+            checkpoint_dir=f"{study_dir}/checkpoints",
+            log_dir=f"{study_dir}/logs",
+            **objective_kwargs
+        )
     return f
