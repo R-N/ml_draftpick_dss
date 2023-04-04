@@ -64,7 +64,7 @@ class ResultPredictor:
 
         self.training_prepared = True
 
-    def create_scheduler(self, patience=10, cooldown=5, threshold=1e-4, min_lr=0, eps=1e-8, verbose=True):
+    def create_scheduler(self, patience=10, cooldown=2, threshold=1e-4, min_lr=0, eps=1e-8, verbose=True):
         self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
             self.optimizer, 
             patience=patience,
@@ -95,10 +95,10 @@ class ResultPredictor:
         cm = self.checkpoint_managers[checkpoint]
         cm.save_checkpoint()
 
-    def set_lr(self, lr):
+    def set_lr(self, lr, **kwargs):
         for g in self.optimizer.param_groups:
             g['lr'] = lr
-        self.create_scheduler()
+        self.create_scheduler(**kwargs)
 
     def get_lr(self, index=0):
         return self.optimizer.param_groups[index]["lr"]
