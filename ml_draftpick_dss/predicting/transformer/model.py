@@ -108,7 +108,7 @@ class ResultPredictorModel(nn.Module):
     
     def pos_encode(self, x):
         if self.pos_encoder:
-            x = x * math.sqrt(self.d_tf)
+            x = x * math.sqrt(self.d_input)
             x = self.pos_encoder(x)
         return x
 
