@@ -21,7 +21,7 @@ def init_metrics(metrics=METRICS):
 
 class CheckpointManager:
     def __init__(self, model, metric, checkpoint_dir="checkpoints"):
-        assert metric in METRICS, f"Invalid metric: {metric}"
+        assert metric in (METRICS+VAL_METRICS), f"Invalid metric: {metric}"
         self.model = model
         self.metric = metric
         checkpoint_dir = os.path.join(checkpoint_dir, metric)
