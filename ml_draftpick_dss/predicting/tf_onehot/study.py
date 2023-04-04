@@ -9,6 +9,8 @@ PARAM_SPACE = {
     "lrs": ("categorical", list(range(len(LRS)))),
     "epochs": ("categorical", list(range(len(EPOCHS)))),
 }
+PARAM_SPACE.pop("s_embed")
+
 PARAM_MAP = {
     "lrs": LRS,
     "epochs": EPOCHS,

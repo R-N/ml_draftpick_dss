@@ -63,7 +63,7 @@ def create_mlp(d_input, d_output, activation=torch.nn.ReLU, bias=True, dropout=0
     )
 
 def create_mlp_stack(d_input, d_hid, d_output, n_layers, activation=torch.nn.ReLU, bias=True, dropout=0.1, residual=True):
-    if n_layers == 0:
+    if n_layers <= 0:
         mlp = nn.Identity()
     elif n_layers == 1:
         mlp = create_mlp(d_input, d_output or d_hid, activation=activation, bias=bias, dropout=dropout, residual=residual)

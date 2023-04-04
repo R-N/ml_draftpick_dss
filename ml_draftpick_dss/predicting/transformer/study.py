@@ -14,6 +14,7 @@ EPOCHS = [
 ]
 
 PARAM_SPACE = {
+    "s_embed": ("int", 2, 8),
     "n_heads": ("int", 2, 8),
     "d_hid_tf": ("int", 32, 512, 32),
     "n_layers_tf": ("int", 1, 8),
@@ -26,6 +27,7 @@ PARAM_SPACE = {
     "n_layers_final": ("int", 1, 16),
     "activation_final": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
     "bias_final": BOOLEAN,
+    "n_layers_head": ("int", 1, 16),
     "dropout_reducer": ("float", 0.0, 0.3),
     "dropout": ("float", 0.0, 0.3),
     "pos_encoder": BOOLEAN,
@@ -48,6 +50,7 @@ def objective(
     datasets,
     encoder,
     id=1,
+    s_embed=2,
     n_heads=2,
     d_hid_tf=128,
     n_layers_tf=2,
@@ -60,6 +63,7 @@ def objective(
     n_layers_final=3,
     activation_final=torch.nn.ReLU,
     bias_final=True,
+    n_layers_head=1,
     dropout_reducer=0,
     dropout=0.1,
     pos_encoder=False,
@@ -86,7 +90,7 @@ def objective(
     else:
         sizes = create_embedding_sizes(
             encoder.x.columns[1:], 
-            #f=scaled_sqrt_factory(2)
+            f=scaled_sqrt_factory(s_embed)
         )
     predictor = predictor(
         sizes, 
@@ -120,6 +124,9 @@ def objective(
         },
         head_kwargs={
             "heads": ["victory", "score", "duration"],
+            "d_hid": d_hid_final,
+            "n_layers": n_layers_head,
+            "activation": activation_final,
             "bias": bias_final,
             "dropout": dropout,
         },
