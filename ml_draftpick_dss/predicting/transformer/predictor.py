@@ -149,7 +149,7 @@ class ResultPredictor:
                 "loss": loss
             }
             for k, v in new_losses.items():
-                losses[k] += v.item()
+                losses[k] += v.item() if torch.is_tensor(v) else v
             batch_count += 1
             #min_victory_pred = min(min_victory_pred, torch.min(victory_pred).item())
             #max_victory_pred = max(max_victory_pred, torch.max(victory_pred).item())
