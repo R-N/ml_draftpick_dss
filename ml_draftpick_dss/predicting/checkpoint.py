@@ -78,7 +78,6 @@ class CheckpointManager:
             if save:
                 self.save_checkpoint()
             else:
-                print("Found new metric, saving metrics only")
                 self.save_best_metrics()
         return ret
 
