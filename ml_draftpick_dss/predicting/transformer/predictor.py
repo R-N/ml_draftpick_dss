@@ -133,9 +133,9 @@ class ResultPredictor:
             if True in [torch.isnan(l).any() for l in reduced_losses]:
                 print(self.epoch, "reduced_losses", [torch.isnan(l).any() for l in reduced_losses])
 
-            print(self.epoch, "reduced_losses", [torch.var(l) for l in reduced_losses])
+            print(self.epoch, "reduced_losses", reduced_losses)
             print(self.epoch, "var", [torch.var(l) for l in raw_losses])
-            print(self.epoch, "raw_losses", [for l in raw_losses])
+            print(self.epoch, "raw_losses", raw_losses)
             scaled_losses = torch.stack([self.scale_loss(x) * y for x, y in zip(raw_losses, reduced_losses)])
             if True in [torch.isnan(l).any() for l in scaled_losses]:
                 print(self.epoch, "scaled_losses", [torch.isnan(l).any() for l in scaled_losses])
