@@ -4,7 +4,7 @@ import time
 import numpy as np
 from sklearn.metrics import accuracy_score, roc_auc_score, f1_score, confusion_matrix
 from .model import ResultPredictorModel
-from ..checkpoint import CheckpointManager, METRICS, init_metrics
+from ..checkpoint import CheckpointManager, METRICS, VAL_METRICS, init_metrics
 from ..logging import TrainingLogger
 
 TARGETS = ["victory", "score", "duration"]
@@ -43,7 +43,7 @@ class ResultPredictor:
         lr=1e-3,
         optimizer=torch.optim.Adam,
         grad_clipping=0,
-        metrics=METRICS,
+        metrics=METRICS+VAL_METRICS,
         checkpoint_dir="checkpoints",
         log_dir="logs",
     ):
