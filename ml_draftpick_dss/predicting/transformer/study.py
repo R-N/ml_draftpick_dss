@@ -15,9 +15,9 @@ EPOCHS = [
 
 PARAM_SPACE = {
     "s_embed": ("int", 2, 8),
-    "n_heads": ("int", 2, 8),
+    "n_heads": ("int", 2, 4),
     "d_hid_tf": ("int", 32, 256, 32),
-    "n_layers_tf": ("int", 1, 8),
+    "n_layers_tf": ("int", 1, 4),
     "activation_tf": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
     "d_hid_reducer": ("int", 32, 256, 32),
     "n_layers_reducer": ("int", 1, 4),
