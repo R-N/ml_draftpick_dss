@@ -22,8 +22,8 @@ class ResultPredictor:
         device=None,
         model=ResultPredictorModel,
         reduce_loss=torch.mean,
-        scale_loss=scale_loss,
-        extra_loss=extra_loss,
+        scale_loss=lambda x: 1,
+        extra_loss=lambda losses: 0,
         **kwargs
     ):
         device = device or torch.device('cuda' if torch.cuda.is_available() else 'cpu')
