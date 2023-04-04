@@ -4,8 +4,8 @@ from .predictor import ResultPredictor
 
 PARAM_SPACE = {
     **PARAM_SPACE,
-    "lrs": ("categorical", list(range(len(LRS)))),
-    "epochs": ("categorical", list(range(len(EPOCHS)))),
+    #"lrs": ("categorical", list(range(len(LRS)))),
+    #"epochs": ("categorical", list(range(len(EPOCHS)))),
 }
 PARAM_SPACE.pop("s_embed")
 
