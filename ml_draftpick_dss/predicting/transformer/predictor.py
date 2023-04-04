@@ -15,7 +15,7 @@ class ResultPredictor:
         device=None,
         model=ResultPredictorModel,
         reduce_loss=torch.mean,
-        scale_loss=lambda x: 1.0/(2*torch.var(x)),
+        scale_loss=lambda x: 1.0/(2*torch.var(x)) if x else x,
         extra_loss=lambda losses: torch.log(torch.prod(torch.stack([torch.std(loss) for loss in losses]))),
         **kwargs
     ):
