@@ -85,7 +85,11 @@ def sample_parameters(trial, param_space, param_map={}):
     #params["id"] = trial.number
     return params, params_raw
 
-def create_objective(objective, sampler=sample_parameters, objective_kwargs={}, sampler_kwargs={}, checkpoint_dir="checkpoints", log_dir="logs"):
+def create_objective(
+    objective, sampler=sample_parameters, 
+    objective_kwargs={}, sampler_kwargs={}, 
+    checkpoint_dir="checkpoints", log_dir="logs"
+):
     def f(trial):
         id = trial.number
         study_dir = f"studies/{id}"
@@ -97,14 +101,14 @@ def create_objective(objective, sampler=sample_parameters, objective_kwargs={}, 
             json.dump(params_raw, f, indent=4)
         print(json.dumps(params_raw, indent=4))
         if checkpoint_dir:
-            checkpoint_dir = f"{study_dir}/{checkpoint_dir}"
+            _checkpoint_dir = f"{study_dir}/{checkpoint_dir}"
         if log_dir:
-            log_dir = f"{study_dir}/{log_dir}"
+            _log_dir = f"{study_dir}/{log_dir}"
 
         return objective(
             **params, 
             **objective_kwargs,
-            checkpoint_dir=checkpoint_dir,
-            log_dir=log_dir,
+            checkpoint_dir=_checkpoint_dir,
+            log_dir=_log_dir,
         )
     return f
