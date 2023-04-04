@@ -16,14 +16,14 @@ EPOCHS = [
 PARAM_SPACE = {
     "s_embed": ("int", 2, 8),
     "n_heads": ("int", 2, 8),
-    "d_hid_tf": ("int", 32, 512, 32),
+    "d_hid_tf": ("int", 32, 256, 32),
     "n_layers_tf": ("int", 1, 8),
     "activation_tf": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
-    "d_hid_reducer": ("int", 32, 512, 32),
+    "d_hid_reducer": ("int", 32, 256, 32),
     "n_layers_reducer": ("int", 1, 4),
     "activation_reducer": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
     "bias_reducer": BOOLEAN,
-    "d_hid_final": ("int", 32, 512, 32),
+    "d_hid_final": ("int", 32, 256, 32),
     "n_layers_final": ("int", 1, 16),
     "activation_final": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
     "bias_final": BOOLEAN,
@@ -145,6 +145,7 @@ def objective(
         checkpoint_dir=checkpoint_dir,
         log_dir=log_dir,
     )
+    print(predictor.summary())
     for lr, epoch in zip(lrs, epochs):
         predictor.set_lr(lr)
         for i in range(epoch):

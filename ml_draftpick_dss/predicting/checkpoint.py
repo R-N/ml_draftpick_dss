@@ -80,7 +80,7 @@ class CheckpointManager:
 
     def save_best_metrics(self):
         with open(self.metrics_path, 'w') as f:
-            json.dump(self.best_metrics, f)
+            json.dump(self.best_metrics, f, indent=4)
 
     def load_best_metrics(self, model=False):
         try:

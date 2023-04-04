@@ -103,6 +103,7 @@ def objective(
         checkpoint_dir=checkpoint_dir,
         log_dir=log_dir,
     )
+    print(predictor.summary())
     for lr, epoch in zip(lrs, epochs):
         predictor.set_lr(lr)
         for i in range(epoch):

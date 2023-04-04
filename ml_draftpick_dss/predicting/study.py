@@ -89,7 +89,8 @@ def create_objective(objective, sampler=sample_parameters, objective_kwargs={}, 
         params, params_raw = sampler(trial, **sampler_kwargs)
         param_path = f"{study_dir}/params.json"
         with open(param_path, 'w') as f:
-            json.dump(params_raw, f)
+            json.dump(params_raw, f, indent=4)
+        print(json.dumps(params_raw, indent=4))
 
         return objective(
             **params, 

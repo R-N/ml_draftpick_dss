@@ -215,7 +215,7 @@ class BaseClassifier:
     
     def save_best_metrics(self, path):
         with open(path, 'w') as f:
-            json.dump(self.best_metrics, f)
+            json.dump(self.best_metrics, f, indent=4)
 
     def train_epoch(self, callbacks=[]):
         epoch = self.epoch
