@@ -128,8 +128,8 @@ class ResultPredictor:
 
             raw_losses = (victory_loss, score_loss, duration_loss)
             if True in [torch.isnan(l).any() for l in raw_losses]:
-                print(self.epoch, "raw_losses", [torch.isnan(l) for l in raw_losses])
-            reduced_losses = torch.stack([self.reduce_loss(x).any() for x in raw_losses])
+                print(self.epoch, "raw_losses", [torch.isnan(l).any() for l in raw_losses])
+            reduced_losses = torch.stack([self.reduce_loss(x) for x in raw_losses])
             if True in [torch.isnan(l).any() for l in reduced_losses]:
                 print(self.epoch, "reduced_losses", [torch.isnan(l).any() for l in reduced_losses])
 
