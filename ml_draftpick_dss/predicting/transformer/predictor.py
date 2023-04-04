@@ -8,6 +8,13 @@ from ..checkpoint import CheckpointManager, METRICS, init_metrics
 from ..logging import TrainingLogger
 
 TARGETS = ["victory", "score", "duration"]
+
+def scale_loss(x):
+    return (1.0/(2*torch.var(x))) if x else x
+
+def extra_loss(losses):
+    return torch.log(torch.prod(torch.stack([torch.std(loss) for loss in losses])))
+
 class ResultPredictor:
     def __init__(
         self,
@@ -15,8 +22,8 @@ class ResultPredictor:
         device=None,
         model=ResultPredictorModel,
         reduce_loss=torch.mean,
-        scale_loss=lambda x: 1.0/(2*torch.var(x)) if x else x,
-        extra_loss=lambda losses: torch.log(torch.prod(torch.stack([torch.std(loss) for loss in losses]))),
+        scale_loss=scale_loss,
+        extra_loss=extra_loss,
         **kwargs
     ):
         device = device or torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -125,6 +132,8 @@ class ResultPredictor:
             reduced_losses = torch.stack([self.reduce_loss(x).any() for x in raw_losses])
             if True in [torch.isnan(l).any() for l in reduced_losses]:
                 print(self.epoch, "reduced_losses", [torch.isnan(l).any() for l in reduced_losses])
+
+            print(self.epoch, "var", [torch.var(l) for l in raw_losses])
             scaled_losses = torch.stack([self.scale_loss(x) * y for x, y in zip(raw_losses, reduced_losses)])
             if True in [torch.isnan(l).any() for l in scaled_losses]:
                 print(self.epoch, "scaled_losses", [torch.isnan(l).any() for l in scaled_losses])
