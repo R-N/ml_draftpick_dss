@@ -102,13 +102,15 @@ def objective(
 
     if isinstance(encoder, int):
         sizes = encoder
-    elif hasattr(encoder, "dim"):
-        sizes = encoder.dim
-    else:
+    elif isinstance(encoder, HeroLabelEncoder):
         sizes = create_embedding_sizes(
             encoder.x.columns[1:], 
             f=scaled_sqrt_factory(s_embed)
         )
+    elif hasattr(encoder, "dim"):
+        sizes = encoder.dim
+    else:
+        raise ValueError(f"Unknown encoder type: {type(encoder)}")
     predictor = predictor(
         sizes, 
         tf_encoder_kwargs={
