@@ -22,7 +22,7 @@ class ResultPredictorModel(nn.Module):
         self.final = self._create_final(**final_kwargs)
         self._create_heads(**head_kwargs)
 
-    def _create_final(self, pooling, **kwargs):
+    def _create_final(self, pooling="concat", **kwargs):
         self.d_final_2 = self.d_final * 2
         d_input = self.d_final_2 if pooling == "concat" else self.d_final
         self.pooling = pooling
