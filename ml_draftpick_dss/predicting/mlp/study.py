@@ -24,7 +24,7 @@ PARAM_SPACE = {
     "optimizer": ("optimizer", ["adam", "adamw", "sgd"]),
     "grad_clipping": ("bool_float", 0.0, 1.0),
     "batch_size": ("int", 32, 128, 32),
-    "pooling": ("categories", ["concat", "diff", "mean", "prod"])
+    "pooling": ("categorical", ["concat", "diff", "mean", "prod"])
 }
 
 PARAM_MAP = {}
