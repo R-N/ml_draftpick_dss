@@ -76,10 +76,10 @@ class ResultPredictor:
     def create_scheduler(self):
         if self.scheduler_type == "plateau":
             scheduler_f = self.create_plateau_scheduler
-        elif self.scheduelr_type == "onecycle":
+        elif self.scheduler_type == "onecycle":
             scheduler_f = self.create_onecycle_scheduler
         else:
-            raise ValueError(f"Invalid scheduler type: {self.scheduelr_type}")
+            raise ValueError(f"Invalid scheduler type: {self.scheduler_type}")
         self.scheduler = scheduler_f(**self.scheduler_kwargs)
 
     def create_plateau_scheduler(self, patience=10, cooldown=2, threshold=1e-4, min_lr=0, eps=1e-8, verbose=True):
