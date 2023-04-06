@@ -107,6 +107,8 @@ def objective(
             encoder.x.columns[1:], 
             f=scaled_sqrt_factory(s_embed)
         )
+    elif isinstance(encoder, torch.nn.Module):
+        sizes = encoder
     elif hasattr(encoder, "dim"):
         sizes = encoder.dim
     else:
