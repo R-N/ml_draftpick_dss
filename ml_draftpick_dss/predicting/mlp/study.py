@@ -59,6 +59,7 @@ def objective(
     bias_final=True,
     n_layers_head=1,
     dropout=0.1,
+    pooling="concat",
     lrs=LRS[0],
     epochs=EPOCHS[0],
     norm_crit=torch.nn.MSELoss(),
@@ -100,6 +101,7 @@ def objective(
             "activation": activation_final,
             "bias": bias_final,
             "dropout": dropout,
+            "pooling": pooling
         },
         head_kwargs={
             "heads": ["victory", "score", "duration"],
