@@ -42,7 +42,7 @@ def objective(
     encoder = create_encoder(
         d_input,
         d_hid=d_hid_encoder,
-        d_out=d_hid_encoder,
+        d_output=d_hid_encoder,
         n_layers=n_layers_encoder,
         activation=activation_encoder,
         bias=bias_encoder
