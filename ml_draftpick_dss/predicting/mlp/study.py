@@ -70,11 +70,16 @@ def objective(
     log_dir=f"logs",
     autosave=False,
     trial=None,
+    scheduler_config=["plateau", False],
 ):
     train_set, val_set, test_set = datasets
     train_loader = create_dataloader(train_set, batch_size=batch_size)
     val_loader = create_dataloader(val_set, batch_size=batch_size)
     test_loader = create_dataloader(test_set, batch_size=batch_size)
+
+    batch_count = len(train_loader)
+    scheduler_type, early_stopping = scheduler_config
+    scheduler_kwargs = {"steps": batch_count} if scheduler_type == "onecycle" else {}
 
     if not isinstance(d_input, int):
         d_input = d_input.dim
@@ -114,17 +119,26 @@ def objective(
         grad_clipping=grad_clipping,
         checkpoint_dir=checkpoint_dir,
         log_dir=log_dir,
+        scheduler_type=scheduler_type,
+        scheduler_kwargs=scheduler_kwargs,
     )
     print(predictor.summary())
-    for lr, epoch in zip(lrs, epochs):
+    for lr, (min_epoch, max_epoch) in zip(lrs, epochs):
+        if lr is None:
+            lr = predictor.find_lr(min_epoch=min_epoch).best_lr
         predictor.set_lr(lr)
-        for i in range(epoch):
+        if early_stopping:
+            early_stopping = predictor.create_early_stopping_1(min_epoch, max_epoch)
+        for i in range(max_epoch):
             train_results = predictor.train(autosave=autosave)
             print(train_results)
             val_results = predictor.train(autosave=autosave, val=True)
             print(val_results)
+            intermediate_value = get_metric({**train_results[1], **val_results[1]}, metric)
+            train_metric = metric[4:] if metric.startswith("val_") else metric
+            train_metric = train_results[1][train_metric]
+            early_stopping(train_metric, intermediate_value)
             if trial:
-                intermediate_value = get_metric({**train_results[1], **val_results[1]}, metric)
                 trial.report(intermediate_value, predictor.epoch)
                 if trial.should_prune():
                     raise optuna.TrialPruned()
