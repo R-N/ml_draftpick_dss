@@ -228,9 +228,10 @@ class ResultPredictor:
                 ret = cm.check_metric(cur_metrics, save=autosave)
                 if ret:
                     new_best_metrics.append(ret)
-        if not val:
-            self.epoch += 1
         return self.epoch, cur_metrics, new_best_metrics
+    
+    def inc_epoch(self):
+        self.epoch += 1
     
     def summary(self, *args, **kwargs):
         return self.model.summary(*args, **kwargs)
