@@ -2,6 +2,7 @@ from .modules import GlobalPooling1D, MEAN, PROD, SUM, MAX
 import torch
 import json
 from ..util import mkdir
+import math
 
 POOLINGS = {
     "global_average": GlobalPooling1D(MEAN),
@@ -17,6 +18,11 @@ OPTIMS = {
     "adamw": torch.optim.AdamW,
     "sgd": torch.optim.SGD,
 }
+SCHEDULER_CONFIGS = [
+    ("plateau", False),
+    ("plateau", True),
+    ("onecycle", True)
+]
 ACTIVATIONS = {
     "identity": torch.nn.Identity,
     "relu": torch.nn.ReLU,
@@ -28,10 +34,12 @@ ACTIVATIONS = {
     #"gelu": torch.nn.GELU,
 }
 LRS = [
-    [1e-2]
+    [1e-2],
+    [1e-3],
 ]
 EPOCHS = [
-    [200]
+    [(50, 200)],
+    [(50, 200)],
 ]
 PARAM_MAP = {
     "pooling": POOLINGS,
@@ -39,7 +47,8 @@ PARAM_MAP = {
     "optimizer": OPTIMS,
     "activation": ACTIVATIONS,
     "lrs": LRS,
-    "epochs": EPOCHS
+    "epochs": EPOCHS,
+    "scheduler_config": SCHEDULER_CONFIGS
 }
 BOOLEAN = ("categorical", [True, False])
 
@@ -114,3 +123,18 @@ def create_objective(
             log_dir=_log_dir,
         )
     return f
+
+def calc_basket(min_resource, max_resource, reduction_factor):
+    basket = math.log(max_resource/min_resource, reduction_factor)
+    return basket
+
+def calc_reduction(min_resource, max_resource, basket=4):
+    reduction_factor = math.pow(max_resource/min_resource, basket)
+    return reduction_factor
+
+def calc_min_resource(min_resource, max_resource, basket=4):
+    reduction_factor = math.pow(max_resource/min_resource, basket)
+    return reduction_factor
+    
+    
+

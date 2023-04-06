@@ -24,7 +24,9 @@ setup(
         'albumentations>=1.3.0',
         'plotly',
         'torchinfo',
-        'optuna'
+        'optuna',
+        'scipy',
+        'torch-lr-finder'
     ],
 
     classifiers=[

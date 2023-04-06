@@ -24,6 +24,7 @@ class ResultPredictorModel(nn.Module):
         dim=3
     ):
         super().__init__()
+        self.name = "predictor_tf"
         if isinstance(embedding, torch.nn.Module):
             self.embedding = embedding
             self.d_embed = self.embedding.dim

@@ -1,7 +1,7 @@
 import torch
 from .dataset import create_dataloader, ResultDataset
 from .predictor import ResultPredictor
-from ..study import BOOLEAN, get_metric, LRS, EPOCHS
+from ..study import BOOLEAN, get_metric, LRS, EPOCHS, SCHEDULER_CONFIGS
 import optuna
 
 
@@ -17,12 +17,14 @@ PARAM_SPACE = {
     "bias_final": BOOLEAN,
     "n_layers_head": ("int", 1, 16),
     "dropout": ("float", 0.0, 0.3),
-    #"lrs": ("lrs", list(range(len(LRS)))),
-    #"epochs": ("epochs", list(range(len(EPOCHS)))),
+    "lrs": ("lrs", list(range(len(LRS)))),
+    "epochs": ("epochs", list(range(len(EPOCHS)))),
+    "scheduler_config": ("scheduler_config", list(range(len(SCHEDULER_CONFIGS)))),
     #"norm_crit": ("loss", ["mse"]),
     "optimizer": ("optimizer", ["adam", "adamw", "sgd"]),
     "grad_clipping": ("bool_float", 0.0, 1.0),
     "batch_size": ("int", 32, 128, 32),
+    "pooling": ("categories", ["concat", "diff", "mean", "prod"])
 }
 
 PARAM_MAP = {}
@@ -57,8 +59,8 @@ def objective(
     bias_final=True,
     n_layers_head=1,
     dropout=0.1,
-    lrs=[1e-3, 1e-4, 1e-5],
-    epochs=[100, 100, 100],
+    lrs=LRS[0],
+    epochs=EPOCHS[0],
     norm_crit=torch.nn.MSELoss(),
     optimizer=torch.optim.Adam,
     grad_clipping=0,

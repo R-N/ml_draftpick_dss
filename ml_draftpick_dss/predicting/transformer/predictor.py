@@ -6,6 +6,9 @@ from sklearn.metrics import accuracy_score, roc_auc_score, f1_score, confusion_m
 from .model import ResultPredictorModel
 from ..checkpoint import CheckpointManager, METRICS, VAL_METRICS, init_metrics
 from ..logging import TrainingLogger
+from ..lr_finder import LRFinder
+from ..early_stopping import EarlyStopping
+from ..scheduler import OneCycleLR, ReduceLROnPlateau
 
 TARGETS = ["victory", "score", "duration"]
 
@@ -34,6 +37,8 @@ class ResultPredictor:
         self.scale_loss = scale_loss
         self.extra_loss = extra_loss
 
+    
+
     def prepare_training(
         self,
         train_loader,
@@ -46,10 +51,14 @@ class ResultPredictor:
         metrics=METRICS+VAL_METRICS,
         checkpoint_dir="checkpoints",
         log_dir="logs",
+        scheduler_type="plateau",
+        scheduler_kwargs={}
     ):
         self.bin_crit = bin_crit
         self.norm_crit = norm_crit
         self.optimizer = optimizer(self.model.parameters(), lr=lr)
+        self.scheduler_kwargs = scheduler_kwargs
+        self.scheduler_type = scheduler_type
         self.create_scheduler()
         self.train_loader = train_loader
         self.val_loader = val_loader
@@ -64,8 +73,17 @@ class ResultPredictor:
 
         self.training_prepared = True
 
-    def create_scheduler(self, patience=10, cooldown=2, threshold=1e-4, min_lr=0, eps=1e-8, verbose=True):
-        self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+    def create_scheduler(self):
+        if self.scheduler_type == "plateau":
+            scheduler_f = self.create_plateau_scheduler
+        elif self.scheduelr_type == "onecycle":
+            scheduler_f = self.create_onecycle_scheduler
+        else:
+            raise ValueError(f"Invalid scheduler type: {self.scheduelr_type}")
+        self.scheduler = scheduler_f(**self.scheduler_kwargs)
+
+    def create_plateau_scheduler(self, patience=10, cooldown=2, threshold=1e-4, min_lr=0, eps=1e-8, verbose=True):
+        return ReduceLROnPlateau(
             self.optimizer, 
             patience=patience,
             cooldown=cooldown,
@@ -216,3 +234,49 @@ class ResultPredictor:
     
     def summary(self, *args, **kwargs):
         return self.model.summary(*args, **kwargs)
+
+    def find_lr(self, loss_fn=None, min_epoch=50, **kwargs):
+        def objective(scheduler):
+            return self.train(
+                loss_fn=loss_fn,
+                scheduler=scheduler,
+                clip_grad_norm=False
+            )[0].item()
+
+        lr_finder = LRFinder(objective, self.models, self.optimizer)
+        lr_finder.range_test(num_iter=int(0.5 * min_epoch), **kwargs)
+        lr_finder.reset_state()
+        return lr_finder.result
+    
+    def create_early_stopping_1(self, min_epoch=50, max_epoch=200, **kwargs):
+        early_stopping_1 = EarlyStopping(
+            self.model,
+            log_dir=self.log_dir,
+            label=self.model.name,
+            wait=min_epoch,
+            max_epoch=max_epoch,
+            **kwargs
+        )
+        return early_stopping_1
+    
+    def create_early_stopping_2(self, early_stopping_1, **kwargs):
+        early_stopping_2 = EarlyStopping(
+            self.model,
+            log_dir=self.log_dir,
+            label=self.model.name + "a",
+            interval_mode=early_stopping_1.interval_mode,
+            wait=0,
+            max_epoch=early_stopping_1.best_epoch,
+            update_state_mode=1,
+            **kwargs
+        )
+        return early_stopping_2
+    
+    def create_onecycle_scheduler(self, steps, min_epoch=50, **kwargs):
+        return OneCycleLR(
+            self.optimizer,
+            max_lr=self.get_lr(),
+            steps_per_epoch=steps,
+            epochs=int(0.5 * min_epoch),
+            **kwargs
+        )

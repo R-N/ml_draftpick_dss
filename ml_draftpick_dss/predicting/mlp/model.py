@@ -14,14 +14,19 @@ class ResultPredictorModel(nn.Module):
         head_kwargs,
     ):
         super().__init__()
+        self.name = "predictor_mlp"
         self.d_input = d_input or 171
         self.d_final = d_final
-        self.d_final_2 = d_final * 2
         self.model_type = 'MLP'
         self.encoder = create_mlp_stack(d_input=self.d_input, d_output=self.d_final, **encoder_kwargs)
-        self.final = create_mlp_stack(d_input=self.d_final_2, d_output=self.d_final_2, **final_kwargs)
+        self.final = self._create_final(**final_kwargs)
         self._create_heads(**head_kwargs)
 
+    def _create_final(self, pooling, **kwargs):
+        self.d_final_2 = self.d_final * 2
+        d_input = self.d_final_2 if pooling == "concat" else self.d_final
+        self.pooling = pooling
+        self.final = create_mlp_stack(d_input=d_input, d_output=self.d_final, **kwargs)
 
     def _create_heads(self, d_hid=0, n_layers=1, heads=["victory", "score", "duration"], activation=torch.nn.ReLU, bias=True, dropout=0.1):
         self.head_labels = heads
@@ -41,7 +46,16 @@ class ResultPredictorModel(nn.Module):
         left = self.encoder(left)
         right = self.encoder(right)
         
-        final = torch.cat([left, right], dim=-1)
+        if self.pooling == "concat":
+            final = torch.cat([left, right], dim=-1)
+        elif self.pooling == "diff":
+            final = left - right 
+        else:
+            final = torch.stack([left, right])
+            if self.pooling == "mean":
+                final = torch.mean(final, dim=0)
+            elif self.pooling == "prod":
+                final = torch.prod(final, dim=0)[0]
         final = self.final(final)
 
         output = [f(final) for f in self.heads]

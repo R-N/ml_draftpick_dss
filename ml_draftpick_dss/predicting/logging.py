@@ -1,4 +1,5 @@
 import tensorflow as tf
+from torch.utils.tensorboard import SummaryWriter
 
 class TrainingLogger:
     def __init__(self, log_dir):

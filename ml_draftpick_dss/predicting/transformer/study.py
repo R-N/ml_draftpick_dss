@@ -4,13 +4,13 @@ from .model import GlobalPooling1D
 from .predictor import ResultPredictor
 from ..embedding import scaled_sqrt_factory, create_embedding_sizes
 from ..encoding import HeroLabelEncoder, HeroOneHotEncoder
-from ..study import POOLINGS, LOSSES, OPTIMS, ACTIVATIONS, BOOLEAN, map_parameter, get_metric, LRS, EPOCHS
+from ..study import POOLINGS, LOSSES, OPTIMS, ACTIVATIONS, BOOLEAN, map_parameter, get_metric, LRS, EPOCHS, SCHEDULER_CONFIGS
 import optuna
 
 
 PARAM_SPACE = {
-    "s_embed": ("int", 2, 8),
-    "n_heads": ("int", 2, 4),
+    "s_embed": ("int", 1, 4),
+    "n_heads": ("int", 1, 4),
     "d_hid_tf": ("int", 32, 256, 32),
     "n_layers_tf": ("int", 1, 4),
     "activation_tf": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
@@ -28,8 +28,9 @@ PARAM_SPACE = {
     "pos_encoder": BOOLEAN,
     "bidirectional": BOOLEAN,
     "pooling": ("pooling", ["global_average", "global_product", "global_max"]),
-    #"lrs": ("lrs", list(range(len(LRS)))),
-    #"epochs": ("epochs", list(range(len(EPOCHS)))),
+    "lrs": ("lrs", list(range(len(LRS)))),
+    "epochs": ("epochs", list(range(len(EPOCHS)))),
+    "scheduler_config": ("scheduler_config", list(range(len(SCHEDULER_CONFIGS)))),
     #"norm_crit": ("loss", ["mse"]),
     "optimizer": ("optimizer", ["adam", "adamw", "sgd"]),
     "grad_clipping": ("bool_float", 0.0, 1.0),
@@ -76,8 +77,8 @@ def objective(
     pos_encoder=False,
     bidirectional=False,
     pooling=GlobalPooling1D(),
-    lrs=[1e-3, 1e-4, 1e-5],
-    epochs=[100, 100, 100],
+    lrs=LRS[0],
+    epochs=EPOCHS[0],
     norm_crit=torch.nn.MSELoss(),
     optimizer=torch.optim.Adam,
     grad_clipping=0,
@@ -87,12 +88,15 @@ def objective(
     log_dir=f"logs",
     autosave=False,
     trial=None,
+    scheduler_config=["plateau", False],
     predictor=ResultPredictor,
 ):
     train_set, val_set, test_set = datasets
     train_loader = create_dataloader(train_set, batch_size=batch_size)
     val_loader = create_dataloader(val_set, batch_size=batch_size)
     test_loader = create_dataloader(test_set, batch_size=batch_size)
+
+    batch_count = len(train_loader)
 
     if isinstance(encoder, int):
         sizes = encoder
@@ -156,9 +160,11 @@ def objective(
         log_dir=log_dir,
     )
     print(predictor.summary())
-    for lr, epoch in zip(lrs, epochs):
+    for lr, (min_epoch, max_epoch) in zip(lrs, epochs):
+        if lr is None:
+            lr = predictor.find_lr(min_epoch=min_epoch).best_lr
         predictor.set_lr(lr)
-        for i in range(epoch):
+        for i in range(max_epoch):
             train_results = predictor.train(autosave=autosave)
             print(train_results)
             val_results = predictor.train(autosave=autosave, val=True)

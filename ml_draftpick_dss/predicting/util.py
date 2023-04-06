@@ -1,6 +1,8 @@
 import pandas as pd
 import torch
 from ..util import mkdir
+from math import sqrt
+import scipy.stats as st
 
 def join_tag(df, col, include_na=True):
     if col is None:
@@ -79,3 +81,15 @@ def get_unique(mixed):
     return sorted(list(set(mixed)), key=lambda x: (x is None, x))
 def get_basic_c(c):
     return c.split("_", maxsplit=1)[0]
+
+def progressive_smooth(last, weight, point):
+    return last * weight + (1 - weight) * point
+
+def calculate_prediction_interval(series, alpha=0.05, n=None):
+    n = (n or len(series))
+    mean = sum(series) / max(1, n)
+    sum_err = sum([(mean - x)**2 for x in series])
+    stdev = sqrt(1 / max(1, n - 2) * sum_err)
+    mul = st.norm.ppf(1.0 - alpha) if alpha >= 0 else 2 + alpha
+    sigma = mul * stdev
+    return mean, sigma
