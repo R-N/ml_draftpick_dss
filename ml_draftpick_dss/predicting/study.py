@@ -132,9 +132,9 @@ def calc_reduction(min_resource, max_resource, basket=4):
     reduction_factor = math.pow(max_resource/min_resource, basket)
     return reduction_factor
 
-def calc_min_resource(min_resource, max_resource, basket=4):
-    reduction_factor = math.pow(max_resource/min_resource, basket)
-    return reduction_factor
+def calc_min_resource(max_resource, basket=4, reduction_factor=3):
+    min_resource = max_resource / math.pow(reduction_factor, basket)
+    return min_resource
     
     
 
