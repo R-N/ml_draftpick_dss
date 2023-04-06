@@ -27,6 +27,7 @@ class ResultPredictorModel(nn.Module):
         d_input = self.d_final_2 if pooling == "concat" else self.d_final
         self.pooling = pooling
         self.final = create_mlp_stack(d_input=d_input, d_output=self.d_final, **kwargs)
+        return self.final
 
     def _create_heads(self, d_hid=0, n_layers=1, heads=["victory", "score", "duration"], activation=torch.nn.ReLU, bias=True, dropout=0.1):
         self.head_labels = heads
