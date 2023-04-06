@@ -20,11 +20,10 @@ class ResultPredictorModel(_ResultPredictorModel):
             **kwargs
         )
         self.name = "predictor_tf_onehot"
-        self.d_input = encoder.dim
 
-    def summary(self, batch_size=32, dtype=torch.float):
+    def summary(self, batch_size=32, d_input=171, dtype=torch.float):
         return summary(
             self, 
-            [(batch_size, self.d_input) for i in range(2)], 
+            [(batch_size, d_input) for i in range(2)], 
             dtypes=[dtype, dtype]
         )
