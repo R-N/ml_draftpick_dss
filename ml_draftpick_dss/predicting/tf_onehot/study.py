@@ -39,6 +39,8 @@ def objective(
     predictor=ResultPredictor, 
     **kwargs
 ):
+    if not isinstance(d_input, int):
+        d_input = d_input.dim
     encoder = create_encoder(
         d_input,
         d_hid=d_hid_encoder,
