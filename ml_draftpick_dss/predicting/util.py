@@ -93,3 +93,17 @@ def calculate_prediction_interval(series, alpha=0.05, n=None):
     mul = st.norm.ppf(1.0 - alpha) if alpha >= 0 else 2 + alpha
     sigma = mul * stdev
     return mean, sigma
+
+
+def round_digits(x, n_digits=0):
+    if x is None:
+        return x
+    x = Decimal(x).as_tuple()
+    n = min(len(x.digits), n_digits + 2)
+    digits = sum([x.digits[i] * 10**(-i) for i in range(n)])
+    if n_digits == 0:
+        digits = floor(digits)
+    else:
+        digits = round(digits, n_digits)
+    exp = x.exponent + len(x.digits) - 1
+    return digits * 10**exp
