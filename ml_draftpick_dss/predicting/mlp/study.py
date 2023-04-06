@@ -137,7 +137,8 @@ def objective(
             intermediate_value = get_metric({**train_results[1], **val_results[1]}, metric)
             train_metric = metric[4:] if metric.startswith("val_") else metric
             train_metric = train_results[1][train_metric]
-            early_stopping(train_metric, intermediate_value)
+            if early_stopping:
+                early_stopping(train_metric, intermediate_value)
             if trial:
                 trial.report(intermediate_value, predictor.epoch)
                 if trial.should_prune():
