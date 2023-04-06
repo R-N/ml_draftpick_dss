@@ -48,11 +48,11 @@ PARAM_MAP = {
 def objective(
     datasets,
     d_input=171,
-    d_final=128,
     d_hid_encoder=128,
     n_layers_encoder=2,
     activation_encoder=torch.nn.ReLU,
     bias_encoder=True,
+    d_final=128,
     d_hid_final=128,
     n_layers_final=3,
     activation_final=torch.nn.ReLU,

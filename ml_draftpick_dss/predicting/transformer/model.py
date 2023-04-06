@@ -12,8 +12,8 @@ class ResultPredictorModel(nn.Module):
     def __init__(
         self, 
         embedding,
-        encoder_kwargs,
-        decoder_kwargs,
+        tf_encoder_kwargs,
+        tf_decoder_kwargs,
         reducer_kwargs,
         final_kwargs,
         head_kwargs,
@@ -39,8 +39,8 @@ class ResultPredictorModel(nn.Module):
         self.model_type = 'Transformer'
         self.bidirectional = bidirectional
         self.pos_encoder = PositionalEncoding(self.d_embed, dropout) if pos_encoder else None
-        self._create_encoder(**encoder_kwargs)
-        self._create_decoder(**decoder_kwargs)
+        self._create_encoder(**tf_encoder_kwargs)
+        self._create_decoder(**tf_decoder_kwargs)
         self.pooling = pooling or torch.nn.Flatten(start_dim=-2, end_dim=-1)
         self.d_reducer = self._calc_d_final(self.d_tf) * self.decoder_heads
         self.d_final = self._calc_d_final(self.d_embed)

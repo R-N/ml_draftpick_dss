@@ -57,19 +57,24 @@ def try_residual(module, flag):
         return module
     
 def create_mlp(d_input, d_output, activation=torch.nn.ReLU, bias=True, dropout=0.1, residual=True):
-    return try_residual(
+    mlp = try_residual(
         torch.nn.Sequential(*[
             nn.Dropout(dropout),
             nn.Linear(d_input, d_output, bias=bias),
             activation()
         ]), residual and d_input==d_output
     )
+    mlp.dim = d_output
+    return mlp
 
 def create_mlp_stack(d_input, d_hid, d_output, n_layers, activation=torch.nn.ReLU, bias=True, dropout=0.1, residual=True):
+    d_output = d_output or d_hid
     if n_layers <= 0:
         mlp = nn.Identity()
+        mlp.dim = d_input
     elif n_layers == 1:
-        mlp = create_mlp(d_input, d_output or d_hid, activation=activation, bias=bias, dropout=dropout, residual=residual)
+        mlp = create_mlp(d_input, d_output, activation=activation, bias=bias, dropout=dropout, residual=residual)
+        mlp.dim = d_output
     else:
         modules = [
             create_mlp(d_input, d_hid, activation=activation, bias=bias, dropout=dropout, residual=residual),
@@ -81,6 +86,7 @@ def create_mlp_stack(d_input, d_hid, d_output, n_layers, activation=torch.nn.ReL
         if d_output:
             modules.append(create_mlp(d_hid, d_output, activation=activation, bias=bias, dropout=dropout, residual=residual))
         mlp = nn.Sequential(*modules)
+        mlp.dim = d_output
     return mlp
 
 class AttentionHeadExpander(torch.nn.Module):

@@ -102,7 +102,7 @@ def objective(
 
     if isinstance(encoder, int):
         sizes = encoder
-    elif isinstance(encoder, HeroOneHotEncoder):
+    elif hasattr(encoder, "dim"):
         sizes = encoder.dim
     else:
         sizes = create_embedding_sizes(
@@ -111,14 +111,14 @@ def objective(
         )
     predictor = predictor(
         sizes, 
-        encoder_kwargs={
+        tf_encoder_kwargs={
             "n_heads": n_heads,
             "d_hid": d_hid_tf,
             "n_layers": n_layers_tf,
             "activation": activation_tf,
             "dropout": dropout,
         }, 
-        decoder_kwargs={
+        tf_decoder_kwargs={
             "n_heads": n_heads,
             "d_hid": d_hid_tf,
             "n_layers": n_layers_tf,
