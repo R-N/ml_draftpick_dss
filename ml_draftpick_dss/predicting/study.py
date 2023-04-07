@@ -81,6 +81,7 @@ def sample_parameters(trial, param_space, param_map={}):
             if not sample:
                 type_1 = None
                 param = 0
+                params_raw[k] = param
                 params[k] = param
                 continue
             type_1 = type_0[5:]
@@ -91,6 +92,7 @@ def sample_parameters(trial, param_space, param_map={}):
             assert power % 1 == 0
             type_1 = "int"
             param = int(low * math.pow(2, trial.suggest_int(f"{k}_exp_2", 0, power)))
+            params_raw[k] = param
             params[k] = param
             continue
         elif type_0 in {"bool", "boolean"}:
