@@ -47,9 +47,10 @@ class ResultPredictorModel(nn.Module):
         self._create_tf_decoder(**tf_decoder_kwargs)
         self.pooling = pooling or torch.nn.Flatten(start_dim=-2, end_dim=-1)
         #self.d_reducer = self._calc_d_final(self.d_tf) * self.tf_decoder_heads
-        self.d_final = self._calc_d_final(self.d_embed)
+        #self.d_final = self._calc_d_final(self.d_embed)
         #self.expander = AttentionHeadExpander(self.tf_encoder_heads)
         #self._create_reducer(**reducer_kwargs)
+        self.d_final = self._calc_d_final(self.d_tf)
         self._create_final(**final_kwargs)
         self._create_heads(**head_kwargs)
 
@@ -130,12 +131,12 @@ class ResultPredictorModel(nn.Module):
         left = self.embedding(left)
         right = self.embedding(right)
 
+        left = self.encoder(left)
+        right = self.encoder(right)
+
         if self.dim == 2:
             left = left[:, :, None]
             right = right[:, :, None]
-
-        left = self.encoder(left)
-        right = self.encoder(right)
 
         left = self.pos_encode(left)
         right = self.pos_encode(right)
