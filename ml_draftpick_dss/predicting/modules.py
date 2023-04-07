@@ -103,5 +103,5 @@ class Scalar(nn.Module):
         self.value = value
 
     def forward(self, x):
-        return torch.fill([x.shape[-1]], self.value)
+        return torch.full([x.shape[-1]], self.value)
         #return torch.Tensor(self.value)
