@@ -43,9 +43,10 @@ class ResultPredictorModel(nn.Module):
             ]) for i in range(len(heads))
         ]
 
-    def forward(self, left, right):
-        left = self.encoder(left)
-        right = self.encoder(right)
+    def forward(self, left, right, encode=True):
+        if encode:
+            left = self.encoder(left)
+            right = self.encoder(right)
         
         if self.pooling == "concat":
             final = torch.cat([left, right], dim=-1)

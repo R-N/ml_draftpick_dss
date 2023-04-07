@@ -1,4 +1,4 @@
-from ..transformer.study import objective as _objective, LRS, EPOCHS, PARAM_SPACE
+from ..transformer.study import create_predictor as _create_predictor, LRS, EPOCHS, PARAM_SPACE
 from .predictor import ResultPredictor
 from .model import create_encoder
 from ..study import BOOLEAN
@@ -28,27 +28,12 @@ PARAM_MAP = {
 }
 """
 
-def objective(
-    datasets, 
+def create_predictor(
     d_input=171,
-    #d_hid_encoder=128,
-    #n_layers_encoder=2,
-    #activation_encoder=torch.nn.ReLU,
-    #bias_encoder=True,
     n_layers_tf=1, 
     predictor=ResultPredictor, 
     **kwargs
 ):
     if not isinstance(d_input, int):
         d_input = d_input.dim
-    """
-    encoder = create_encoder(
-        d_input,
-        d_hid=d_hid_encoder,
-        d_output=d_hid_encoder,
-        n_layers=n_layers_encoder,
-        activation=activation_encoder,
-        bias=bias_encoder
-    )
-    """
-    return _objective(datasets, d_input, n_layers_tf=n_layers_tf, predictor=predictor, **kwargs)
+    return _create_predictor(d_input, n_layers_tf=n_layers_tf, predictor=predictor, **kwargs)

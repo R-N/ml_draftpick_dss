@@ -1,4 +1,5 @@
 import torch
+from ..mlp.study import LRS, EPOCHS, PARAM_SPACE, create_predictor as _create_predictor
 from .dataset import create_dataloader, ResultDataset
 from .predictor import ResultPredictor
 from ..study import BOOLEAN, get_metric, LRS, EPOCHS, SCHEDULER_CONFIGS
@@ -6,25 +7,16 @@ import optuna
 
 
 PARAM_SPACE = {
-    "d_final": ("int_exp_2", 32, 256),
-    "d_hid_encoder": ("int_exp_2", 32, 256),
-    "n_layers_encoder": ("int_exp_2", 1, 8),
-    "activation_encoder": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
-    "bias_encoder": BOOLEAN,
-    "d_hid_final": ("int_exp_2", 32, 256),
-    "n_layers_final": ("int_exp_2", 1, 8),
-    "activation_final": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
-    "bias_final": BOOLEAN,
-    "n_layers_head": ("int_exp_2", 1, 8),
-    "dropout": ("float", 0.0, 0.3),
-    "lrs": ("lrs", list(range(len(LRS)))),
-    "epochs": ("epochs", list(range(len(EPOCHS)))),
-    "scheduler_config": ("scheduler_config", list(range(len(SCHEDULER_CONFIGS)))),
-    #"norm_crit": ("loss", ["mse"]),
-    "optimizer": ("optimizer", ["adam", "adamw", "sgd"]),
-    "grad_clipping": ("bool_float", 0.0, 1.0),
-    "batch_size": ("int_exp_2", 32, 128),
-    "pooling": ("categorical", ["concat", "diff", "mean", "prod"])
+    **PARAM_SPACE,
+    "d_hid_gate": ("int_exp_2", 32, 256),
+    "n_layers_self_gate": ("bool_int_exp_2", 0, 8),
+    "n_layers_cross_gate": ("bool_int_exp_2", 0, 8),
+    "activation_gate": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
+    "activation_final_gate": ("activation", ["tanh", "sigmoid"]),
+    "bias_gate": BOOLEAN,
+    "cross_0": BOOLEAN,
+    "self_residual": BOOLEAN,
+    "cross_residual": BOOLEAN,
 }
 
 PARAM_MAP = {}
@@ -47,6 +39,16 @@ PARAM_MAP = {
 
 def create_predictor(
     d_input=171,
+    d_hid_gate=128,
+    n_layers_self_gate=2,
+    n_layers_cross_gate=2,
+    activation_gate=torch.nn.ReLU,
+    activation_final_gate=torch.nn.Tanh,
+    bias_gate=True,
+    cross_0=False,
+    self_residual=False,
+    cross_residual=False,
+    predictor=ResultPredictor,
     d_hid_encoder=128,
     n_layers_encoder=2,
     activation_encoder=torch.nn.ReLU,
@@ -59,8 +61,7 @@ def create_predictor(
     n_layers_head=1,
     dropout=0.1,
     pooling="concat",
-    predictor=ResultPredictor,
-    **kwargs
+    #**kwargs
 ):
     if not isinstance(d_input, int):
         d_input = d_input.dim
@@ -68,6 +69,22 @@ def create_predictor(
     _predictor = predictor(
         d_input,
         d_final,
+        self_gate_kwargs={
+            "d_hid": d_hid_gate,
+            "n_layers": n_layers_self_gate,
+            "activation": activation_gate,
+            "activation_final": activation_final_gate,
+            "bias": bias_gate,
+            "dropout": dropout,
+        }, 
+        cross_gate_kwargs={
+            "d_hid": d_hid_gate,
+            "n_layers": n_layers_cross_gate,
+            "activation": activation_gate,
+            "activation_final": activation_final_gate,
+            "bias": bias_gate,
+            "dropout": dropout,
+        }, 
         encoder_kwargs={
             "d_hid": d_hid_encoder,
             "n_layers": n_layers_encoder,
@@ -91,6 +108,8 @@ def create_predictor(
             "bias": bias_final,
             "dropout": dropout,
         },
-        **kwargs
+        cross_0=cross_0,
+        self_residual=self_residual,
+        cross_residual=cross_residual,
     )
     return _predictor

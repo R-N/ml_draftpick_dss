@@ -3,6 +3,7 @@ import torch
 import json
 from ..util import mkdir
 import math
+import optuna
 
 POOLINGS = {
     "global_average": GlobalPooling1D(MEAN),
@@ -84,8 +85,9 @@ def sample_parameters(trial, param_space, param_map={}):
                 params_raw[k] = param
                 params[k] = param
                 continue
+            type_0 = type_0[5:]
             type_1 = type_0[5:]
-        elif type_0 == "int_exp_2":
+        if type_0 == "int_exp_2":
             low, high = args
             mul = high/low
             power = math.log(mul, 2)
@@ -95,9 +97,9 @@ def sample_parameters(trial, param_space, param_map={}):
             params_raw[k] = param
             params[k] = param
             continue
-        elif type_0 in {"bool", "boolean"}:
+        if type_0 in {"bool", "boolean"}:
             type_1, *args = BOOLEAN
-        elif type_0 in param_map:
+        if type_0 in param_map:
             type_1 = "categorical"
 
         if type_1:
@@ -150,6 +152,76 @@ def calc_reduction(min_resource, max_resource, basket=4):
 def calc_min_resource(max_resource, basket=4, reduction_factor=3):
     min_resource = max_resource / math.pow(reduction_factor, basket)
     return min_resource
-    
-    
 
+def objective(
+    datasets,
+    create_predictor,
+    create_dataloader,
+    lrs=LRS[0],
+    epochs=EPOCHS[0],
+    norm_crit=torch.nn.MSELoss(),
+    optimizer=torch.optim.Adam,
+    grad_clipping=0,
+    batch_size=128,
+    metric="val_loss",
+    checkpoint_dir=f"checkpoints",
+    log_dir=f"logs",
+    autosave=False,
+    trial=None,
+    scheduler_config=["plateau", False],
+    **predictor_kwargs
+):
+    train_set, val_set, test_set = datasets
+    train_loader = create_dataloader(train_set, batch_size=batch_size)
+    val_loader = create_dataloader(val_set, batch_size=batch_size)
+    test_loader = create_dataloader(test_set, batch_size=batch_size)
+
+    batch_count = len(train_loader)
+    scheduler_type, early_stopping = scheduler_config
+    scheduler_kwargs = {"steps": batch_count} if scheduler_type == "onecycle" else {}
+
+    predictor = create_predictor(**predictor_kwargs)
+    
+    predictor.prepare_training(
+        train_loader,
+        val_loader,
+        lr=lrs[0],
+        norm_crit=norm_crit,
+        optimizer=optimizer,
+        grad_clipping=grad_clipping,
+        checkpoint_dir=checkpoint_dir,
+        log_dir=log_dir,
+        scheduler_type=scheduler_type,
+        scheduler_kwargs=scheduler_kwargs,
+    )
+    print(predictor.summary())
+    for lr, (min_epoch, max_epoch) in zip(lrs, epochs):
+        if lr is None:
+            lr = predictor.find_lr(min_epoch=min_epoch).best_lr
+        predictor.set_lr(lr)
+        if early_stopping:
+            _early_stopping = predictor.create_early_stopping_1(min_epoch, max_epoch)
+        for i in range(max_epoch):
+            try:
+                train_results = predictor.train(autosave=autosave)
+                print(train_results)
+                val_results = predictor.train(autosave=autosave, val=True)
+                print(val_results)
+                predictor.inc_epoch()
+                intermediate_value = get_metric({**train_results[1], **val_results[1]}, metric)
+                train_metric = metric[4:] if metric.startswith("val_") else metric
+                train_metric = train_results[1][train_metric]
+                if _early_stopping:
+                    _early_stopping(train_metric, intermediate_value)
+                if trial:
+                    trial.report(intermediate_value, predictor.epoch)
+                    if trial.should_prune():
+                        raise optuna.TrialPruned()
+            except optuna.TrialPruned as ex:
+                print(str(ex))
+                break
+
+    #last_metrics = predictor.train(val=True)[1]
+    best_metrics = predictor.best_metrics
+    final_value = get_metric(best_metrics, metric)
+    return final_value

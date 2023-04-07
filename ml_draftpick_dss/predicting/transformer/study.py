@@ -59,8 +59,7 @@ PARAM_MAP = {
 }
 """
 
-def objective(
-    datasets,
+def create_predictor(
     encoder,
     s_embed=2,
     d_hid_encoder=128,
@@ -85,29 +84,9 @@ def objective(
     pos_encoder=False,
     bidirectional=False,
     pooling=GlobalPooling1D(),
-    lrs=LRS[0],
-    epochs=EPOCHS[0],
-    norm_crit=torch.nn.MSELoss(),
-    optimizer=torch.optim.Adam,
-    grad_clipping=0,
-    batch_size=128,
-    metric="val_loss",
-    checkpoint_dir=f"checkpoints",
-    log_dir=f"logs",
-    autosave=False,
-    trial=None,
-    scheduler_config=["plateau", False],
     predictor=ResultPredictor,
+    **kwargs,
 ):
-    train_set, val_set, test_set = datasets
-    train_loader = create_dataloader(train_set, batch_size=batch_size)
-    val_loader = create_dataloader(val_set, batch_size=batch_size)
-    test_loader = create_dataloader(test_set, batch_size=batch_size)
-
-    batch_count = len(train_loader)
-    scheduler_type, early_stopping = scheduler_config
-    scheduler_kwargs = {"steps": batch_count} if scheduler_type == "onecycle" else {}
-
     if isinstance(encoder, int):
         sizes = encoder
     elif isinstance(encoder, HeroLabelEncoder):
@@ -121,7 +100,7 @@ def objective(
         sizes = encoder.dim
     else:
         raise ValueError(f"Unknown encoder type: {type(encoder)}")
-    predictor = predictor(
+    _predictor = predictor(
         sizes, 
         encoder_kwargs={
             "d_hid": d_hid_encoder,
@@ -169,43 +148,6 @@ def objective(
         pos_encoder=pos_encoder,
         bidirectional=bidirectional,
         pooling=pooling,
+        **kwargs
     )
-    predictor.prepare_training(
-        train_loader,
-        val_loader,
-        lr=lrs[0],
-        norm_crit=norm_crit,
-        optimizer=optimizer,
-        grad_clipping=grad_clipping,
-        checkpoint_dir=checkpoint_dir,
-        log_dir=log_dir,
-        scheduler_type=scheduler_type,
-        scheduler_kwargs=scheduler_kwargs,
-    )
-    print(predictor.summary())
-    for lr, (min_epoch, max_epoch) in zip(lrs, epochs):
-        if lr is None:
-            lr = predictor.find_lr(min_epoch=min_epoch).best_lr
-        predictor.set_lr(lr)
-        if early_stopping:
-            early_stopping = predictor.create_early_stopping_1(min_epoch, max_epoch)
-        for i in range(max_epoch):
-            train_results = predictor.train(autosave=autosave)
-            print(train_results)
-            val_results = predictor.train(autosave=autosave, val=True)
-            print(val_results)
-            predictor.inc_epoch()
-            intermediate_value = get_metric({**train_results[1], **val_results[1]}, metric)
-            train_metric = metric[4:] if metric.startswith("val_") else metric
-            train_metric = train_results[1][train_metric]
-            if early_stopping:
-                early_stopping(train_metric, intermediate_value)
-            if trial:
-                trial.report(intermediate_value, predictor.epoch)
-                if trial.should_prune():
-                    raise optuna.TrialPruned()
-
-    #last_metrics = predictor.train(val=True)[1]
-    best_metrics = predictor.best_metrics
-    final_value = get_metric(best_metrics, metric)
-    return final_value
+    return _predictor
