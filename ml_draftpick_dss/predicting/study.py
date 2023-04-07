@@ -199,6 +199,7 @@ def objective(
         if lr is None:
             lr = predictor.find_lr(min_epoch=min_epoch).best_lr
         predictor.set_lr(lr)
+        _early_stopping = None
         if early_stopping:
             _early_stopping = predictor.create_early_stopping_1(min_epoch, max_epoch)
         for i in range(max_epoch):
