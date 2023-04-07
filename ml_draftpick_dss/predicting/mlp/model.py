@@ -56,7 +56,9 @@ class ResultPredictorModel(nn.Module):
             if self.pooling == "mean":
                 final = torch.mean(final, dim=0)
             elif self.pooling == "prod":
-                final = torch.prod(final, dim=0)[0]
+                final = torch.prod(final, dim=0)
+        if isinstance(final, tuple):
+            final = final[0]
         final = self.final(final)
 
         output = [f(final) for f in self.heads]
