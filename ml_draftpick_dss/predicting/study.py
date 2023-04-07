@@ -89,6 +89,7 @@ def sample_parameters(trial, param_space, param_map={}):
             type_1 = type_0
         if type_0 == "int_exp_2":
             low, high = args
+            low = max(low, 1)
             mul = high/low
             power = math.log(mul, 2)
             assert power % 1 == 0
