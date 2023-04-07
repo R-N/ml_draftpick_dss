@@ -63,8 +63,8 @@ class ResultPredictorModel(_ResultPredictorModel):
         self_w_right = self_w_right[None, None, :]
 
         left_0, right_0 = left, right
-        left = torch.prod(self_w_left, left)
-        right = torch.prod(self_w_right, right)
+        left = self_w_left * left
+        right = self_w_right * right
         if self.self_residual:
             left += left_0
             right += right_0
@@ -78,8 +78,8 @@ class ResultPredictorModel(_ResultPredictorModel):
         self_w_right = cross_w_right[None, None, :]
 
         left_0, right_0 = left, right
-        left = torch.prod(cross_w_left, left)
-        right = torch.prod(cross_w_right, right)
+        left = cross_w_left * left
+        right = cross_w_right * right
         if self.cross_residual:
             left += left_0
             right += right_0
