@@ -59,9 +59,6 @@ class ResultPredictorModel(_ResultPredictorModel):
         self_w_left = self.self_gate(left_0)
         self_w_right = self.self_gate(right_0)
 
-        self_w_left = self_w_left[None, None, :]
-        self_w_right = self_w_right[None, None, :]
-
         left_0, right_0 = left, right
         left = self_w_left * left
         right = self_w_right * right
@@ -73,9 +70,6 @@ class ResultPredictorModel(_ResultPredictorModel):
             left_0, right_0 = left, right
         cross_w_left = self.cross_gate(left_0)
         cross_w_right = self.cross_gate(right_0)
-
-        self_w_left = cross_w_left[None, None, :]
-        self_w_right = cross_w_right[None, None, :]
 
         left_0, right_0 = left, right
         left = cross_w_left * left
