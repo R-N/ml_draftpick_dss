@@ -10,23 +10,23 @@ import optuna
 
 PARAM_SPACE = {
     "s_embed": ("int", 1, 4),
-    "d_hid_encoder": ("int", 32, 256, 32),
+    "d_hid_encoder": ("int_exp_2", 32, 256),
     "n_layers_encoder": ("int", 1, 8),
     "activation_encoder": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
     "bias_encoder": BOOLEAN,
-    "n_heads": ("int", 1, 16, 1, True),
-    "d_hid_tf": ("int", 32, 256, 32),
+    "n_heads": ("int_exp_2", 1, 16),
+    "d_hid_tf": ("int_exp_2", 32, 256),
     "n_layers_tf": ("int", 1, 4),
     "activation_tf": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
     #"d_hid_reducer": ("int", 32, 256, 32),
     #"n_layers_reducer": ("int", 1, 4),
     #"activation_reducer": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
     #"bias_reducer": BOOLEAN,
-    "d_hid_final": ("int", 32, 256, 32),
-    "n_layers_final": ("int", 1, 16),
+    "d_hid_final": ("int_exp_2", 32, 256),
+    "n_layers_final": ("int_exp_2", 1, 16),
     "activation_final": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
     "bias_final": BOOLEAN,
-    "n_layers_head": ("int", 1, 16),
+    "n_layers_head": ("int_exp_2", 1, 16),
     "dropout_reducer": ("float", 0.0, 0.3),
     "dropout": ("float", 0.0, 0.3),
     "pos_encoder": BOOLEAN,
@@ -38,7 +38,7 @@ PARAM_SPACE = {
     #"norm_crit": ("loss", ["mse"]),
     "optimizer": ("optimizer", ["adam", "adamw", "sgd"]),
     "grad_clipping": ("bool_float", 0.0, 1.0),
-    "batch_size": ("int", 32, 128, 32),
+    "batch_size": ("int_exp_2", 32, 128),
 }
 
 PARAM_MAP = {}

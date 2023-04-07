@@ -79,14 +79,27 @@ def sample_parameters(trial, param_space, param_map={}):
         if type_0.startswith("bool_"):
             sample = trial.suggest_categorical(f"{k}_bool", [True, False])
             if not sample:
-                params[k] = 0
+                type_1 = None
+                param = 0
+                params[k] = param
                 continue
             type_1 = type_0[5:]
+        elif type_0 == "int_exp_2":
+            low, high = args
+            mul = high/low
+            power = math.log(mul, 2)
+            assert power % 1 == 0
+            type_1 = "int"
+            param = low * math.pow(2, trial.suggest_int(0, power))
+            params[k] = param
+            continue
         elif type_0 in {"bool", "boolean"}:
             type_1, *args = BOOLEAN
         elif type_0 in param_map:
             type_1 = "categorical"
-        param = sample_parameter(trial, k, type_1, args)
+
+        if type_1:
+            param = sample_parameter(trial, k, type_1, args)
         params_raw[k] = param
         if type_0 in param_map:
             param = map_parameter(param, param_map[type_0])

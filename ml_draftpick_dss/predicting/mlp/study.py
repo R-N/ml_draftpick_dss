@@ -6,16 +6,16 @@ import optuna
 
 
 PARAM_SPACE = {
-    "d_final": ("int", 32, 512, 32),
-    "d_hid_encoder": ("int", 32, 512, 32),
-    "n_layers_encoder": ("int", 1, 16),
+    "d_final": ("int_exp_2", 32, 512),
+    "d_hid_encoder": ("int_exp_2", 32, 512),
+    "n_layers_encoder": ("int_exp_2", 1, 16),
     "activation_encoder": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
     "bias_encoder": BOOLEAN,
-    "d_hid_final": ("int", 32, 512, 32),
-    "n_layers_final": ("int", 1, 16),
+    "d_hid_final": ("int_exp_2", 32, 512),
+    "n_layers_final": ("int_exp_2", 1, 16),
     "activation_final": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
     "bias_final": BOOLEAN,
-    "n_layers_head": ("int", 1, 16),
+    "n_layers_head": ("int_exp_2", 1, 16),
     "dropout": ("float", 0.0, 0.3),
     "lrs": ("lrs", list(range(len(LRS)))),
     "epochs": ("epochs", list(range(len(EPOCHS)))),
@@ -23,7 +23,7 @@ PARAM_SPACE = {
     #"norm_crit": ("loss", ["mse"]),
     "optimizer": ("optimizer", ["adam", "adamw", "sgd"]),
     "grad_clipping": ("bool_float", 0.0, 1.0),
-    "batch_size": ("int", 32, 128, 32),
+    "batch_size": ("int_exp_2", 32, 128),
     "pooling": ("categorical", ["concat", "diff", "mean", "prod"])
 }
 
