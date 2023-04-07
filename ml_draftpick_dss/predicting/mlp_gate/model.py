@@ -44,7 +44,7 @@ class ResultPredictorModel(_ResultPredictorModel):
             create_mlp_stack(self.d_final, d_hid, self.d_final, n_layers-1, activation=activation, bias=bias, dropout=dropout),
             nn.Sequential(*[
                 nn.Dropout(dropout),
-                nn.Linear(self.d_final, 1, bias=bias),
+                nn.Linear(self.d_final, self.d_final, bias=bias),
                 activation_final()
             ])
         ])
