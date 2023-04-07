@@ -10,11 +10,11 @@ import optuna
 
 PARAM_SPACE = {
     "s_embed": ("int", 1, 4),
-    "n_heads": ("int", 2, 16, 2),
     "d_hid_encoder": ("int", 32, 256, 32),
     "n_layers_encoder": ("int", 1, 8),
     "activation_encoder": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
     "bias_encoder": BOOLEAN,
+    "n_heads": ("int", 1, 16, 1, True),
     "d_hid_tf": ("int", 32, 256, 32),
     "n_layers_tf": ("int", 1, 4),
     "activation_tf": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
