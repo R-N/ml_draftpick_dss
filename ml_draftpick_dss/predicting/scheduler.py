@@ -20,7 +20,7 @@ class ReduceLROnPlateau(_ReduceLROnPlateau):
                     print('Epoch {}: reducing learning rate'
                           ' of group {} to {:.4e}.'.format(epoch_str, i, new_lr))
         if self.raise_ex and not updated:
-            raise optuna.TrialPruned()
+            raise optuna.TrialPruned("Learning rate stuck")
 
 class OneCycleLR:
     def __init__(self, optimizer, max_lr, steps_per_epoch, epochs, div_factor=25, autodecay=0.5):

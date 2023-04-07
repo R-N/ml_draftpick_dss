@@ -408,7 +408,9 @@ class EarlyStopping:
         log = f"INFO: Early stopping due to {reason} at epoch {epoch} with {loss} at epoch {self.best_epoch}"
         if self.debug >= 1:
             print(log)
-        if self.raise_ex:
+            if self.raise_ex:
+                raise optuna.TrialPruned(log)
+        elif self.raise_ex:
             raise optuna.TrialPruned()
 
     def calculate_forgiveness(self, counter, forgiveness, patience):
