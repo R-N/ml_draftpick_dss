@@ -39,18 +39,21 @@ class ResultPredictorModel(nn.Module):
         self.model_type = 'Transformer'
         self.bidirectional = bidirectional
         self._create_encoder(**encoder_kwargs)
-        #self.d_tf = self.d_embed if self.dim == 3 else 1
-        #self.pos_encoder = PositionalEncoding(self.d_embed, dropout) if pos_encoder else None
-        self.d_tf = self.encoder.dim if self.dim == 3 else 1
+        if self.dim == 2:
+            self.d_tf = tf_encoder_kwargs["n_heads"]
+        else:
+            self.d_tf = self.encoder.dim
         self.pos_encoder = PositionalEncoding(self.d_tf, dropout) if pos_encoder else None
         self._create_tf_encoder(**tf_encoder_kwargs)
         self._create_tf_decoder(**tf_decoder_kwargs)
         self.pooling = pooling or torch.nn.Flatten(start_dim=-2, end_dim=-1)
-        #self.d_reducer = self._calc_d_final(self.d_tf) * self.tf_decoder_heads
-        #self.d_final = self._calc_d_final(self.d_embed)
-        #self.expander = AttentionHeadExpander(self.tf_encoder_heads)
-        #self._create_reducer(**reducer_kwargs)
-        self.d_final = self._calc_d_final(self.d_tf)
+        if self.dim == 2:
+            self.d_reducer = self.d_tf
+            self.d_final = self._calc_d_final(self.encoder.dim)
+            self.expander = AttentionHeadExpander(self.tf_encoder_heads)
+            self._create_reducer(**reducer_kwargs)
+        else:
+            self.d_final = self._calc_d_final(self.d_tf)
         self._create_final(**final_kwargs)
         self._create_heads(**head_kwargs)
 
@@ -141,8 +144,9 @@ class ResultPredictorModel(nn.Module):
         left = self.pos_encode(left)
         right = self.pos_encode(right)
 
-        #left = self.expander(left)
-        #right = self.expander(right)
+        if self.dim == 2:
+            left = self.expander(left)
+            right = self.expander(right)
         
         if self.bidirectional:
             left = self.transform(left, right)
@@ -151,7 +155,8 @@ class ResultPredictorModel(nn.Module):
         else:
             tgt = self.transform(left, right)
 
-        #tgt = self.reducer(tgt)
+        if self.dim == 2:
+            tgt = self.reducer(tgt)
 
         if self.dim == 2:
             tgt = torch.squeeze(tgt, -1)
