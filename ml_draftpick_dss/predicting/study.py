@@ -86,7 +86,7 @@ def sample_parameters(trial, param_space, param_map={}):
                 params[k] = param
                 continue
             type_0 = type_0[5:]
-            type_1 = type_1
+            type_1 = type_0
         if type_0 == "int_exp_2":
             low, high = args
             mul = high/low
