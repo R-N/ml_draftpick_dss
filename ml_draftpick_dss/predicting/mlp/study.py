@@ -1,5 +1,5 @@
 import torch
-from .dataset import create_dataloader, ResultDataset
+from .dataset import create_dataloader
 from .predictor import ResultPredictor
 from ..study import BOOLEAN, get_metric, LRS, EPOCHS, SCHEDULER_CONFIGS
 import optuna
