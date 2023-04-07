@@ -124,7 +124,11 @@ def create_objective(
         params, params_raw = sampler(trial, **sampler_kwargs)
         param_path = f"{study_dir}/params.json"
         with open(param_path, 'w') as f:
-            json.dump(params_raw, f, indent=4)
+            try:
+                json.dump(params_raw, f, indent=4)
+            except TypeError as ex:
+                print(params_raw)
+                raise
         print(json.dumps(params_raw, indent=4))
         if checkpoint_dir:
             _checkpoint_dir = f"{study_dir}/{checkpoint_dir}"
