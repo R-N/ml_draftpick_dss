@@ -1,16 +1,8 @@
 import torch
 from torch import nn
 from torchinfo import summary
-from ..modules import Residual, create_mlp_stack
+from ..modules import Residual, create_mlp_stack, Scalar
 from ..mlp.model import ResultPredictorModel as _ResultPredictorModel
-
-class Scalar(nn.Module):
-    def __init__(self, value):
-        self.value = value
-
-    def forward(self, x):
-        return torch.fill([x.shape[-1]], self.value)
-        #return torch.Tensor(self.value)
 
 class ResultPredictorModel(_ResultPredictorModel):
     def __init__(

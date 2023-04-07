@@ -96,3 +96,12 @@ class AttentionHeadExpander(torch.nn.Module):
 
     def forward(self, x):
         return x.repeat(*((x.dim()-1)*[1]), self.n_heads)
+
+class Scalar(nn.Module):
+    def __init__(self, value):
+        super().__init__()
+        self.value = value
+
+    def forward(self, x):
+        return torch.fill([x.shape[-1]], self.value)
+        #return torch.Tensor(self.value)
