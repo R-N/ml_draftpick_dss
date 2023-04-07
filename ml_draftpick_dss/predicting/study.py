@@ -90,7 +90,7 @@ def sample_parameters(trial, param_space, param_map={}):
             power = math.log(mul, 2)
             assert power % 1 == 0
             type_1 = "int"
-            param = low * math.pow(2, trial.suggest_int(f"{k}_exp_2", 0, power))
+            param = int(low * math.pow(2, trial.suggest_int(f"{k}_exp_2", 0, power)))
             params[k] = param
             continue
         elif type_0 in {"bool", "boolean"}:
