@@ -3,6 +3,11 @@ import torch
 from ..transformer.model import ResultPredictorModel as _ResultPredictorModel
 from ..modules import create_mlp_stack
 
+def create_encoder(d_input, d_hid, d_output=0, **kwargs):
+    d_output = d_output or d_hid
+    mlp = create_mlp_stack(d_input, d_hid, d_output, **kwargs)
+    mlp.dim = d_output
+    return mlp
 
 
 class ResultPredictorModel(_ResultPredictorModel):
