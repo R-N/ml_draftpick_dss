@@ -6,16 +6,16 @@ import optuna
 
 
 PARAM_SPACE = {
-    "d_final": ("int_exp_2", 32, 512),
-    "d_hid_encoder": ("int_exp_2", 32, 512),
-    "n_layers_encoder": ("int_exp_2", 1, 16),
+    "d_final": ("int_exp_2", 32, 256),
+    "d_hid_encoder": ("int_exp_2", 32, 256),
+    "n_layers_encoder": ("int_exp_2", 1, 8),
     "activation_encoder": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
     "bias_encoder": BOOLEAN,
-    "d_hid_final": ("int_exp_2", 32, 512),
-    "n_layers_final": ("int_exp_2", 1, 16),
+    "d_hid_final": ("int_exp_2", 32, 256),
+    "n_layers_final": ("int_exp_2", 1, 8),
     "activation_final": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
     "bias_final": BOOLEAN,
-    "n_layers_head": ("int_exp_2", 1, 16),
+    "n_layers_head": ("int_exp_2", 1, 8),
     "dropout": ("float", 0.0, 0.3),
     "lrs": ("lrs", list(range(len(LRS)))),
     "epochs": ("epochs", list(range(len(EPOCHS)))),
