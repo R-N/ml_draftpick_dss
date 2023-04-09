@@ -52,7 +52,7 @@ class ResultPredictorModel(nn.Module):
             self.d_reducer = self.d_tf
             self.d_final = self._calc_d_final(self.encoder.dim)
             if expander_kwargs:
-                self.expander = MLPExpander(self.tf_encoder_heads, d_input=self.d_tf, d_output=self.d_tf, **expander_kwargs)
+                self.expander = MLPExpander(self.tf_encoder_heads, d_input=self.encoder.dim, d_output=self.encoder.dim, **expander_kwargs)
             else:
                 self.expander = RepeatExpander(self.tf_encoder_heads)
             self._create_reducer(**reducer_kwargs)
