@@ -49,7 +49,7 @@ class ResultPredictorModel(nn.Module):
         self._create_tf_decoder(**tf_decoder_kwargs)
         self.pooling = pooling or torch.nn.Flatten(start_dim=-2, end_dim=-1)
         if self.dim == 2:
-            self.d_reducer = self.d_tf
+            self.d_reducer = self._calc_d_final(self.d_tf)
             self.d_final = self._calc_d_final(self.encoder.dim)
             if expander_kwargs:
                 self.expander = MLPExpander(self.tf_encoder_heads, d_input=self.encoder.dim, d_output=self.encoder.dim, **expander_kwargs)
