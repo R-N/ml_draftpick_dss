@@ -9,6 +9,8 @@ PARAM_SPACE = {
     **PARAM_SPACE,
     "d_hid_expander": ("int_exp_2", 32, 128),
     "n_layers_expander": ("int", 1, 4),
+    "n_heads": ("int_exp_2", 4, 32),
+    "n_layers_tf": ("int", 1, 2),
     "activation_expander": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
     "bias_expander": BOOLEAN,
 }
@@ -34,6 +36,7 @@ def create_predictor(
     n_layers_expander=2,
     activation_expander=torch.nn.ReLU,
     bias_expander=True,
+    n_heads=8,
     **kwargs
 ):
     if not isinstance(d_input, int):
@@ -44,5 +47,5 @@ def create_predictor(
         "activation": activation_expander,
         "bias": bias_expander,
         "dropout": kwargs["dropout"],
-    }, 
-    return _create_predictor(d_input, n_layers_tf=n_layers_tf, predictor=predictor, expander_kwargs=expander_kwargs, **kwargs)
+    }
+    return _create_predictor(d_input, n_layers_tf=n_layers_tf, predictor=predictor, expander_kwargs=expander_kwargs, n_heads=n_heads, **kwargs)
