@@ -5,7 +5,7 @@ from torch.nn import TransformerEncoder, TransformerEncoderLayer
 from torch.nn import TransformerDecoder, TransformerDecoderLayer
 from torchinfo import summary
 import math
-from ..modules import GlobalPooling1D, Residual, create_mlp_stack, AttentionHeadExpander
+from ..modules import GlobalPooling1D, Residual, create_mlp_stack, RepeatExpander, MLPExpander
 from ..embedding import PositionalEncoding, HeroEmbedder
 
 class ResultPredictorModel(nn.Module):
@@ -22,7 +22,8 @@ class ResultPredictorModel(nn.Module):
         pos_encoder=False,
         dropout=0.1,
         bidirectional=False,
-        dim=3
+        dim=3,
+        expander_kwargs={}
     ):
         super().__init__()
         self.name = "predictor_tf"
@@ -50,7 +51,10 @@ class ResultPredictorModel(nn.Module):
         if self.dim == 2:
             self.d_reducer = self.d_tf
             self.d_final = self._calc_d_final(self.encoder.dim)
-            self.expander = AttentionHeadExpander(self.tf_encoder_heads)
+            if expander_kwargs:
+                self.expander = MLPExpander(self.tf_encoder_heads, d_input=self.d_tf, d_output=self.d_tf, **expander_kwargs)
+            else:
+                self.expander = RepeatExpander(self.tf_encoder_heads)
             self._create_reducer(**reducer_kwargs)
         else:
             self.d_final = self._calc_d_final(self.d_tf)
@@ -138,15 +142,11 @@ class ResultPredictorModel(nn.Module):
         right = self.encoder(right)
 
         if self.dim == 2:
-            left = left[:, :, None]
-            right = right[:, :, None]
+            left = self.expander(left)
+            right = self.expander(right)
 
         left = self.pos_encode(left)
         right = self.pos_encode(right)
-
-        if self.dim == 2:
-            left = self.expander(left)
-            right = self.expander(right)
         
         if self.bidirectional:
             left = self.transform(left, right)

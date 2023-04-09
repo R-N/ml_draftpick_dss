@@ -89,12 +89,14 @@ def create_mlp_stack(d_input, d_hid, d_output, n_layers, activation=torch.nn.ReL
         mlp.dim = d_output
     return mlp
 
-class AttentionHeadExpander(torch.nn.Module):
+class RepeatExpander(torch.nn.Module):
     def __init__(self, n_heads, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.n_heads = n_heads
 
     def forward(self, x):
+        if x.dim() == 2:
+            x = x[:, :, None]
         return x.repeat(*((x.dim()-1)*[1]), self.n_heads)
 
 class Scalar(nn.Module):
@@ -105,3 +107,17 @@ class Scalar(nn.Module):
     def forward(self, x):
         return torch.full([x.shape[-1]], self.value)
         #return torch.Tensor(self.value)
+
+class MLPExpander(torch.nn.Module):
+    def __init__(self, n_heads, *args, **kwargs):
+        super().__init__()
+        self.mlps = [
+            create_mlp_stack(*args, **kwargs)
+            for i in range(n_heads)
+        ]
+
+    def forward(self, x):
+        assert x.dim() == 2
+        xs = [mlp(x)[:, :, None] for mlp in self.mlps]
+        x = torch.concat(xs, dim=-1)
+        return x

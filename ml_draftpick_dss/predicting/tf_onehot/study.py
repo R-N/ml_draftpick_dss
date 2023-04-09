@@ -7,13 +7,10 @@ import torch
 
 PARAM_SPACE = {
     **PARAM_SPACE,
-    #"d_hid_encoder": ("int", 32, 256, 32),
-    #"n_layers_encoder": ("int", 1, 8),
-    #"activation_encoder": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
-    #"bias_encoder": BOOLEAN,
-    #"n_layers_tf": ("int", 1, 1),
-    #"lrs": ("categorical", list(range(len(LRS)))),
-    #"epochs": ("categorical", list(range(len(EPOCHS)))),
+    "d_hid_expander": ("int_exp_2", 32, 128),
+    "n_layers_expander": ("int", 1, 4),
+    "activation_expander": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
+    "bias_expander": BOOLEAN,
 }
 PARAM_SPACE.pop("s_embed")
 PARAM_SPACE.pop("pos_encoder")
@@ -33,8 +30,19 @@ def create_predictor(
     d_input=171,
     n_layers_tf=1, 
     predictor=ResultPredictor, 
+    d_hid_expander=128,
+    n_layers_expander=2,
+    activation_expander=torch.nn.ReLU,
+    bias_expander=True,
     **kwargs
 ):
     if not isinstance(d_input, int):
         d_input = d_input.dim
-    return _create_predictor(d_input, n_layers_tf=n_layers_tf, predictor=predictor, **kwargs)
+    expander_kwargs={
+        "d_hid": d_hid_expander,
+        "n_layers": n_layers_expander,
+        "activation": activation_expander,
+        "bias": bias_expander,
+        "dropout": kwargs["dropout"],
+    }, 
+    return _create_predictor(d_input, n_layers_tf=n_layers_tf, predictor=predictor, expander_kwargs=expander_kwargs, **kwargs)
