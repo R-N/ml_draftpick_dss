@@ -52,6 +52,9 @@ class Residual(torch.nn.Module):
         y = self.module(x)
         if x.shape == y.shape:
             return x + y
+        if y.dim() - x.dim() == 1 and y.shape[:-1] == x.shape:
+            return repeat_expand(x, y.shape[-1]) + y
+        raise (f"Incompatible x({x.shape}) and y({y.shape})")
         return y
     
 def try_residual(module, flag):
@@ -95,15 +98,18 @@ def create_mlp_stack(d_input, d_hid, d_output, n_layers, activation=torch.nn.ReL
         mlp.dim = d_output
     return mlp
 
+def repeat_expand(x, n_heads):
+    if x.dim() == 2:
+        x = torch.unsqueeze(-1)
+    return x.repeat(*((x.dim()-1)*[1]), n_heads)
+
 class RepeatExpander(torch.nn.Module):
     def __init__(self, n_heads, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.n_heads = n_heads
 
     def forward(self, x):
-        if x.dim() == 2:
-            x = torch.unsqueeze(-1)
-        return x.repeat(*((x.dim()-1)*[1]), self.n_heads)
+        return repeat_expand(x, self.n_heads)
 
 class Scalar(nn.Module):
     def __init__(self, value):
@@ -147,7 +153,7 @@ class MultiheadLinear(torch.nn.Module):
         output = torch.squeeze(output, -1)
         ds_output = tuple(range(1, output.dim()))
         output = torch.permute(output, (*ds_output, 0))
-        if (d_input == 1):
+        if d_input < 2:
             output = torch.squeeze(output, 0)
         if self.bias is not None:
             output += self.bias
