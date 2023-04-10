@@ -153,8 +153,7 @@ class ResultPredictorModel(nn.Module):
         right = self.pos_encode(right)
         
         if self.bidirectional:
-            left = self.transform(left, right)
-            right = self.transform(right, left)
+            left, right = (self.transform(left, right), self.transform(right, left))
             tgt = torch.cat([left, right], dim=-1)
         else:
             tgt = self.transform(left, right)
