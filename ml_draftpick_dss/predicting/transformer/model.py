@@ -122,7 +122,11 @@ class ResultPredictorModel(nn.Module):
     
     def transform(self, src, tgt):
         memory = self.tf_encoder(src)#, src_mask)
-        tgt = self.tf_decoder(tgt, memory)
+        try:
+            tgt = self.tf_decoder(tgt, memory)
+        except RuntimeError as ex:
+            print(src.shape, tgt.shape, memory.shape)
+            raise
         if self.dim == 2:
             tgt = self.reducer(tgt)
         return tgt
