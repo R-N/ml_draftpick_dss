@@ -146,7 +146,8 @@ class MultiheadLinear(torch.nn.Module):
         output = torch.permute(output, (*ds_output, 0))
         if (d_input == 1):
             output = torch.squeeze(output, 0)
-        output += self.bias
+        if self.bias is not None:
+            output += self.bias
         return output
 
 class MLPExpander(torch.nn.Module):
