@@ -139,29 +139,28 @@ class ResultPredictorModel(nn.Module):
 
     def forward(self, left, right):
 
-        left = self.embedding(left)
-        right = self.embedding(right)
+        left, right = (self.embedding(left), self.embedding(right))
 
-        left = self.encoder(left)
-        right = self.encoder(right)
+        left, right = (self.encoder(left), self.encoder(right))
 
         if self.dim == 2:
-            left = self.expander(left)
-            right = self.expander(right)
+            left, right = (self.expander(left), self.expander(right))
 
-        left = self.pos_encode(left)
-        right = self.pos_encode(right)
+        left, right = (self.pos_encode(left), self.pos_encode(right))
         
         if self.bidirectional:
             left, right = (self.transform(left, right), self.transform(right, left))
+            if self.dim == 2:
+                left, right = (torch.squeeze(left, -1), torch.squeeze(right, -1))
+            else:
+                left, right = (self.pooling(left), self.pooling(right))
             tgt = torch.cat([left, right], dim=-1)
         else:
             tgt = self.transform(left, right)
-
-        if self.dim == 2 and tgt.shape[-1] == 1:
-            tgt = torch.squeeze(tgt, -1)
-        else:
-            tgt = self.pooling(tgt)
+            if self.dim == 2:
+                tgt = torch.squeeze(tgt, -1)
+            else:
+                tgt = self.pooling(tgt)
 
         try:
             tgt = self.final(tgt)
