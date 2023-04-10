@@ -49,7 +49,8 @@ class ResultPredictorModel(nn.Module):
         self._create_tf_decoder(**tf_decoder_kwargs)
         self.pooling = pooling or torch.nn.Flatten(start_dim=-2, end_dim=-1)
         if self.dim == 2:
-            self.d_reducer = self._calc_d_final(self.d_tf)
+            #self.d_reducer = self._calc_d_final(self.d_tf)
+            self.d_reducer = self.d_tf
             self.d_final = self._calc_d_final(self.encoder.dim)
             if expander_kwargs:
                 self.expander = MLPExpander(self.tf_encoder_heads, d_input=self.encoder.dim, d_output=self.encoder.dim, **expander_kwargs)
@@ -122,6 +123,8 @@ class ResultPredictorModel(nn.Module):
     def transform(self, src, tgt):
         memory = self.tf_encoder(src)#, src_mask)
         tgt = self.tf_decoder(tgt, memory)
+        if self.dim == 2:
+            tgt = self.reducer(tgt)
         return tgt
     
     def pos_encode(self, x):
@@ -151,9 +154,6 @@ class ResultPredictorModel(nn.Module):
             tgt = torch.cat([left, right], dim=-1)
         else:
             tgt = self.transform(left, right)
-
-        if self.dim == 2:
-            tgt = self.reducer(tgt)
 
         if self.dim == 2:
             tgt = torch.squeeze(tgt, -1)
