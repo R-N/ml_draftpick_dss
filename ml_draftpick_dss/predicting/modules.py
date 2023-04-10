@@ -49,7 +49,10 @@ class Residual(torch.nn.Module):
         self.module = module
 
     def forward(self, x):
-        return x + self.module(x)
+        y = self.module(x)
+        if x.shape == y.shape:
+            return x + y
+        return y
     
 def try_residual(module, flag):
     if flag:
