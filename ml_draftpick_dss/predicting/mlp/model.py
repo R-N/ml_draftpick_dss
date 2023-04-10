@@ -31,6 +31,7 @@ class ResultPredictorModel(nn.Module):
 
     def _create_heads(self, d_hid=0, n_layers=1, n_heads=3, activation=torch.nn.ReLU, bias=True, dropout=0.1):
         d_hid = d_hid or self.d_final
+        """
         self.head = nn.Sequential(*[
             create_mlp_stack(self.d_final, d_hid, self.d_final, n_layers-1, activation=activation, bias=bias, dropout=dropout),
             nn.Sequential(*[
@@ -39,6 +40,17 @@ class ResultPredictorModel(nn.Module):
                 nn.Tanh()
             ])
         ])
+        """
+        self.heads = [
+            nn.Sequential(*[
+                create_mlp_stack(self.d_final, d_hid, self.d_final, n_layers-1, activation=activation, bias=bias, dropout=dropout),
+                nn.Sequential(*[
+                    nn.Dropout(dropout),
+                    nn.Linear(self.d_final, 1, bias=bias),
+                    nn.Tanh()
+                ])
+            ]) for i in range(n_heads)
+        ]
 
     def forward(self, left, right, encode=True):
         if encode:
@@ -59,7 +71,8 @@ class ResultPredictorModel(nn.Module):
             final = final[0]
         final = self.final(final)
 
-        output = self.head(final)
+        #output = self.head(final)
+        output = [f(final) for f in self.heads]
         return output
     
     def summary(self, batch_size=32, dtype=torch.float):

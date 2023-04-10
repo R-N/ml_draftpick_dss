@@ -174,7 +174,7 @@ def objective(
     log_dir=f"logs",
     autosave=False,
     trial=None,
-    scheduler_config=["plateau", False],
+    scheduler_config=SCHEDULER_CONFIGS[2],
     **predictor_kwargs
 ):
     train_set, val_set, test_set = datasets
@@ -207,7 +207,7 @@ def objective(
         predictor.set_lr(lr)
         _early_stopping = None
         if early_stopping:
-            _early_stopping = predictor.create_early_stopping_1(min_epoch, max_epoch)
+            _early_stopping = predictor.create_early_stopping_1(min_epoch//2, max_epoch)
         for i in range(max_epoch):
             try:
                 train_results = predictor.train(autosave=autosave)

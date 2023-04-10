@@ -1,5 +1,5 @@
 import torch
-from ..mlp.study import LRS, EPOCHS, PARAM_SPACE, create_predictor as _create_predictor
+from ..mlp.study import LRS, EPOCHS, PARAM_SPACE, create_predictor as _create_predictor, PARAMS_DEFAULT
 from .dataset import create_dataloader
 from .predictor import ResultPredictor
 from ..study import BOOLEAN, get_metric, LRS, EPOCHS, SCHEDULER_CONFIGS
@@ -8,15 +8,35 @@ import optuna
 
 PARAM_SPACE = {
     **PARAM_SPACE,
-    "d_hid_gate": ("int_exp_2", 32, 256),
-    "n_layers_self_gate": ("bool_int_exp_2", 0, 8),
-    "n_layers_cross_gate": ("bool_int_exp_2", 0, 8),
-    "activation_gate": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
+    "d_final": ("int_exp_2", 32, 256),
+    "d_hid_encoder": ("int_exp_2", 32, 256),
+    "n_layers_encoder": ("int", 2, 8),
+    "activation_encoder": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
+    "bias_encoder": BOOLEAN,
+    "d_hid_final": ("int_exp_2", 16, 128),
+    "n_layers_final": ("int", 1, 4),
+    "activation_final": ("activation", ["identity", "tanh", "leakyrelu", "elu"]),
+    "bias_final": BOOLEAN,
+    "n_layers_head": ("int", 2, 6),
+    "dropout": ("float", 0.0, 0.2),
+    "lrs": ("lrs", list(range(len(LRS)))),
+    "optimizer": ("optimizer", ["adam", "sgd"]),
+    "grad_clipping": ("bool_float", 1.0, 2.0),
+    "batch_size": ("int_exp_2", 32, 64),
+    "pooling": ("categorical", ["concat", "diff"]),
+    "d_hid_gate": ("int_exp_2", 16, 128),
+    "n_layers_self_gate": ("bool_int", 0, 4),
+    "n_layers_cross_gate": ("bool_int", 0, 4),
+    "activation_gate": ("activation", ["identity", "relu","sigmoid", "elu"]),
     "activation_final_gate": ("activation", ["tanh", "sigmoid"]),
     "bias_gate": BOOLEAN,
     "cross_0": BOOLEAN,
     "self_residual": BOOLEAN,
-    "cross_residual": BOOLEAN,
+    "cross_residual": BOOLEAN, # True
+}
+
+PARAMS_DEFAULT = {
+    **PARAMS_DEFAULT,
 }
 
 PARAM_MAP = {}
@@ -59,6 +79,7 @@ def create_predictor(
     activation_final=torch.nn.ReLU,
     bias_final=True,
     n_layers_head=1,
+    n_heads=3,
     dropout=0.1,
     pooling="concat",
     #**kwargs
@@ -101,6 +122,7 @@ def create_predictor(
             "pooling": pooling
         },
         head_kwargs={
+            "n_heads": n_heads,
             "d_hid": d_hid_final,
             "n_layers": n_layers_head,
             "activation": activation_final,

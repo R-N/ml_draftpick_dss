@@ -96,6 +96,7 @@ class ResultPredictorModel(nn.Module):
 
     def _create_heads(self, d_hid=0, n_layers=1, n_heads=3, activation=torch.nn.ReLU, bias=True, dropout=0.1):
         d_hid = d_hid or self.d_final
+        """
         self.head = nn.Sequential(*[
             create_mlp_stack(self.d_final, d_hid, self.d_final, n_layers-1, activation=activation, bias=bias, dropout=dropout),
             nn.Sequential(*[
@@ -104,6 +105,17 @@ class ResultPredictorModel(nn.Module):
                 nn.Tanh()
             ])
         ])
+        """
+        self.heads = [
+            nn.Sequential(*[
+                create_mlp_stack(self.d_final, d_hid, self.d_final, n_layers-1, activation=activation, bias=bias, dropout=dropout),
+                nn.Sequential(*[
+                    nn.Dropout(dropout),
+                    nn.Linear(self.d_final, 1, bias=bias),
+                    nn.Tanh()
+                ])
+            ]) for i in range(n_heads)
+        ]
     
     def init_weights(self, layers=None, initrange=0.1):
         layers = layers or [
@@ -168,7 +180,8 @@ class ResultPredictorModel(nn.Module):
             print(tgt.shape, self.d_final)
             raise
 
-        output = self.head(tgt)
+        #output = self.head(tgt)
+        output = [f(tgt) for f in self.heads]
         return output
     
     def summary(self, batch_size=32, team_size=5, dim=6, dtype=torch.int):

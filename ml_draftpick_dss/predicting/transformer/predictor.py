@@ -147,8 +147,8 @@ class ResultPredictor:
         for i, batch in enumerate(loader):
             left, right, targets = batch
             victory_true, score_true, duration_true = split_dim(targets)
-            victory_pred, score_pred, duration_pred = split_dim(self.model(left, right))
-            #victory_pred, norms_pred = preds[..., :1], preds[..., 1:]
+            #victory_pred, score_pred, duration_pred = split_dim(self.model(left, right))
+            victory_pred, score_pred, duration_pred = self.model(left, right)
             
             victory_loss = self.norm_crit(victory_pred, victory_true)
             score_loss = self.norm_crit(score_pred, score_true)

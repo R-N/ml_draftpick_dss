@@ -7,24 +7,25 @@ import optuna
 
 PARAM_SPACE = {
     "d_final": ("int_exp_2", 32, 256),
-    "d_hid_encoder": ("int_exp_2", 32, 256),
-    "n_layers_encoder": ("int_exp_2", 1, 8),
-    "activation_encoder": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
+    "d_hid_encoder": ("int_exp_2", 16, 128),
+    "n_layers_encoder": ("int", 3, 8),
+    "activation_encoder": ("activation", ["relu", "tanh", "elu"]),
     "bias_encoder": BOOLEAN,
-    "d_hid_final": ("int_exp_2", 32, 256),
+    "d_hid_final": ("int_exp_2", 16, 256),
     "n_layers_final": ("int_exp_2", 1, 8),
-    "activation_final": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
+    "activation_final": ("activation", ["identity", "relu", "tanh", "leakyrelu", "elu"]),
     "bias_final": BOOLEAN,
-    "n_layers_head": ("int_exp_2", 1, 8),
-    "dropout": ("float", 0.0, 0.3),
-    "lrs": ("lrs", list(range(len(LRS)))),
-    "epochs": ("epochs", list(range(len(EPOCHS)))),
-    "scheduler_config": ("scheduler_config", list(range(len(SCHEDULER_CONFIGS)))),
-    #"norm_crit": ("loss", ["mse"]),
-    "optimizer": ("optimizer", ["adam", "adamw", "sgd"]),
-    "grad_clipping": ("bool_float", 0.0, 1.0),
-    "batch_size": ("int_exp_2", 32, 128),
-    "pooling": ("categorical", ["concat", "diff", "mean", "prod"])
+    "n_layers_head": ("int", 1, 6),
+    "dropout": ("float", 0.05, 0.25),
+    "lrs": ("lrs", list(range(len(LRS)))), #CEK LAGI
+    "optimizer": ("optimizer", ["adamw", "sgd"]),
+    "grad_clipping": ("bool_float", 0.6, 2.0),
+    "batch_size": ("int_exp_2", 32, 64),
+    "pooling": ("categorical", ["concat", "diff"]),
+}
+
+PARAMS_DEFAULT = {
+
 }
 
 PARAM_MAP = {}
@@ -59,6 +60,7 @@ def create_predictor(
     n_layers_head=1,
     dropout=0.1,
     pooling="concat",
+    n_heads=3,
     predictor=ResultPredictor,
     **kwargs
 ):
@@ -84,6 +86,7 @@ def create_predictor(
             "pooling": pooling
         },
         head_kwargs={
+            "n_heads": n_heads,
             "d_hid": d_hid_final,
             "n_layers": n_layers_head,
             "activation": activation_final,
