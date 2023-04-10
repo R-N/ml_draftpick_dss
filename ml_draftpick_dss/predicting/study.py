@@ -90,11 +90,12 @@ def sample_parameters(trial, param_space, param_map={}):
         if type_0 == "int_exp_2":
             low, high = args
             low = max(low, 1)
-            mul = high/low
-            power = math.log(mul, 2)
-            assert power % 1 == 0
+            low = math.log(low, 2)
+            high = math.log(high, 2)
+            assert low % 1 == 0
+            assert high % 1 == 0
             type_1 = "int"
-            param = int(low * math.pow(2, trial.suggest_int(f"{k}_exp_2", 0, power)))
+            param = int(math.pow(2, trial.suggest_int(f"{k}_exp_2", low, high)))
             params_raw[k] = param
             params[k] = param
             continue
