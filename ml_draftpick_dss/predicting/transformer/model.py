@@ -158,7 +158,10 @@ class ResultPredictorModel(nn.Module):
         else:
             tgt = self.transform(left, right)
 
-        tgt = self.pooling(tgt)
+        if self.dim == 2 and tgt.shape[-1] == 1:
+            tgt = torch.squeeze(tgt, -1)
+        else:
+            tgt = self.pooling(tgt)
 
         try:
             tgt = self.final(tgt)
