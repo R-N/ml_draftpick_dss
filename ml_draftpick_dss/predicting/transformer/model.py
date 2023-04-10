@@ -163,7 +163,7 @@ class ResultPredictorModel(nn.Module):
         try:
             tgt = self.final(tgt)
         except RuntimeError as ex:
-            print(tgt.shape)
+            print(tgt.shape, self.d_final)
             raise
 
         output = self.head(tgt)
