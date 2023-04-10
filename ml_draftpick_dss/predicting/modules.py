@@ -148,6 +148,9 @@ class MultiheadLinear(torch.nn.Module):
 
     def forward(self, input):
         d_input = input.dim()
+        if d_input >= 3:
+            ds_input = tuple(range(0, d_input-1))
+            x = torch.permute(x, (-1, *ds_input))
         input = torch.unsqueeze(input, -1)
         output = torch.matmul(self.weight, input)
         output = torch.squeeze(output, -1)
