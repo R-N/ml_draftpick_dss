@@ -141,8 +141,6 @@ class MultiheadLinear(torch.nn.Module):
             nn.init.uniform_(self.bias, -bound, bound)
 
     def forward(self, input):
-        print(self.weight.shape, input.shape)
-        
         d_input = input.dim()
         input = torch.unsqueeze(input, -1)
         output = torch.matmul(self.weight, input)
