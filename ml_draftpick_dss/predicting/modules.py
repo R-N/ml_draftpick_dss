@@ -100,7 +100,7 @@ def create_mlp_stack(d_input, d_hid, d_output, n_layers, activation=torch.nn.ReL
 
 def repeat_expand(x, n_heads):
     if x.dim() == 2:
-        x = torch.unsqueeze(-1)
+        x = torch.unsqueeze(x, -1)
     return x.repeat(*((x.dim()-1)*[1]), n_heads)
 
 class RepeatExpander(torch.nn.Module):
