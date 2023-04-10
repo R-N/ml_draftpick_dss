@@ -160,7 +160,11 @@ class ResultPredictorModel(nn.Module):
         else:
             tgt = self.pooling(tgt)
 
-        tgt = self.final(tgt)
+        try:
+            tgt = self.final(tgt)
+        except RuntimeError as ex:
+            print(tgt.shape)
+            raise
 
         output = self.head(tgt)
         return output
