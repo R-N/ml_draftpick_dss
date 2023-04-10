@@ -93,24 +93,21 @@ class ResultPredictorModel(nn.Module):
     def _create_final(self, d_hid, n_layers, activation=torch.nn.ReLU, bias=True, dropout=0.1):
         self.final = create_mlp_stack(self.d_final, d_hid, self.d_final, n_layers, activation=activation, bias=bias, dropout=dropout)
 
-    def _create_heads(self, d_hid=0, n_layers=1, heads=["victory", "score", "duration"], activation=torch.nn.ReLU, bias=True, dropout=0.1):
-        self.head_labels = heads
+    def _create_heads(self, d_hid=0, n_layers=1, n_heads=3, activation=torch.nn.ReLU, bias=True, dropout=0.1):
         d_hid = d_hid or self.d_final
-        self.heads = [
+        self.head = nn.Sequential(*[
+            create_mlp_stack(self.d_final, d_hid, self.d_final, n_layers-1, activation=activation, bias=bias, dropout=dropout),
             nn.Sequential(*[
-                create_mlp_stack(self.d_final, d_hid, self.d_final, n_layers-1, activation=activation, bias=bias, dropout=dropout),
-                nn.Sequential(*[
-                    nn.Dropout(dropout),
-                    nn.Linear(self.d_final, 1, bias=bias),
-                    nn.Tanh()
-                ])
-            ]) for i in range(len(heads))
-        ]
+                nn.Dropout(dropout),
+                nn.Linear(self.d_final, n_heads, bias=bias),
+                nn.Tanh()
+            ])
+        ])
     
     def init_weights(self, layers=None, initrange=0.1):
         layers = layers or [
             self.final,
-            self.heads,
+            self.head,
         ]
         #self.encoder.weight.data.uniform_(-initrange, initrange)
         for layer in layers:
@@ -165,7 +162,7 @@ class ResultPredictorModel(nn.Module):
 
         tgt = self.final(tgt)
 
-        output = [f(tgt) for f in self.heads]
+        output = self.head(tgt)
         return output
     
     def summary(self, batch_size=32, team_size=5, dim=6, dtype=torch.int):
