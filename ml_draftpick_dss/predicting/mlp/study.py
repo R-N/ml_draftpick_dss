@@ -84,7 +84,6 @@ def create_predictor(
             "pooling": pooling
         },
         head_kwargs={
-            "heads": ["victory", "score", "duration"],
             "d_hid": d_hid_final,
             "n_layers": n_layers_head,
             "activation": activation_final,
