@@ -20,7 +20,6 @@ PARAM_SPACE = {
     "lrs": ("lrs", list(range(len(LRS)))),
     "optimizer": ("optimizer", ["adamw", "sgd"]),
     "grad_clipping": ("bool_float", 0.6, 2.0),
-    "batch_size": ("int_exp_2", 32, 64),
     "pooling": ("categorical", ["concat", "diff_left", "diff_right", "max"]),
 }
 
@@ -59,8 +58,9 @@ def create_predictor(
     bias_final=True,
     n_layers_head=1,
     dropout=0.1,
-    pooling="concat",
+    pooling="diff_left",
     n_heads=3,
+    activation_final_head=torch.nn.Tanh,
     predictor=ResultPredictor,
     **kwargs
 ):
@@ -90,6 +90,7 @@ def create_predictor(
             "d_hid": d_hid_final,
             "n_layers": n_layers_head,
             "activation": activation_final,
+            "activation_final": activation_final_head,
             "bias": bias_final,
             "dropout": dropout,
         },

@@ -96,7 +96,7 @@ class ResultPredictorModel(nn.Module):
     def _create_final(self, d_hid, n_layers, activation=torch.nn.ReLU, bias=True, dropout=0.1):
         self.final = create_mlp_stack(self.d_final, d_hid, self.d_final, n_layers, activation=activation, bias=bias, dropout=dropout)
 
-    def _create_heads(self, d_hid=0, n_layers=1, n_heads=3, activation=torch.nn.ReLU, bias=True, dropout=0.1):
+    def _create_heads(self, d_hid=0, n_layers=1, n_heads=3, activation=torch.nn.ReLU, activation_final=nn.Tanh, bias=True, dropout=0.1):
         d_hid = d_hid or self.d_final
         """
         self.head = nn.Sequential(*[
@@ -114,7 +114,7 @@ class ResultPredictorModel(nn.Module):
                 nn.Sequential(*[
                     nn.Dropout(dropout),
                     nn.Linear(self.d_final, 1, bias=bias),
-                    nn.Tanh()
+                    activation_final()
                 ])
             ]) for i in range(n_heads)
         ]
@@ -202,7 +202,7 @@ class ResultPredictorModel(nn.Module):
         output = [f(tgt) for f in self.heads]
         return output
     
-    def summary(self, batch_size=32, team_size=5, dim=6, dtype=torch.int):
+    def summary(self, batch_size=64, team_size=5, dim=6, dtype=torch.int):
         return summary(
             self, 
             [(batch_size, team_size, dim) for i in range(2)], 

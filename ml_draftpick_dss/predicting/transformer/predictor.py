@@ -43,15 +43,15 @@ class ResultPredictor:
         self,
         train_loader,
         val_loader=None,
-        bin_crit=torch.nn.BCELoss(reduction="none"),
+        bin_crit=torch.nn.MSELoss(reduction="none"),
         norm_crit=torch.nn.MSELoss(reduction="none"),
-        lr=1e-3,
+        lr=1e-2,
         optimizer=torch.optim.Adam,
         grad_clipping=0,
         metrics=METRICS+VAL_METRICS,
         checkpoint_dir="checkpoints",
         log_dir="logs",
-        scheduler_type="plateau",
+        scheduler_type="onecycle",
         scheduler_kwargs={}
     ):
         self.bin_crit = bin_crit
@@ -150,17 +150,20 @@ class ResultPredictor:
             #victory_pred, score_pred, duration_pred = split_dim(self.model(left, right))
             victory_pred, score_pred, duration_pred = self.model(left, right)
             
-            victory_loss = self.norm_crit(victory_pred, victory_true)
+            victory_loss = self.bin_crit(victory_pred, victory_true)
             score_loss = self.norm_crit(score_pred, score_true)
             duration_loss = self.norm_crit(duration_pred, duration_true)
 
             raw_losses = (victory_loss, score_loss, duration_loss)
             reduced_losses = torch.stack([self.reduce_loss(x) for x in raw_losses])
 
+            """
             scaled_losses = torch.stack([self.scale_loss(x) * y for x, y in zip(raw_losses, reduced_losses)])
             scaled_loss = torch.sum(scaled_losses)
             extra_loss = self.extra_loss(raw_losses)
             loss = scaled_loss + extra_loss
+            """
+            loss = torch.sum(reduced_losses)
 
             if not val:
                 self.optimizer.zero_grad()
@@ -171,9 +174,9 @@ class ResultPredictor:
 
             new_losses = {
                 **{f"{t}_loss": l for t, l in zip(TARGETS, reduced_losses)},
-                **{f"scaled_{t}_loss": l for t, l in zip(TARGETS, scaled_losses)},
-                "scaled_loss": scaled_loss,
-                "extra_loss": extra_loss, 
+                # **{f"scaled_{t}_loss": l for t, l in zip(TARGETS, scaled_losses)},
+                #"scaled_loss": scaled_loss,
+                #"extra_loss": extra_loss, 
                 "loss": loss
             }
             for k, v in new_losses.items():

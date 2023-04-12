@@ -69,7 +69,7 @@ class HeroAEModel(torch.nn.Module):
         combined = torch.cat(splitted, dim=-1)
         return combined
     
-    def summary(self, batch_size=32, dim=0):
+    def summary(self, batch_size=64, dim=0):
         dim = dim or self.d_input
         return summary(
             self, 

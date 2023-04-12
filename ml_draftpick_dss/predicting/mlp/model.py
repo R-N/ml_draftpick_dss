@@ -22,14 +22,14 @@ class ResultPredictorModel(nn.Module):
         self.final = self._create_final(**final_kwargs)
         self._create_heads(**head_kwargs)
 
-    def _create_final(self, pooling="concat", **kwargs):
+    def _create_final(self, pooling="diff_left", **kwargs):
         self.d_final_2 = self.d_final * 2
         d_input = self.d_final_2 if pooling == "concat" else self.d_final
         self.pooling = pooling
         self.final = create_mlp_stack(d_input=d_input, d_output=self.d_final, **kwargs)
         return self.final
 
-    def _create_heads(self, d_hid=0, n_layers=1, n_heads=3, activation=torch.nn.ReLU, bias=True, dropout=0.1):
+    def _create_heads(self, d_hid=0, n_layers=1, n_heads=3, activation=torch.nn.ReLU, activation_final=torch.nn.Tanh, bias=True, dropout=0.1):
         d_hid = d_hid or self.d_final
         """
         self.head = nn.Sequential(*[
@@ -37,7 +37,7 @@ class ResultPredictorModel(nn.Module):
             nn.Sequential(*[
                 nn.Dropout(dropout),
                 nn.Linear(self.d_final, n_heads, bias=bias),
-                nn.Tanh()
+                activation_final()
             ])
         ])
         """
@@ -47,7 +47,7 @@ class ResultPredictorModel(nn.Module):
                 nn.Sequential(*[
                     nn.Dropout(dropout),
                     nn.Linear(self.d_final, 1, bias=bias),
-                    nn.Tanh()
+                    activation_final()
                 ])
             ]) for i in range(n_heads)
         ]
@@ -79,7 +79,7 @@ class ResultPredictorModel(nn.Module):
         output = [f(final) for f in self.heads]
         return output
     
-    def summary(self, batch_size=32, dtype=torch.float):
+    def summary(self, batch_size=64, dtype=torch.float):
         return summary(
             self, 
             [(batch_size, self.d_input) for i in range(2)], 

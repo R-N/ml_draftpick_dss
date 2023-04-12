@@ -168,13 +168,14 @@ def objective(
     norm_crit=torch.nn.MSELoss(),
     optimizer=torch.optim.Adam,
     grad_clipping=0,
-    batch_size=128,
+    batch_size=64,
     metric="val_loss",
     checkpoint_dir=f"checkpoints",
     log_dir=f"logs",
     autosave=False,
     trial=None,
     scheduler_config=SCHEDULER_CONFIGS[2],
+    bin_crit=torch.nn.MSELoss(reduction="none"),
     **predictor_kwargs
 ):
     train_set, val_set, test_set = datasets
@@ -199,6 +200,7 @@ def objective(
         log_dir=log_dir,
         scheduler_type=scheduler_type,
         scheduler_kwargs=scheduler_kwargs,
+        bin_crit=bin_crit,
     )
     print(predictor.summary())
     for lr, (min_epoch, max_epoch) in zip(lrs, epochs):

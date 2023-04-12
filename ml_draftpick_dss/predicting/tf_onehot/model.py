@@ -21,7 +21,7 @@ class ResultPredictorModel(_ResultPredictorModel):
         )
         self.name = "predictor_tf_onehot"
 
-    def summary(self, batch_size=32, d_input=171, dtype=torch.float):
+    def summary(self, batch_size=64, d_input=171, dtype=torch.float):
         return summary(
             self, 
             [(batch_size, d_input) for i in range(2)], 

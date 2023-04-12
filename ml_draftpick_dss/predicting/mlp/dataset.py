@@ -34,6 +34,6 @@ class ResultDataset(Dataset):
 
         return left, right, target
 
-def create_dataloader(dataset, batch_size=32, shuffle=True, num_workers=0):
+def create_dataloader(dataset, batch_size=64, shuffle=True, num_workers=0):
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers)
     return dataloader
