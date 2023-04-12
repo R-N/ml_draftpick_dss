@@ -27,7 +27,7 @@ PARAM_SPACE = {
     "lrs": ("lrs", list(range(len(LRS)))),
     "optimizer": ("optimizer", ["adam", "adamw", "sgd"]),
     "grad_clipping": ("bool_float", 1e-5, 1.0),
-    "batch_size": ("int_exp_2", 32, 128),
+    "batch_size": ("int_exp_2", 32, 64),
     "d_hid_expander": ("int_exp_2", 32, 64),
     "n_layers_expander": ("int", 1, 4),
     "n_heads_tf": ("int_exp_2", 4, 32),
