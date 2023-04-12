@@ -17,7 +17,7 @@ PARAM_SPACE = {
     "bias_final": BOOLEAN,
     "n_layers_head": ("int", 1, 6),
     "dropout": ("float", 0.05, 0.25),
-    "lrs": ("lrs", list(range(len(LRS)))), #CEK LAGI
+    "lrs": ("lrs", list(range(len(LRS)))),
     "optimizer": ("optimizer", ["adamw", "sgd"]),
     "grad_clipping": ("bool_float", 0.6, 2.0),
     "batch_size": ("int_exp_2", 32, 64),

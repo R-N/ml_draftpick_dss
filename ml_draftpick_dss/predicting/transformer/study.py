@@ -26,10 +26,11 @@ PARAM_SPACE = {
     "dropout": ("float", 0.1, 0.5),
     "pos_encoder": BOOLEAN,
     "bidirectional": BOOLEAN,
-    "lrs": ("lrs", list(range(len(LRS)))), #CEK LAGI
+    "lrs": ("lrs", list(range(len(LRS)))),
     "optimizer": ("optimizer", ["adam", "adamw"]),
     "grad_clipping": ("bool_float", 1e-5, 1.0),
     "batch_size": ("int_exp_2", 32, 64),
+    "pooling": ("pooling", ["global_average", "global_max"]),
 }
 
 PARAMS_DEFAULT = {
