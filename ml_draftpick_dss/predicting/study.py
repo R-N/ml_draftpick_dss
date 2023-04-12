@@ -178,6 +178,8 @@ def objective(
     bin_crit=torch.nn.MSELoss(reduction="none"),
     **predictor_kwargs
 ):
+    if trial:
+        print(f"Begin trial {trial.number}")
     train_set, val_set, test_set = datasets
     train_loader = create_dataloader(train_set, batch_size=batch_size)
     val_loader = create_dataloader(val_set, batch_size=batch_size)
