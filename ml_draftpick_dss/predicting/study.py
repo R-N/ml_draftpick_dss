@@ -115,7 +115,6 @@ def sample_parameters(trial, param_space, param_map={}):
 
 def create_objective(
     objective, sampler=sample_parameters, 
-    params_default={},
     objective_kwargs={}, sampler_kwargs={}, 
     checkpoint_dir="checkpoints", log_dir="logs"
 ):
@@ -138,8 +137,8 @@ def create_objective(
         if log_dir:
             _log_dir = f"{study_dir}/{log_dir}"
         _objective_kwargs = {
-            **params, 
             **objective_kwargs,
+            **params, 
         }
         return objective(
             **_objective_kwargs,
