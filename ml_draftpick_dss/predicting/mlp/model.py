@@ -71,6 +71,8 @@ class ResultPredictorModel(nn.Module):
                 final = torch.prod(final, dim=0)
             elif self.pooling == "max":
                 final = torch.max(final, dim=0)
+            else:
+                raise ValueError(f"Unknown pooling option {self.pooling}")
         if isinstance(final, tuple):
             final = final[0]
         final = self.final(final)

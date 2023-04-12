@@ -183,6 +183,8 @@ class ResultPredictorModel(nn.Module):
                     tgt = torch.prod(tgt, dim=0)
                 elif self.bidirectional == "max":
                     tgt = torch.max(tgt, dim=0)
+                else:
+                    raise ValueError(f"Unknown bidirectional option {self.bidirectional}")
             if isinstance(tgt, tuple):
                 tgt = tgt[0]
         else:

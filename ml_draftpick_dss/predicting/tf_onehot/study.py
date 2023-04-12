@@ -21,7 +21,7 @@ PARAM_SPACE = {
     "n_layers_head": ("int", 2, 4),
     "dropout": ("float", 0.0, 0.15),
     "pos_encoder": BOOLEAN,
-    "bidirectional": ("categorical", ["none", "concat", "diff", "mean", "prod", "max"]),
+    "bidirectional": ("categorical", ["none", "concat", "diff_left", "diff_right", "mean", "prod", "max"]),
     "optimizer": ("optimizer", ["adam", "adamw"]),
     "grad_clipping": ("float", 0.2, 1.0),
     "d_hid_expander": ("int_exp_2", 32, 64),
