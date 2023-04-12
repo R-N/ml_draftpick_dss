@@ -10,6 +10,7 @@ PARAM_SPACE = {
     "d_hid_encoder": ("int_exp_2", 32, 64),
     "n_layers_encoder": ("int", 1, 3),
     "activation_encoder": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
+    "bias_encoder": BOOLEAN,
     "d_hid_tf": ("int_exp_2", 32, 64),
     "activation_tf": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
     "n_heads_tf": ("int", 4, 16),
@@ -26,12 +27,13 @@ PARAM_SPACE = {
     "d_hid_expander": ("int_exp_2", 32, 64),
     "n_layers_expander": ("int", 2, 4),
     "activation_expander": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
+    "bias_expander": BOOLEAN,
+    "use_multihead_linear_expander": BOOLEAN,
     "d_hid_reducer": ("int_exp_2", 16, 64),
     "n_layers_reducer": ("int", 1, 2),
     "activation_reducer": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
     "dropout_reducer": ("float", 0.0, 0.15),
     "bias_reducer": BOOLEAN,
-    "use_multihead_linear_expander": BOOLEAN,
 }
 PARAM_SPACE.pop("s_embed")
 
