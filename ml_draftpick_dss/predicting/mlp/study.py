@@ -19,7 +19,7 @@ PARAM_SPACE = {
     "dropout": ("float", 0.05, 0.25),
     "lrs": ("lrs", list(range(len(LRS)))),
     "optimizer": ("optimizer", ["adamw", "sgd"]),
-    "grad_clipping": ("bool_float", 0.6, 2.0),
+    "grad_clipping": ("float", 0.6, 2.0),
     "pooling": ("categorical", ["concat", "diff_left", "diff_right", "max"]),
 }
 
