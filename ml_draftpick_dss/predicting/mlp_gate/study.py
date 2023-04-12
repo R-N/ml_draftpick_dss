@@ -17,7 +17,7 @@ PARAM_SPACE = {
     "n_layers_final": ("int", 1, 4),
     "activation_final": ("activation", ["identity", "tanh", "leakyrelu", "elu"]),
     "bias_final": BOOLEAN,
-    "n_layers_head": ("int", 2, 6, 2),
+    "n_layers_head": ("int", 2, 6),
     "dropout": ("float", 0.0, 0.2),
     "lrs": ("lrs", list(range(len(LRS)))),
     "optimizer": ("optimizer", ["adam", "sgd"]),

@@ -13,7 +13,7 @@ PARAM_SPACE = {
     "bias_encoder": BOOLEAN,
     "d_hid_tf": ("int_exp_2", 32, 64),
     "activation_tf": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
-    "n_heads_tf": ("int", 4, 16),
+    "n_heads_tf": ("int", 4, 16, 2),
     "n_layers_tf": ("int", 1, 2),
     "d_hid_final": ("int_exp_2", 32, 128),
     "n_layers_final": ("int", 4, 16),
