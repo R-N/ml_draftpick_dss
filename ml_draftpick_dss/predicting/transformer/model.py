@@ -46,6 +46,7 @@ class ResultPredictorModel(nn.Module):
             self.d_tf = tf_encoder_kwargs["n_heads"]
         else:
             self.d_tf = self.encoder.dim
+        assert self.d_tf % 2 == 0
         self.pos_encoder = PositionalEncoding(self.d_tf, dropout) if pos_encoder else None
         self._create_tf_encoder(**tf_encoder_kwargs)
         self._create_tf_decoder(**tf_decoder_kwargs)
