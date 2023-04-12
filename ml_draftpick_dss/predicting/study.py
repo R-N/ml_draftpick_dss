@@ -115,6 +115,7 @@ def sample_parameters(trial, param_space, param_map={}):
 
 def create_objective(
     objective, sampler=sample_parameters, 
+    params_default={},
     objective_kwargs={}, sampler_kwargs={}, 
     checkpoint_dir="checkpoints", log_dir="logs"
 ):
