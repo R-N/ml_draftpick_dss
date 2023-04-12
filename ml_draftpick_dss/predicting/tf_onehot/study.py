@@ -39,6 +39,7 @@ PARAM_SPACE.pop("s_embed")
 
 PARAMS_DEFAULT = {
     **PARAMS_DEFAULT,
+    "lrs": LRS[0]
 }
 
 PARAM_MAP = {}
@@ -66,7 +67,6 @@ def create_predictor(
     bias_final=True,
     bias_reducer=False,
     pooling="global_max",
-    lrs=LRS[0],
     **kwargs
 ):
     if not isinstance(d_input, int):
@@ -90,6 +90,5 @@ def create_predictor(
         bias_final=bias_final,
         bias_reducer=bias_reducer,
         pooling=pooling,
-        lrs=lrs,
         **kwargs
     )
