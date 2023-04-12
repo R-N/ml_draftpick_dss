@@ -23,7 +23,7 @@ PARAM_SPACE = {
     "optimizer": ("optimizer", ["adam", "sgd"]),
     "grad_clipping": ("bool_float", 1.0, 2.0),
     "batch_size": ("int_exp_2", 32, 64),
-    "pooling": ("categorical", ["concat", "diff"]),
+    "pooling": ("categorical", ["concat", "diff_left", "diff_right", "max"]),
     "d_hid_gate": ("int_exp_2", 16, 128),
     "n_layers_self_gate": ("bool_int", 0, 4),
     "n_layers_cross_gate": ("bool_int", 0, 4),

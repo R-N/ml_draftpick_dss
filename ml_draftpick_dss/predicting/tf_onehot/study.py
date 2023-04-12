@@ -22,7 +22,7 @@ PARAM_SPACE = {
     "n_layers_head": ("int", 2, 6),
     "dropout": ("float", 0.0, 0.3),
     "pos_encoder": BOOLEAN,
-    "bidirectional": BOOLEAN,
+    "bidirectional": ("categorical", ["none", "concat", "diff", "mean", "prod", "max"]),
     "pooling": ("pooling", ["global_average", "global_product", "global_max"]),
     "lrs": ("lrs", list(range(len(LRS)))),
     "optimizer": ("optimizer", ["adam", "adamw", "sgd"]),

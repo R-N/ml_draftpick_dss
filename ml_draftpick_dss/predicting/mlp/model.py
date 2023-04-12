@@ -59,14 +59,18 @@ class ResultPredictorModel(nn.Module):
         
         if self.pooling == "concat":
             final = torch.cat([left, right], dim=-1)
-        elif self.pooling == "diff":
+        elif self.pooling == "diff_left":
             final = left - right 
+        elif self.pooling == "diff_right":
+            final = right - left 
         else:
             final = torch.stack([left, right])
             if self.pooling == "mean":
                 final = torch.mean(final, dim=0)
             elif self.pooling == "prod":
                 final = torch.prod(final, dim=0)
+            elif self.pooling == "max":
+                final = torch.max(final, dim=0)
         if isinstance(final, tuple):
             final = final[0]
         final = self.final(final)

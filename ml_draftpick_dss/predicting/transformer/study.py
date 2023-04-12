@@ -25,7 +25,7 @@ PARAM_SPACE = {
     "n_layers_head": ("int", 2, 6),
     "dropout": ("float", 0.1, 0.5),
     "pos_encoder": BOOLEAN,
-    "bidirectional": BOOLEAN,
+    "bidirectional": ("categorical", ["none", "concat", "diff_left", "diff_right", "mean", "prod", "max"]),
     "lrs": ("lrs", list(range(len(LRS)))),
     "optimizer": ("optimizer", ["adam", "adamw"]),
     "grad_clipping": ("bool_float", 1e-5, 1.0),

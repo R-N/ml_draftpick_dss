@@ -21,7 +21,7 @@ PARAM_SPACE = {
     "optimizer": ("optimizer", ["adamw", "sgd"]),
     "grad_clipping": ("bool_float", 0.6, 2.0),
     "batch_size": ("int_exp_2", 32, 64),
-    "pooling": ("categorical", ["concat", "diff"]),
+    "pooling": ("categorical", ["concat", "diff_left", "diff_right", "max"]),
 }
 
 PARAMS_DEFAULT = {

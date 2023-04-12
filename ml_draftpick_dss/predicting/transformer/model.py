@@ -21,7 +21,7 @@ class ResultPredictorModel(nn.Module):
         pooling=GlobalPooling1D(),
         pos_encoder=False,
         dropout=0.1,
-        bidirectional=False,
+        bidirectional=None,
         dim=3,
         expander_kwargs={}
     ):
@@ -38,6 +38,8 @@ class ResultPredictorModel(nn.Module):
             self.d_embed = self.embedding.dim
         self.dim = dim
         self.model_type = 'Transformer'
+        if isinstance(bidirectional, str) and bidirectional.lower() == "none":
+            bidirectional = None
         self.bidirectional = bidirectional
         self._create_encoder(**encoder_kwargs)
         if self.dim == 2:
@@ -85,7 +87,7 @@ class ResultPredictorModel(nn.Module):
         self.reducer = create_mlp_stack(self.d_reducer, d_hid, d_out, n_layers, activation=activation, bias=bias, dropout=dropout)
     
     def _calc_d_final(self, d_final):
-        d_final = (2 if self.bidirectional else 1) * d_final
+        d_final = (2 if self.bidirectional == "concat" else 1) * d_final
         d_final = (1 if (
             self.pooling and not isinstance(self.pooling, torch.nn.Flatten)
         ) else 5) * d_final
@@ -166,7 +168,23 @@ class ResultPredictorModel(nn.Module):
                 left, right = (torch.squeeze(left, -1), torch.squeeze(right, -1))
             else:
                 left, right = (self.pooling(left), self.pooling(right))
-            tgt = torch.cat([left, right], dim=-1)
+
+            if self.bidirectional == "concat":
+                tgt = torch.cat([left, right], dim=-1)
+            elif self.bidirectional == "diff_left":
+                tgt = left - right 
+            elif self.bidirectional == "diff_right":
+                tgt = right - left
+            else:
+                tgt = torch.stack([left, right])
+                if self.bidirectional == "mean":
+                    tgt = torch.mean(tgt, dim=0)
+                elif self.bidirectional == "prod":
+                    tgt = torch.prod(tgt, dim=0)
+                elif self.bidirectional == "max":
+                    tgt = torch.max(tgt, dim=0)
+            if isinstance(tgt, tuple):
+                tgt = tgt[0]
         else:
             tgt = self.transform(left, right)
             if self.dim == 2:
