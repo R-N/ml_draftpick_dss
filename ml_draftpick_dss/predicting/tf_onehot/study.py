@@ -34,6 +34,7 @@ PARAM_SPACE = {
     "activation_reducer": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
     "dropout_reducer": ("float", 0.0, 0.15),
     "bias_reducer": BOOLEAN,
+    "lrs": ("lrs", list(range(len(LRS)))),
 }
 PARAM_SPACE.pop("s_embed")
 
