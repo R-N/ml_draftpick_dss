@@ -163,17 +163,21 @@ class MultiheadLinear(torch.nn.Module):
         return output
 
 class MLPExpander(torch.nn.Module):
-    def __init__(self, n_heads, *args, **kwargs):
+    def __init__(self, n_heads, *args, use_multihead_linear=False, **kwargs):
         super().__init__()
-        #self.mlp = create_mlp_stack(*args, n_heads=n_heads, **kwargs)
-        self.mlps = [
-            create_mlp_stack(*args, **kwargs)
-            for i in range(n_heads)
-        ]
+        self.use_multihead_linear = use_multihead_linear
+        if self.use_multihead_linear:
+            self.mlp = create_mlp_stack(*args, n_heads=n_heads, **kwargs)
+        else:
+            self.mlps = [
+                create_mlp_stack(*args, **kwargs)
+                for i in range(n_heads)
+            ]
 
     def forward(self, x):
-        #return self.mlp(x)
-        assert x.dim() == 2
-        xs = [mlp(x)[:, :, None] for mlp in self.mlps]
-        x = torch.concat(xs, dim=-1)
-        return x
+        if self.use_multihead_linear:
+            return self.mlp(x)
+        else:
+            xs = [mlp(x)[:, :, None] for mlp in self.mlps]
+            x = torch.concat(xs, dim=-1)
+            return x

@@ -31,6 +31,7 @@ PARAM_SPACE = {
     "activation_reducer": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
     "dropout_reducer": ("float", 0.0, 0.15),
     "bias_reducer": BOOLEAN,
+    "use_multihead_linear_expander": BOOLEAN,
 }
 PARAM_SPACE.pop("s_embed")
 
@@ -56,6 +57,7 @@ def create_predictor(
     n_layers_expander=2,
     activation_expander=torch.nn.ReLU,
     bias_expander=False,
+    use_multihead_linear_expander=False,
     n_heads_tf=8,
     pos_encoder=True,
     bias_encoder=False,
@@ -73,6 +75,7 @@ def create_predictor(
         "activation": activation_expander,
         "bias": bias_expander,
         "dropout": kwargs["dropout"],
+        "use_multihead_linear": use_multihead_linear_expander,
     }
     return _create_predictor(
         d_input, 
