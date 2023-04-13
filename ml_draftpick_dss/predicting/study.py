@@ -120,6 +120,7 @@ def create_objective(
 ):
     def f(trial):
         id = trial.number
+        print(f"Begin trial {trial.number}")
         study_dir = f"studies/{id}"
         mkdir(study_dir)
 
@@ -136,14 +137,12 @@ def create_objective(
             _checkpoint_dir = f"{study_dir}/{checkpoint_dir}"
         if log_dir:
             _log_dir = f"{study_dir}/{log_dir}"
-        _objective_kwargs = {
+        return objective(
             **objective_kwargs,
             **params, 
-        }
-        return objective(
-            **_objective_kwargs,
             checkpoint_dir=_checkpoint_dir,
             log_dir=_log_dir,
+            trial=trial,
         )
     return f
 
