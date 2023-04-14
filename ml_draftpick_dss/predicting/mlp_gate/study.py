@@ -35,7 +35,7 @@ PARAM_SPACE = {
 }
 
 PARAMS_DEFAULT = {
-    **PARAMS_DEFAULT,
+    #**PARAMS_DEFAULT,
     "lrs": LRS[1],
     "optimizer": torch.optim.Adam,
 }
