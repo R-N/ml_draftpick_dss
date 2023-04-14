@@ -6,25 +6,25 @@ import optuna
 
 
 PARAM_SPACE = {
-    "d_final": ("int_exp_2", 32, 256),
-    "d_hid_encoder": ("int_exp_2", 16, 128),
-    "n_layers_encoder": ("int", 3, 8),
-    "activation_encoder": ("activation", ["relu", "tanh", "elu"]),
+    "d_final": ("int_exp_2", 64, 256),
+    "d_hid_encoder": ("int_exp_2", 16, 64),
+    "n_layers_encoder": ("int", 5, 8),
+    #"activation_encoder": ("activation", ["tanh", "elu"]),
     "bias_encoder": BOOLEAN,
-    "d_hid_final": ("int_exp_2", 16, 256),
+    "d_hid_final": ("int_exp_2", 32, 256),
     "n_layers_final": ("int_exp_2", 1, 8),
-    "activation_final": ("activation", ["identity", "relu", "tanh", "leakyrelu", "elu"]),
-    "bias_final": BOOLEAN,
-    "n_layers_head": ("int", 1, 6),
-    "dropout": ("float", 0.05, 0.25),
-    "lrs": ("lrs", list(range(len(LRS)))),
-    "optimizer": ("optimizer", ["adamw", "sgd"]),
+    "activation_final": ("activation", ["relu", "leakyrelu", "elu"]),
+    #"bias_final": BOOLEAN,
+    "n_layers_head": ("int", 1, 2),
+    "dropout": ("float", 0.05, 0.15),
+    #"lrs": ("lrs", list(range(len(LRS)))),
+    #"optimizer": ("optimizer", ["adamw", "sgd"]),
     "grad_clipping": ("float", 0.6, 2.0),
-    "pooling": ("categorical", ["concat", "diff_left", "diff_right", "max"]),
+    "pooling": ("categorical", ["concat", "diff_left"]),
 }
 
 PARAMS_DEFAULT = {
-
+    "optimizer": torch.optim.AdamW,
 }
 
 PARAM_MAP = {}
@@ -49,14 +49,14 @@ def create_predictor(
     d_input=171,
     d_hid_encoder=128,
     n_layers_encoder=2,
-    activation_encoder=torch.nn.ReLU,
+    activation_encoder=torch.nn.ELU,
     bias_encoder=True,
     d_final=128,
     d_hid_final=128,
     n_layers_final=3,
     activation_final=torch.nn.ReLU,
-    bias_final=True,
-    n_layers_head=1,
+    bias_final=False,
+    n_layers_head=2,
     dropout=0.1,
     pooling="diff_left",
     n_heads=3,
