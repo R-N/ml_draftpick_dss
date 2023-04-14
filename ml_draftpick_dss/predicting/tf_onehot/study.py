@@ -41,7 +41,7 @@ PARAM_SPACE.pop("s_embed")
 PARAMS_DEFAULT = {
     #**PARAMS_DEFAULT,
     "lrs": LRS[0],
-    "optimizer": torch.optim.Adam,
+    #"optimizer": torch.optim.Adam,
 }
 
 PARAM_MAP = {}
