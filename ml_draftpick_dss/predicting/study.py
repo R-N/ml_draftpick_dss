@@ -225,12 +225,12 @@ def objective(
                     _early_stopping(train_metric, intermediate_value)
                 if trial:
                     trial.report(intermediate_value, predictor.epoch)
-                    if trial.should_prune():
-                        raise optuna.TrialPruned()
             except optuna.TrialPruned as ex:
                 print(str(ex))
                 break
-
+            finally:
+                if trial.should_prune():
+                    raise optuna.TrialPruned()
     #last_metrics = predictor.train(val=True)[1]
     best_metrics = predictor.best_metrics
     final_value = get_metric(best_metrics, metric)
