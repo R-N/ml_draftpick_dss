@@ -36,7 +36,8 @@ PARAM_SPACE = {
     #"lrs": ("lrs", list(range(len(LRS)))),
     "pooling": ("pooling", ["global_average", "global_max"]),
 }
-PARAM_SPACE.pop("s_embed")
+if "s_embed" in PARAM_SPACE:
+    PARAM_SPACE.pop("s_embed")
 
 PARAMS_DEFAULT = {
     #**PARAMS_DEFAULT,
