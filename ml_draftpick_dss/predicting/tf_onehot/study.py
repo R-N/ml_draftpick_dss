@@ -6,7 +6,7 @@ from ..study import BOOLEAN
 import torch
 
 PARAM_SPACE = {
-    **PARAM_SPACE,
+    #**PARAM_SPACE,
     "d_hid_encoder": ("int_exp_2", 32, 64),
     "n_layers_encoder": ("int", 1, 3),
     "activation_encoder": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),

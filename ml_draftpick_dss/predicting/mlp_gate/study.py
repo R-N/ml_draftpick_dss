@@ -7,7 +7,7 @@ import optuna
 
 
 PARAM_SPACE = {
-    **PARAM_SPACE,
+    #**PARAM_SPACE,
     "d_final": ("int_exp_2", 64, 256),
     "d_hid_encoder": ("int_exp_2", 64, 128),
     "n_layers_encoder": ("int", 5, 6),
@@ -20,7 +20,7 @@ PARAM_SPACE = {
     "n_layers_head": ("int", 4, 6),
     "dropout": ("float", 0.0, 0.15),
     #"lrs": ("lrs", list(range(len(LRS)))),
-    "optimizer": ("optimizer", ["adam", "adamw"]),
+    #"optimizer": ("optimizer", ["adam", "adamw"]),
     "grad_clipping": ("float", 0.6, 1.5),
     "pooling": ("categorical", ["concat", "diff_left", "diff_right"]),
     "d_hid_gate": ("int_exp_2", 16, 64),
