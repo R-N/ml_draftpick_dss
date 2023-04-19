@@ -64,7 +64,7 @@ def create_predictor(
     n_layers_expander=2,
     activation_expander=torch.nn.LeakyReLU,
     bias_expander=True,
-    use_multihead_linear_expander=False,
+    use_multihead_linear_expander=True,
     pos_encoder=True,
     n_heads_tf=8,
     d_hid_tf=64,
