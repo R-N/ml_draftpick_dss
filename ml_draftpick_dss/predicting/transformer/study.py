@@ -14,7 +14,7 @@ PARAM_SPACE = {
     "n_layers_encoder": ("int", 1, 2),
     #"activation_encoder": ("activation", ["relu", "elu"]),
     #"bias_encoder": BOOLEAN,
-    "n_heads_tf": ("int", 2, 4),
+    "n_heads_tf": ("int_exp_2", 2, 4),
     "d_hid_tf": ("int_exp_2", 8, 16),
     #"n_layers_tf": ("int", 2, 3),
     "activation_tf": ("activation", ["identity", "relu", "tanh", "elu"]),
