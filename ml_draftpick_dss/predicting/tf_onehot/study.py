@@ -41,7 +41,7 @@ PARAM_SPACE.pop("s_embed")
 PARAMS_DEFAULT = {
     #**PARAMS_DEFAULT,
     "lrs": LRS[0],
-    #"optimizer": torch.optim.Adam,
+    #"optimizer": torch.optim.AdamW,
 }
 
 PARAM_MAP = {}
@@ -58,6 +58,7 @@ def create_predictor(
     d_input=171,
     d_hid_encoder=64,
     bias_encoder=False,
+    activation_encoder=torch.nn.ELU,
     n_layers_tf=2, 
     d_hid_expander=32,
     n_layers_expander=2,
@@ -66,11 +67,11 @@ def create_predictor(
     use_multihead_linear_expander=False,
     pos_encoder=True,
     n_heads_tf=8,
-    d_hid_tf=32,
+    d_hid_tf=64,
     activation_tf=torch.nn.LeakyReLU,
     d_hid_reducer=32,
     n_layers_reducer=1,
-    activation_reducer=torch.nn.Identity,
+    activation_reducer=torch.nn.LeakyReLU,
     bias_reducer=False,
     activation_final=torch.nn.ReLU,
     bias_final=True,
@@ -92,6 +93,7 @@ def create_predictor(
     return _create_predictor(
         d_input, 
         d_hid_encoder=d_hid_encoder,
+        activation_encoder=activation_encoder,
         bias_encoder=bias_encoder,
         expander_kwargs=expander_kwargs, 
         pos_encoder=pos_encoder, 
