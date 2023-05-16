@@ -23,7 +23,7 @@ PARAM_SPACE = {
     "activation_final": ("activation", ["tanh", "leakyrelu", "elu"]),
     #"bias_final": BOOLEAN,
     "n_layers_head": ("int", 2, 3),
-    "dropout": ("float", 0.1, 0.16),
+    "dropout": ("float", 0.1, 0.14),
     "bidirectional": ("categorical", ["none", "concat", "diff_left", "diff_right"]),
     #"lrs": ("lrs", list(range(len(LRS)))),
     #"optimizer": ("optimizer", ["adam", "adamw"]),

@@ -5,12 +5,13 @@ import torch
 
 class ResultDataset(Dataset):
 
-    def __init__(self, df, encoder, embedder=None, flip=True):
+    def __init__(self, df, encoder, embedder=None, flip=True, weight=1.0):
         if flip:
             df = merge_results([df, flip_results(df)])
         self.df = df
         self.encoder = encoder
         self.embedder = embedder
+        self.weight = weight
 
     def __len__(self):
         return len(self.df)
@@ -37,7 +38,9 @@ class ResultDataset(Dataset):
         target_df = sample[TARGET_COLS]
         target = extract_target(target_df)
 
-        return left, right, target
+        weights = torch.full(target.shape, self.weight)
+
+        return left, right, target, weights 
     
 def shuffle_hero(t):
     return t[..., torch.randperm(t.shape[-2]), :]

@@ -74,7 +74,7 @@ def create_predictor(
     n_layers_encoder=6,
     activation_encoder=torch.nn.Identity,
     bias_encoder=True,
-    d_final=128,
+    d_final=256,
     d_hid_final=32,
     n_layers_final=1,
     activation_final=torch.nn.Identity,

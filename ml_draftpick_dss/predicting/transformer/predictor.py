@@ -145,17 +145,22 @@ class ResultPredictor:
         victory_preds = torch.Tensor([])
         loader = val_loader if val else self.train_loader
         for i, batch in enumerate(loader):
-            left, right, targets = batch
-            victory_true, score_true, duration_true = split_dim(targets)
-            #victory_pred, score_pred, duration_pred = split_dim(self.model(left, right))
-            victory_pred, score_pred, duration_pred = self.model(left, right)
+            left, right, targets, weights = batch
+            _trues = split_dim(targets)
+            victory_true, score_true, duration_true = _trues
+            _preds = self.model(left, right)
+            #victory_pred, score_pred, duration_pred = split_dim(preds)
+            victory_pred, score_pred, duration_pred = _preds
+            
+            weights = split_dim(weights)
             
             victory_loss = self.bin_crit(victory_pred, victory_true)
             score_loss = self.norm_crit(score_pred, score_true)
             duration_loss = self.norm_crit(duration_pred, duration_true)
 
             raw_losses = (victory_loss, score_loss, duration_loss)
-            reduced_losses = torch.stack([self.reduce_loss(x) for x in raw_losses])
+            weighted_losses = [weights[i] * raw_losses[i] for i in len(raw_losses)]
+            reduced_losses = torch.stack([self.reduce_loss(x) for x in weighted_losses])
 
             """
             scaled_losses = torch.stack([self.scale_loss(x) * y for x, y in zip(raw_losses, reduced_losses)])

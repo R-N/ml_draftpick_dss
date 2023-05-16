@@ -7,6 +7,12 @@ from .util import get_unique, get_basic_c
 
 HERO_COLS=["id", "lane", "roles", "specialities"]
 
+PATCHES=["1.7.58", "1.7.68"]
+PATCHES_DF = pd.DataFrame([[x] for x in PATCHES], columns=["patch"])
+PATCHES_SERIES = PATCHES_DF["patch"]
+PATCH_LABEL_ENCODER = preprocessing.LabelEncoder().fit(PATCHES_SERIES)
+PATCH_ONEHOT_ENCODER = preprocessing.OneHotEncoder().fit(PATCHES_DF)
+
 def get_mixed(df_heroes, x, n=2):
     return [a for i in range(n) for a in df_heroes[f"{x}_{i}"].tolist()]
 
@@ -25,17 +31,21 @@ def encode_batch(f, batch, dtype=torch.IntTensor):
     return encoded_tensor
 
 class HeroLabelEncoder:
-    def __init__(self, df_heroes):
+    def __init__(self, df_heroes, patch=PATCHES[-1]):
+        
         mixeds = {x: get_mixed(df_heroes, x) for x in MULTIPLE_ATTRS}
         uniques = {x: get_unique(m) for x, m in mixeds.items()}
         uniques["lane"] = get_unique(df_heroes["lane"])
         uniques["id"] = df_heroes["id"]
         uniques["name"] = df_heroes["name"]
+        uniques["patch"] = PATCHES
 
         cols = ["id", "lane", *[f"roles_{i}" for i in range(2)], *[f"specialities_{i}" for i in range(2)]]
         df_heroes_x = df_heroes[cols]
+        df_heroes_x["patch"] = patch
         
         encoders = {c:preprocessing.LabelEncoder().fit(uniques[c]) for c in HERO_COLS}
+        encoders["patch"] = PATCH_LABEL_ENCODER
 
         df_heroes_x2 = pd.DataFrame(
             {c: encoders[get_basic_c(c)].transform(df_heroes_x[c]) 
@@ -64,21 +74,26 @@ class HeroLabelEncoder:
         return self.encode_batch(batch)
 
 class HeroOneHotEncoder:
-    def __init__(self, df_heroes, include_name=True):
+    def __init__(self, df_heroes, include_name=True, patch=PATCHES[-1]):
 
         mixeds = {x: get_mixed(df_heroes, x) for x in MULTIPLE_ATTRS}
         uniques = {x: get_unique(m) for x, m in mixeds.items()}
         uniques["lane"] = get_unique(df_heroes["lane"])
         uniques["id"] = df_heroes["id"]
         uniques["name"] = df_heroes["name"]
+        uniques["patch"] = PATCHES
 
         cols = ["name", "lane", *[f"roles_{i}" for i in range(2)], *[f"specialities_{i}" for i in range(2)]]
         df_heroes_x = df_heroes[cols]
+        df_heroes_x["patch"] = patch
+
+        cols = [*cols, "patch"]
 
         if not include_name:
             cols = cols[1:]
 
         categories=[uniques[get_basic_c(c)] for c in cols]
+        #categories = [*categories, PATCHES]
         encoder = preprocessing.OneHotEncoder(
             categories=categories,
             sparse_output=False

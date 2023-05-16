@@ -5,11 +5,12 @@ import torch
 
 class ResultDataset(Dataset):
 
-    def __init__(self, df, encoder, flip=True):
+    def __init__(self, df, encoder, flip=True, weight=1.0):
         if flip:
             df = merge_results([df, flip_results(df)])
         self.df = df
         self.encoder = encoder
+        self.weight = weight
 
     def __len__(self):
         return len(self.df)
@@ -32,7 +33,9 @@ class ResultDataset(Dataset):
         target_df = sample[TARGET_COLS]
         target = extract_target(target_df)
 
-        return left, right, target
+        weights = torch.full(target.shape, self.weight)
+
+        return left, right, target, weights 
 
 def create_dataloader(dataset, batch_size=64, shuffle=True, num_workers=0):
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers)
