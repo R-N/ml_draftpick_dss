@@ -36,6 +36,7 @@ class ResultPredictorModel(nn.Module):
         elif embedding and hasattr(embedding, "__iter__"):
             self.embedding = HeroEmbedder(embedding)
             self.d_embed = self.embedding.dim
+        print("Embedding dim", self.embedding.dim)
         self.dim = dim
         self.model_type = 'Transformer'
         if isinstance(bidirectional, str) and bidirectional.lower() == "none":
