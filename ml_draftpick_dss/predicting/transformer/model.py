@@ -30,12 +30,15 @@ class ResultPredictorModel(nn.Module):
         if isinstance(embedding, torch.nn.Module):
             self.embedding = embedding
             self.d_embed = self.embedding.dim
+            self.d_input = self.embedding.input_dim
         elif isinstance(embedding, int):
             self.d_embed = embedding
             self.embedding = nn.Identity()
+            self.d_input = self.d_embed
         elif embedding and hasattr(embedding, "__iter__"):
             self.embedding = HeroEmbedder(embedding)
             self.d_embed = self.embedding.dim
+            self.d_input = self.embedding.input_dim
         self.dim = dim
         self.model_type = 'Transformer'
         if isinstance(bidirectional, str) and bidirectional.lower() == "none":
@@ -208,7 +211,7 @@ class ResultPredictorModel(nn.Module):
     def summary(self, batch_size=64, team_size=5, dtype=torch.int):
         return summary(
             self, 
-            [(batch_size, team_size, self.d_embed) for i in range(2)], 
+            [(batch_size, team_size, self.d_input) for i in range(2)], 
             dtypes=[dtype, dtype]
         )
 

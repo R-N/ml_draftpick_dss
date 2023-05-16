@@ -70,6 +70,7 @@ class HeroEmbedder(torch.nn.Module):
         self.embeddings = embeddings
         self.main_dim = embeddings[0].weight.shape[-1]
         self.dim = sum(e.weight.shape[-1] for e in embeddings)
+        self.input_dim = len(self.embeddings)
 
     def embed_batch(self, encoded_tensor):
         split_encoded = torch.split(encoded_tensor, 1, dim=-1)
