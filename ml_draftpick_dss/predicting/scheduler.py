@@ -75,6 +75,10 @@ class OneCycleLR:
     def initial_lr(self):
         return self.max_lr / self.div_factor
 
+    @property
+    def state_dict(self):
+        return self.scheduler.state_dict
+
     def reset(self):
         """
         self.scheduler.last_epoch = -1
