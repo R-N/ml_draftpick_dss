@@ -32,7 +32,7 @@ ATTR_CLASSES = {
     "patch": PATCHES_COUNT
 }
 def scaled_sqrt_factory(scale=1):
-    return lambda x: int(scale*math.ceil(math.sqrt(x)))
+    return lambda x: int(min(x, scale*math.ceil(math.sqrt(x))))
 
 def create_embedding_sizes(
     columns, 

@@ -33,19 +33,26 @@ def encode_batch(f, batch, dtype=torch.IntTensor):
 
 class HeroLabelEncoder:
     def __init__(self, df_heroes, patch=None):
+        df_heroes = df_heroes.copy()
         
         mixeds = {x: get_mixed(df_heroes, x) for x in MULTIPLE_ATTRS}
         uniques = {x: get_unique(m) for x, m in mixeds.items()}
         uniques["lane"] = get_unique(df_heroes["lane"])
         uniques["id"] = df_heroes["id"]
         uniques["name"] = df_heroes["name"]
+
+        cols = ["id", "lane", *[f"roles_{i}" for i in range(2)], *[f"specialities_{i}" for i in range(2)]]
+
         if patch:
             uniques["patch"] = PATCHES
 
-        cols = ["id", "lane", *[f"roles_{i}" for i in range(2)], *[f"specialities_{i}" for i in range(2)]]
+            if "patch" not in df_heroes:
+                df_heroes["patch"] = patch
+            df_heroes["patch"].fillna(patch, inplace=True)
+
+            cols = [*cols, "patch"]
+
         df_heroes_x = df_heroes[cols]
-        if patch:
-            df_heroes_x["patch"] = patch
         
         encoders = {c:preprocessing.LabelEncoder().fit(uniques[c]) for c in HERO_COLS}
         if patch:
@@ -79,20 +86,26 @@ class HeroLabelEncoder:
 
 class HeroOneHotEncoder:
     def __init__(self, df_heroes, include_name=True, patch=None):
+        df_heroes = df_heroes.copy()
 
         mixeds = {x: get_mixed(df_heroes, x) for x in MULTIPLE_ATTRS}
         uniques = {x: get_unique(m) for x, m in mixeds.items()}
         uniques["lane"] = get_unique(df_heroes["lane"])
         uniques["id"] = df_heroes["id"]
         uniques["name"] = df_heroes["name"]
+        
+        cols = ["name", "lane", *[f"roles_{i}" for i in range(2)], *[f"specialities_{i}" for i in range(2)]]
+
         if patch:
             uniques["patch"] = PATCHES
 
-        cols = ["name", "lane", *[f"roles_{i}" for i in range(2)], *[f"specialities_{i}" for i in range(2)]]
-        df_heroes_x = df_heroes[cols]
-        if patch:
-            df_heroes_x["patch"] = patch
+            if "patch" not in df_heroes:
+                df_heroes["patch"] = patch
+            df_heroes["patch"].fillna(patch, inplace=True)
+
             cols = [*cols, "patch"]
+
+        df_heroes_x = df_heroes[cols]
 
         if not include_name:
             cols = cols[1:]
