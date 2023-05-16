@@ -9,9 +9,11 @@ class ResultDataset(Dataset):
         if flip:
             df = merge_results([df, flip_results(df)])
         self.df = df
+        if "weight" not in self.df.columns:
+            self.df["weight"] = weight
+        self.df["weight"].fillna(weight, inplace=True)
         self.encoder = encoder
         self.embedder = embedder
-        self.weight = weight
 
     def __len__(self):
         return len(self.df)
@@ -38,7 +40,8 @@ class ResultDataset(Dataset):
         target_df = sample[TARGET_COLS]
         target = extract_target(target_df)
 
-        weights = torch.full(target.shape, self.weight)
+        #weights = torch.full(target.shape, self.weight)
+        weights = sample["weight"]
 
         return left, right, target, weights 
     

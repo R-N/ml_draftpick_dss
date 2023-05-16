@@ -2,6 +2,7 @@ import torch
 import math
 from torch import nn
 from .util import get_basic_c
+from .encoding import PATCHES_COUNT
 
 class PositionalEncoding(nn.Module):
     def __init__(self, d_model, dropout=0.1, max_len=5000):
@@ -28,6 +29,7 @@ ATTR_CLASSES = {
     "lane": 5,
     "roles": 7,
     "specialities": 16,
+    "patch": PATCHES_COUNT
 }
 def scaled_sqrt_factory(scale=1):
     return lambda x: int(scale*math.ceil(math.sqrt(x)))

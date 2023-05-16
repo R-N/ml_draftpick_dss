@@ -152,14 +152,14 @@ class ResultPredictor:
             #victory_pred, score_pred, duration_pred = split_dim(preds)
             victory_pred, score_pred, duration_pred = _preds
             
-            weights = split_dim(weights)
+            #weights = split_dim(weights)
             
             victory_loss = self.bin_crit(victory_pred, victory_true)
             score_loss = self.norm_crit(score_pred, score_true)
             duration_loss = self.norm_crit(duration_pred, duration_true)
 
             raw_losses = (victory_loss, score_loss, duration_loss)
-            weighted_losses = [weights[i] * raw_losses[i] for i in len(raw_losses)]
+            weighted_losses = [weights * raw_losses[i] for i in len(raw_losses)]
             reduced_losses = torch.stack([self.reduce_loss(x) for x in weighted_losses])
 
             """

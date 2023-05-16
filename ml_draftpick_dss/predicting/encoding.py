@@ -8,6 +8,7 @@ from .util import get_unique, get_basic_c
 HERO_COLS=["id", "lane", "roles", "specialities"]
 
 PATCHES=["1.7.58", "1.7.68"]
+PATCHES_COUNT = len(PATCHES)
 PATCHES_DF = pd.DataFrame([[x] for x in PATCHES], columns=["patch"])
 PATCHES_SERIES = PATCHES_DF["patch"]
 PATCH_LABEL_ENCODER = preprocessing.LabelEncoder().fit(PATCHES_SERIES)
