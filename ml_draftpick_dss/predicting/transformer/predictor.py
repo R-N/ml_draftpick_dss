@@ -159,7 +159,7 @@ class ResultPredictor:
             duration_loss = self.norm_crit(duration_pred, duration_true)
 
             raw_losses = (victory_loss, score_loss, duration_loss)
-            weighted_losses = [weights * raw_losses[i] for i in len(raw_losses)]
+            weighted_losses = [weights * raw_losses[i] for i in range(len(raw_losses))]
             reduced_losses = torch.stack([self.reduce_loss(x) for x in weighted_losses])
 
             """
