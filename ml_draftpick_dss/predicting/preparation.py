@@ -29,8 +29,9 @@ class SymmetricScaler:
         X = X_std * self.max_diff + self.mean
         return X
 
-def normalize(df):
-    scaler = SymmetricScaler().fit(df[NORMALIZE_COLS])
+def normalize(df, scaler=None):
+    if not scaler:
+        scaler = SymmetricScaler().fit(df[NORMALIZE_COLS])
     df[NORMALIZED_COLS] = scaler.transform(df[NORMALIZE_COLS])
     return scaler
 
