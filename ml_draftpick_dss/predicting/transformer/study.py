@@ -71,7 +71,7 @@ def create_predictor(
     d_hid_final=32,
     n_layers_final=3,
     activation_final=torch.nn.Tanh,
-    activation_final_head=torch.nn.Tanh,
+    activation_final_head=torch.nn.Sigmoid,
     bias_final=True,
     n_layers_head=2,
     n_heads=3,

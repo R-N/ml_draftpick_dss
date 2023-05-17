@@ -59,7 +59,7 @@ def create_predictor(
     dropout=0.1,
     pooling="concat",
     n_heads=3,
-    activation_final_head=torch.nn.Tanh,
+    activation_final_head=torch.nn.Sigmoid,
     predictor=ResultPredictor,
     **kwargs
 ):
