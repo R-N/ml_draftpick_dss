@@ -5,7 +5,7 @@ import torch
 
 class ResultDataset(Dataset):
 
-    def __init__(self, df, encoder, flip=True, weight=1.0):
+    def __init__(self, df, encoder, flip=True, weight=1.0, target_cols=["left_victory"]):
         if flip:
             df = merge_results([df, flip_results(df)])
         self.df = df
@@ -13,6 +13,7 @@ class ResultDataset(Dataset):
             self.df["weight"] = weight
         self.df["weight"].fillna(weight, inplace=True)
         self.encoder = encoder
+        self.target_cols = target_cols
 
     def __len__(self):
         return len(self.df)
@@ -32,8 +33,7 @@ class ResultDataset(Dataset):
         left = torch.sum(left, dim=-2)
         right = torch.sum(right, dim=-2)
 
-        target_df = sample[TARGET_COLS]
-        target = extract_target(target_df)
+        target = extract_target(sample, target_cols=self.target_cols)
 
         #weights = torch.full(target.shape, self.weight)
         weights = sample["weight"]

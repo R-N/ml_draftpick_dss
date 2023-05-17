@@ -164,7 +164,7 @@ def objective(
     create_dataloader,
     lrs=LRS[0],
     epochs=EPOCHS[0],
-    norm_crit=torch.nn.MSELoss(),
+    norm_crit=None,
     optimizer=torch.optim.Adam,
     grad_clipping=0,
     batch_size=64,
@@ -174,7 +174,7 @@ def objective(
     autosave=False,
     trial=None,
     scheduler_config=SCHEDULER_CONFIGS[2],
-    bin_crit=torch.nn.MSELoss(reduction="none"),
+    bin_crit=torch.nn.BCELoss(reduction="none"),
     **predictor_kwargs
 ):
     if trial:

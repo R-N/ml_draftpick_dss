@@ -43,8 +43,8 @@ class ResultPredictor:
         self,
         train_loader,
         val_loader=None,
-        bin_crit=torch.nn.MSELoss(reduction="none"),
-        norm_crit=torch.nn.MSELoss(reduction="none"),
+        bin_crit=torch.nn.BCELoss(reduction="none"),
+        norm_crit=None,
         lr=1e-2,
         optimizer=torch.optim.Adam,
         grad_clipping=0,
@@ -121,7 +121,7 @@ class ResultPredictor:
     def get_lr(self, index=0):
         return self.optimizer.param_groups[index]["lr"]
 
-    def train(self, val=False, val_loader=None, autosave=True):
+    def train(self, val=False, val_loader=None, autosave=True, true_threshold=0.5):
         assert self.training_prepared
         if val:
             self.model.eval()
@@ -146,19 +146,31 @@ class ResultPredictor:
         loader = val_loader if val else self.train_loader
         for i, batch in enumerate(loader):
             left, right, targets, weights = batch
+
             _trues = split_dim(targets)
-            victory_true, score_true, duration_true = _trues
             _preds = self.model(left, right)
-            #victory_pred, score_pred, duration_pred = split_dim(preds)
-            victory_pred, score_pred, duration_pred = _preds
-            
+
+            if isinstance(_trues, tuple):
+                victory_true, score_true, duration_true = _trues
+            else:
+                victory_true = _trues
+            if isinstance(_preds, tuple):
+                victory_pred, score_pred, duration_pred = _preds
+            else:
+                victory_pred = _preds
+
             #weights = split_dim(weights)
             
             victory_loss = self.bin_crit(victory_pred, victory_true)
-            score_loss = self.norm_crit(score_pred, score_true)
-            duration_loss = self.norm_crit(duration_pred, duration_true)
+            score_loss = 0
+            duration_loss = 0
+            if self.norm_crit and isinstance(_trues, tuple) and isinstance(_preds, tuple):
+                score_loss = self.norm_crit(score_pred, score_true)
+                duration_loss = self.norm_crit(duration_pred, duration_true)
+                raw_losses = (victory_loss, score_loss, duration_loss)
+            else:
+                raw_losses = (victory_loss,)
 
-            raw_losses = (victory_loss, score_loss, duration_loss)
             weighted_losses = [weights * raw_losses[i] for i in range(len(raw_losses))]
             reduced_losses = torch.stack([self.reduce_loss(x) for x in weighted_losses])
 
@@ -191,8 +203,8 @@ class ResultPredictor:
             #max_victory_pred = max(max_victory_pred, torch.max(victory_pred).item())
 
             squeezed_pred = torch.squeeze(victory_pred, dim=-1)
-            bin_true.extend(list(torch.squeeze(victory_true, dim=-1) > 0))
-            bin_pred.extend(list(squeezed_pred > 0))
+            bin_true.extend(list(torch.squeeze(victory_true, dim=-1) > true_threshold))
+            bin_pred.extend(list(squeezed_pred > true_threshold))
             victory_preds = torch.cat([victory_preds, squeezed_pred], dim=-1)
 
         bin_true, bin_pred = np.array(bin_true).astype(int), np.array(bin_pred).astype(int)
