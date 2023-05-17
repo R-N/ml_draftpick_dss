@@ -150,21 +150,13 @@ class ResultPredictor:
             _trues = split_dim(targets)
             _preds = self.model(left, right)
 
-            if hasattr(_trues, "__iter__"):
-                victory_true, score_true, duration_true = _trues
-            else:
-                victory_true = _trues
-            if hasattr(_preds, "__iter__"):
-                victory_pred, score_pred, duration_pred = _preds
-            else:
-                victory_pred = _preds
-
-            #weights = split_dim(weights)
+            victory_true, score_true, duration_true = _trues
+            victory_pred, score_pred, duration_pred = _preds
             
             victory_loss = self.bin_crit(victory_pred, victory_true)
             score_loss = 0
             duration_loss = 0
-            if self.norm_crit and hasattr(_trues, "__iter__") and hasattr(_preds, "__iter__"):
+            if self.norm_crit:
                 score_loss = self.norm_crit(score_pred, score_true)
                 duration_loss = self.norm_crit(duration_pred, duration_true)
                 raw_losses = (victory_loss, score_loss, duration_loss)

@@ -5,7 +5,7 @@ import torch
 
 class ResultDataset(Dataset):
 
-    def __init__(self, df, encoder, flip=True, weight=1.0, target_cols=["left_victory"]):
+    def __init__(self, df, encoder, flip=True, weight=1.0, target_cols=TARGET_COLS):
         if flip:
             df = merge_results([df, flip_results(df)])
         self.df = df
