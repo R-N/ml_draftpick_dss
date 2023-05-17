@@ -9,7 +9,7 @@ class ResultDataset(Dataset):
     def __init__(self, df, encoder, flip=True, weight=1.0, target_cols=["left_victory"]):
         if flip:
             df = merge_results([df, flip_results(df)])
-        self.df = df
+        self.df = df.reset_index()
         if "weight" not in self.df.columns:
             self.df["weight"] = weight
         self.df["weight"].fillna(weight, inplace=True)
