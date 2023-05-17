@@ -45,7 +45,7 @@ def merge_results(dfs):
     return double_df
 def filter_victory(double_df):
     return double_df[double_df["match_result"] == "Victory"]
-def load_results(result_path, false=0):
+def load_results(result_path, false=-1):
     list_cols = [f"{lr}_{attr}" for attr in DUAL_ATTRS for lr in ("left", "right")]
     score_cols = [x for x in list_cols if "score" in x]
     df = pd.read_csv(result_path, converters={c: literal_eval for c in list_cols})

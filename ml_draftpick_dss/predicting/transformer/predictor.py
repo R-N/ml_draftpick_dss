@@ -152,8 +152,8 @@ class ResultPredictor:
 
             victory_true, score_true, duration_true = _trues
             victory_pred, score_pred, duration_pred = _preds
-
-            print(victory_true, victory_pred)
+            
+            victory_true = victory_true * (1.0 - true_threshold) + true_threshold
             
             victory_loss = self.bin_crit(victory_pred, victory_true)
             score_loss = 0
