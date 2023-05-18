@@ -2,6 +2,8 @@ from torch.utils.data import Dataset, DataLoader
 from ..preparation import TARGET_COLS, extract_target
 from ..result_loader import flip_results, merge_results
 import torch
+from ..encoding import HeroOneHotEncoder
+from ..transformer.dataset import load_datasets as _load_datasets
 
 class ResultDataset(Dataset):
 
@@ -39,6 +41,20 @@ class ResultDataset(Dataset):
         weights = sample["weight"]
 
         return left, right, target, weights 
+    
+
+def load_datasets(
+    *args,
+    encoder_factory=HeroOneHotEncoder,
+    dataset_factory=ResultDataset,
+    **kwargs
+):
+    return _load_datasets(
+        *args,
+        encoder_factory=encoder_factory,
+        dataset_factory=dataset_factory,
+        **kwargs
+    )
 
 def create_dataloader(dataset, batch_size=64, shuffle=True, num_workers=0):
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers)

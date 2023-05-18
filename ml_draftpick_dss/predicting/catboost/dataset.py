@@ -3,6 +3,8 @@ from ..preparation import TARGET_COLS, extract_target
 from ..result_loader import flip_results, merge_results
 import numpy as np
 import pandas as pd
+from ..mlp.dataset import load_datasets as _load_datasets
+from ..util import tanh_to_sig_range
 
 class ResultDataset(Dataset):
 
@@ -43,3 +45,25 @@ class ResultDataset(Dataset):
     @property
     def all(self):
         return self[self.df.index]
+    
+def _create_datasets(train_set, val_set, test_set):
+    train_sets = [x.all for x in train_sets]
+    val_sets = [x.all for x in val_sets]
+    test_sets = [x.all for x in test_sets]
+
+    train_set = tuple(pd.concat(x) for x in zip(*train_sets))
+    val_set = tuple(pd.concat(x) for x in zip(*val_sets))
+    test_set = tuple(pd.concat(x) for x in zip(*test_sets))
+
+    train_set, val_set, test_set = [(X, tanh_to_sig_range(y), w) for X, y, w in (train_set, val_set, test_set)]
+
+def load_datasets(
+    *args,
+    create_datasets=_create_datasets,
+    **kwargs
+):
+    return _load_datasets(
+        *args,
+        create_datasets=create_datasets,
+        **kwargs
+    )
