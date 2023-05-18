@@ -74,6 +74,7 @@ class HeroLabelEncoder:
         self.mixeds = mixeds
         self.uniques = uniques
         self.dim = len(df_heroes_x.columns)
+        self.columns = self.x.columns
 
     def get_encoding(self, hero):
         return self.encoding[hero]
@@ -135,6 +136,7 @@ class HeroOneHotEncoder:
         self.dim = dim
         self.dims = dims
         self.slices = slices
+        self.columns = self.x.columns
 
     def get_encoding(self, hero):
         return self.encoding[hero]
