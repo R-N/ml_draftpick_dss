@@ -87,6 +87,7 @@ class ResultPredictor:
             self.model.fit(
                 loader,
                 eval_set=val_loader,
+                logging_level="Verbose",
                 plot=True
             )
             if self.od_wait:
