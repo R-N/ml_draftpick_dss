@@ -64,8 +64,8 @@ def map_parameter(param, source):
     except Exception as ex:
         return param
 
-def sample_parameter(trial, name, type, args):
-    return getattr(trial, f"suggest_{type}")(name, *args)
+def sample_parameter(trial, name, type, args, kwargs):
+    return getattr(trial, f"suggest_{type}")(name, *args, **kwargs)
 
 def sample_parameters(trial, param_space, param_map={}):
     param_map = {
@@ -77,6 +77,7 @@ def sample_parameters(trial, param_space, param_map={}):
     for k, v in param_space.items():
         type_0, *args = v
         type_1 = type_0
+        kwargs = {}
         if type_0.startswith("bool_"):
             sample = trial.suggest_categorical(f"{k}_bool", [True, False])
             if not sample:
@@ -87,6 +88,9 @@ def sample_parameters(trial, param_space, param_map={}):
                 continue
             type_0 = type_0[5:]
             type_1 = type_0
+        if type_0.startswith("bool_"):
+            type_1 = type_0[5:]
+            kwargs["log"] = True
         if type_0 == "int_exp_2":
             low, high = args
             low = max(low, 1)
@@ -105,7 +109,7 @@ def sample_parameters(trial, param_space, param_map={}):
             type_1 = "categorical"
 
         if type_1:
-            param = sample_parameter(trial, k, type_1, args)
+            param = sample_parameter(trial, k, type_1, args, kwargs)
         params_raw[k] = param
         if type_0 in param_map:
             param = map_parameter(param, param_map[type_0])

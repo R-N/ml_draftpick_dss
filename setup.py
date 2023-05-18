@@ -26,7 +26,8 @@ setup(
         'torchinfo',
         'optuna',
         'scipy',
-        'torch-lr-finder'
+        'torch-lr-finder',
+        'catboost'
     ],
 
     classifiers=[
