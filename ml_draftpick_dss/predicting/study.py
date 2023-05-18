@@ -94,7 +94,7 @@ def sample_parameters(trial, param_space, param_map={}):
         if type_0 == "qloguniform":
             low, high, q = args
             type_1 = "float"
-            param = math.round(math.exp(
+            param = round(math.exp(
                 trial.suggest_float(f"{k}_qloguniform", low, high)
             ) / q) * q
             params_raw[k] = param
