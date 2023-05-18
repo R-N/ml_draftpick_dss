@@ -115,6 +115,8 @@ class ResultPredictor:
             ms = (time.time() - start_time) * 1000
             print(f'| epoch {self.epoch:3d} | step {i:5d} | '
                 f'lr {lr} | ms {ms:5.2f} | ')
+            
+        self.save_model()
 
         return self.epoch, cur_metrics
     
