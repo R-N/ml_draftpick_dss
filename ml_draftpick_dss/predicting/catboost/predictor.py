@@ -41,7 +41,7 @@ class ResultPredictor:
             od_wait=od_wait,
             use_best_model=True,
             od_type="Iter",
-            logging_level="Silent"
+            logging_level="Silent",
             **kwargs
         )
         self.training_prepared = False
