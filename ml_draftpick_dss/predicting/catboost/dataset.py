@@ -6,6 +6,7 @@ import pandas as pd
 from ..mlp.dataset import load_datasets as _load_datasets
 from ..util import tanh_to_sig_range
 from catboost import Pool
+from ..encoding import HeroLabelEncoder, HeroOneHotEncoder, PATCHES
 
 class ResultDataset(Dataset):
 
