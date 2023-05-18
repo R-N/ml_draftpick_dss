@@ -84,7 +84,6 @@ def objective(
     print(train_results)
     val_results = predictor.train(autosave=autosave, val=True)
     print(val_results)
-    predictor.inc_epoch()
     intermediate_value = get_metric({**train_results[1], **val_results[1]}, metric)
     train_metric = metric[4:] if metric.startswith("val_") else metric
     train_metric = train_results[1][train_metric]
