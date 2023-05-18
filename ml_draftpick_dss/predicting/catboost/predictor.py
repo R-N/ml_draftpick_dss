@@ -1,5 +1,4 @@
-from ..util import split_dim
-import torch
+from ...util import mkdir
 import time
 import numpy as np
 from sklearn.metrics import accuracy_score, roc_auc_score, f1_score, confusion_matrix
@@ -60,6 +59,7 @@ class ResultPredictor:
         self.training_prepared = True
 
     def prepare_checkpoint(self, checkpoint_dir="checkpoints"):
+        mkdir(checkpoint_dir)
         self.checkpoint_dir = checkpoint_dir
 
     def load_model(self, file_name="best.dump"):
