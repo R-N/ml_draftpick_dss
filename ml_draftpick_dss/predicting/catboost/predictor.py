@@ -126,3 +126,6 @@ class ResultPredictor:
 
     def predict(self, data):
         return self.model.predict(data)
+
+    def predict_prob(self, data):
+        return self.model.predict_proba(data)
