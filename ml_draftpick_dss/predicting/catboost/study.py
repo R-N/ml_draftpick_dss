@@ -12,7 +12,7 @@ PARAM_SPACE = {
         "categorical", ["Bayesian", "Bernoulli", "MVS"]
     ),
     'l2_leaf_reg': ('qloguniform', 0, 2, 1),
-    'learning_rate': ('float', 1e-3, 1e-1),
+    'lr': ('float', 1e-3, 1e-1),
 }
 
 PARAMS_DEFAULT = {
