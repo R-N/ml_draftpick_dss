@@ -89,7 +89,7 @@ def sample_parameters(trial, param_space, param_map={}):
             type_0 = type_0[5:]
             type_1 = type_0
         if type_0.startswith("log_"):
-            type_1 = type_0[5:]
+            type_1 = type_0[4:]
             kwargs["log"] = True
         if type_0 == "int_exp_2":
             low, high = args
