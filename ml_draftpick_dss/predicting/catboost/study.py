@@ -27,7 +27,7 @@ def create_predictor(
     boosting_type="Plain",
     bootstrap_type="Bayesian",
     l2_leaf_reg=3.0,
-    learning_rate=0.1,
+    lr=0.1,
     predictor=ResultPredictor,
     **kwargs
 ):
@@ -39,7 +39,7 @@ def create_predictor(
         boosting_type=boosting_type,
         bootstrap_type=bootstrap_type,
         l2_leaf_reg=l2_leaf_reg,
-        learning_rate=learning_rate,
+        lr=lr,
         **kwargs
     )
     return _predictor
