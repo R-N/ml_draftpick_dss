@@ -31,8 +31,6 @@ def create_predictor(
     predictor=ResultPredictor,
     **kwargs
 ):
-    if not isinstance(d_input, int):
-        d_input = d_input.dim
 
     _predictor = predictor(
         objective=objective,
