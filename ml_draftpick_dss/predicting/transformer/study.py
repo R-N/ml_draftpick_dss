@@ -20,7 +20,7 @@ PARAM_SPACE = {
     "activation_tf": ("activation", ["identity", "relu", "tanh", "elu"]),
     #"d_hid_final": ("int_exp_2", 32, 64),
     "n_layers_final": ("int", 3, 5),
-    "activation_final": ("activation", ["tanh", "leakyrelu", "elu"]),
+    "activation_final": ("activation", ["tanh", "elu"]),
     #"bias_final": BOOLEAN,
     "n_layers_head": ("int", 2, 3),
     "dropout": ("float", 0.1, 0.14),
@@ -55,7 +55,7 @@ PARAM_MAP = {
 
 def create_predictor(
     encoder,
-    s_embed=2,
+    s_embed=4,
     d_hid_encoder=32,
     n_layers_encoder=2,
     activation_encoder=torch.nn.ELU,
