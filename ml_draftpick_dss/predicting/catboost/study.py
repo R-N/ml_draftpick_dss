@@ -47,8 +47,8 @@ def create_predictor(
 def objective(
     datasets,
     create_predictor,
-    lrs=LRS[0],
-    epochs=EPOCHS[0],
+    #lrs=LRS[0],
+    #epochs=EPOCHS[0],
     metric="val_loss",
     checkpoint_dir=f"checkpoints",
     log_dir=f"logs",
@@ -60,6 +60,7 @@ def objective(
         print(f"Begin trial {trial.number}")
     train_loader, val_loader, test_loader = datasets
 
+    """
     assert len(epochs) == 1
     if "od_wait" not in predictor_kwargs:
         predictor_kwargs["od_wait"] = max(x[0] for x in epochs)
@@ -67,6 +68,7 @@ def objective(
         predictor_kwargs["epochs"] = sum(x[1] for x in epochs)
     if "lr" not in predictor_kwargs:
         predictor_kwargs["lr"] = lrs[0]
+    """
 
     predictor = create_predictor(**predictor_kwargs)
     
