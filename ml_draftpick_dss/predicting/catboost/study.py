@@ -21,6 +21,7 @@ PARAMS_DEFAULT = {
 PARAM_MAP = {}
 
 def create_predictor(
+    encoder=None,
     objective="CrossEntropy",
     colsample_bylevel=1,
     depth=6,
