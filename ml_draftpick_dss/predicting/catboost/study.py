@@ -10,7 +10,7 @@ PARAM_SPACE = {
     "bootstrap_type": (
         "categorical", ["Bayesian", "Bernoulli", "MVS"]
     ),
-    'l2_leaf_reg': ('log_float', 0, 2, 1),
+    'l2_leaf_reg': ('qloguniform', 0, 2, 1),
     'learning_rate': ('float', 1e-3, 1e-1),
 }
 

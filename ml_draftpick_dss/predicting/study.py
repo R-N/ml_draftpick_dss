@@ -91,6 +91,15 @@ def sample_parameters(trial, param_space, param_map={}):
         if type_0.startswith("log_"):
             type_1 = type_0[4:]
             kwargs["log"] = True
+        if type_0 == "qloguniform":
+            low, high, q = args
+            type_1 = "float"
+            param = math.round(math.exp(
+                trial.suggest_float(f"{k}_qloguniform", low, high)
+            ) / q) * q
+            params_raw[k] = param
+            params[k] = param
+            continue
         if type_0 == "int_exp_2":
             low, high = args
             low = max(low, 1)
