@@ -24,6 +24,8 @@ class ResultPredictor:
         metric=metrics.Accuracy(),
         random_seed=42,
         od_wait=50,
+        od_type="Iter",
+        logging_level="Silent",
         model=CatBoostClassifier,
         **kwargs
     ):
@@ -40,8 +42,8 @@ class ResultPredictor:
             random_seed=random_seed,
             od_wait=od_wait,
             use_best_model=True,
-            od_type="Iter",
-            logging_level="Silent",
+            od_type=od_type,
+            logging_level=logging_level,
             **kwargs
         )
         self.training_prepared = False
