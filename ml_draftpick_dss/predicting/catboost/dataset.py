@@ -58,12 +58,14 @@ def _create_datasets(*datasets):
 def load_datasets(
     *args,
     create_datasets=_create_datasets,
+    encoder_factory=HeroLabelEncoder,
     dataset_factory=ResultDataset,
     **kwargs
 ):
     return _load_datasets(
         *args,
         create_datasets=create_datasets,
+        encoder_factory=encoder_factory,
         dataset_factory=dataset_factory,
         **kwargs
     )
