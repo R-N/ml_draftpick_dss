@@ -118,3 +118,11 @@ class ResultPredictor:
 
         return self.epoch, cur_metrics
     
+    def feature_importance(self, columns):
+        feature_importances = self.model.get_feature_importance(self.train_loader)
+        feature_names = [f"{l}_{c}" for c in columns for l in ("left", "right")]
+        assert (len(feature_importances) == len(feature_names))
+        return {n: s for s, n in sorted(zip(feature_importances, feature_names), reverse=True)}
+
+    def predict(self, data):
+        return self.model.predict(data)
