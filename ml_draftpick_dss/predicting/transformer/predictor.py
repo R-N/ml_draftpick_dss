@@ -205,9 +205,11 @@ class ResultPredictor:
         cm = confusion_matrix(bin_true, bin_pred)
         cm_labels = ["tn", "fp", "fn", "tp"]
 
+        """
         min_victory_pred = torch.min(victory_preds).item()
         max_victory_pred = torch.max(victory_preds).item()
         mean_victory_pred = torch.mean(victory_preds).item()
+        """
 
         losses = {k: v/batch_count for k, v in losses.items()}
         cur_metrics = {
@@ -216,9 +218,9 @@ class ResultPredictor:
             "accuracy": accuracy_score(bin_true, bin_pred),
             "auc": roc_auc_score(bin_true, bin_pred),
             "f1_score": f1_score(bin_true, bin_pred),
-            "mean_victory_pred": mean_victory_pred,
-            "min_victory_pred": min_victory_pred,
-            "max_victory_pred": max_victory_pred,
+            #"mean_victory_pred": mean_victory_pred,
+            #"min_victory_pred": min_victory_pred,
+            #"max_victory_pred": max_victory_pred,
             **{cm_labels[i]: x for i, x in enumerate(cm.ravel())}
         }
     

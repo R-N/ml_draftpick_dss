@@ -48,12 +48,19 @@ class ResultDataset(Dataset):
     def all(self):
         return self[self.df.index]
     
+def _create_dataset(X, y, w, cat_ids):
+    pool = Pool(X, y, cat_features=cat_ids, weight=w)
+    pool.X = X
+    pool.y = y
+    pool.w = w
+    return pool
+    
 def _create_datasets(*datasets):
     datasets = [[x.all for x in ds] for ds in datasets]
     datasets = [tuple(pd.concat(x) for x in zip(*ds)) for ds in datasets]
     datasets = [(X, tanh_to_sig_range(y), w) for X, y, w in datasets]
     cat_ids = np.where(datasets[0][0].dtypes != float)[0]
-    datasets = [Pool(X, y, cat_features=cat_ids, weight=w) for X, y, w in datasets]
+    datasets = [_create_dataset(X, y, w, cat_ids) for X, y, w in datasets]
     return datasets
 
 def load_datasets(
