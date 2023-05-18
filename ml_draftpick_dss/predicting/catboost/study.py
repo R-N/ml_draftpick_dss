@@ -1,5 +1,6 @@
 from .predictor import ResultPredictor
 from .dataset import create_dataloader
+from ..study import get_metric
 
 
 PARAM_SPACE = {
@@ -45,3 +46,50 @@ def create_predictor(
     )
     return _predictor
 
+from ..study import LRS, EPOCHS, 
+
+def objective(
+    datasets,
+    create_predictor,
+    lrs=LRS[0],
+    epochs=EPOCHS[0],
+    metric="val_loss",
+    checkpoint_dir=f"checkpoints",
+    log_dir=f"logs",
+    autosave=False,
+    trial=None,
+    **predictor_kwargs
+):
+    if trial:
+        print(f"Begin trial {trial.number}")
+    train_loader, val_loader, test_loader = datasets
+
+    assert len(epochs) == 1
+    if "od_wait" not in predictor_kwargs:
+        predictor_kwargs["od_wait"] = max(x[0] for x in epochs)
+    if "iterations" not in predictor_kwargs:
+        predictor_kwargs["iterations"] = sum(x[1] for x in epochs)
+
+    predictor = create_predictor(**predictor_kwargs)
+    
+    predictor.prepare_training(
+        train_loader,
+        val_loader,
+        checkpoint_dir=checkpoint_dir,
+    )
+
+    train_results = predictor.train(autosave=autosave)
+    print(train_results)
+    val_results = predictor.train(autosave=autosave, val=True)
+    print(val_results)
+    predictor.inc_epoch()
+    intermediate_value = get_metric({**train_results[1], **val_results[1]}, metric)
+    train_metric = metric[4:] if metric.startswith("val_") else metric
+    train_metric = train_results[1][train_metric]
+    if trial:
+        trial.report(intermediate_value, predictor.epoch)
+
+    #last_metrics = predictor.train(val=True)[1]
+    best_metrics = predictor.best_metrics
+    final_value = get_metric(best_metrics, metric)
+    return final_value

@@ -121,7 +121,8 @@ class ResultPredictor:
             print(f'| epoch {self.epoch:3d} | '
                 f'lr {lr} | ms {ms:5.2f} | ')
             
-        self.save_model()
+        if autosave:
+            self.save_model()
 
         return self.epoch, cur_metrics
     
