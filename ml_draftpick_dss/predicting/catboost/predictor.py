@@ -73,8 +73,8 @@ class ResultPredictor:
 
     def train(self, val=False, val_loader=None, autosave=True, true_threshold=0.5):
         assert self.training_prepared
+        val_loader = self.val_loader if val_loader is None else val_loader
         if val:
-            val_loader = self.val_loader if val_loader is None else val_loader
             assert val_loader is not None, "Please provide validation dataloader"
         start_time = time.time()
 
