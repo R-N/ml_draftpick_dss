@@ -77,3 +77,6 @@ def load_datasets(
         dataset_factory=dataset_factory,
         **kwargs
     )
+
+def create_dataloader(dataset, batch_size=64, shuffle=True, num_workers=0):
+    return dataset

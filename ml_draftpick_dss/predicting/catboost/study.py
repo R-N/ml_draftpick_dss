@@ -1,4 +1,5 @@
 from .predictor import ResultPredictor
+from .dataset import create_dataloader
 
 
 PARAM_SPACE = {
@@ -43,3 +44,4 @@ def create_predictor(
         **kwargs
     )
     return _predictor
+
