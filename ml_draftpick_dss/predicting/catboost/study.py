@@ -90,7 +90,6 @@ def objective(
     if trial:
         trial.report(intermediate_value, predictor.epoch)
 
-    #last_metrics = predictor.train(val=True)[1]
-    best_metrics = predictor.best_metrics
+    best_metrics = train_metric
     final_value = get_metric(best_metrics, metric)
     return final_value
