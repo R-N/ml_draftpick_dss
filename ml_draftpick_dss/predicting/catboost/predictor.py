@@ -30,6 +30,7 @@ class ResultPredictor:
         self.lr = lr
         self.epochs = epochs
         self.epoch = 0
+        self.od_wait = od_wait
         self.model = model(
             *args, 
             iterations=epochs,
@@ -88,7 +89,10 @@ class ResultPredictor:
                 eval_set=val_loader,
                 plot=True
             )
-            self.epoch = self.epochs
+            if self.od_wait:
+                self.epoch = self.model.get_best_iteration() + self.od_wait
+            else:
+                self.epoch = self.epochs
 
         bin_true = loader.y > true_threshold
         bin_pred = self.model.predict(loader) > true_threshold
