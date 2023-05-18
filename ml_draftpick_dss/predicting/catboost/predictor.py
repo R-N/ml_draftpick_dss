@@ -21,7 +21,7 @@ class ResultPredictor:
         epochs=1000,
         lr=0.1,
         bin_crit=metrics.CrossEntropy(),
-        metric=metrics.F1(),
+        metric=metrics.Accuracy(),
         random_seed=42,
         od_wait=50,
         model=CatBoostClassifier,

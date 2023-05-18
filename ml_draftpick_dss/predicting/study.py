@@ -168,7 +168,7 @@ def objective(
     optimizer=torch.optim.Adam,
     grad_clipping=0,
     batch_size=64,
-    metric="val_loss",
+    metric="val_accuracy",
     checkpoint_dir=f"checkpoints",
     log_dir=f"logs",
     autosave=False,
