@@ -1,6 +1,6 @@
 from .predictor import ResultPredictor
 from .dataset import create_dataloader
-from ..study import get_metric
+from ..study import get_metric, LRS, EPOCHS
 
 
 PARAM_SPACE = {
@@ -45,8 +45,6 @@ def create_predictor(
         **kwargs
     )
     return _predictor
-
-from ..study import LRS, EPOCHS, 
 
 def objective(
     datasets,
