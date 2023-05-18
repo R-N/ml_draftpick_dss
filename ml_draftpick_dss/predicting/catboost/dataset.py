@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from ..mlp.dataset import load_datasets as _load_datasets
 from ..util import tanh_to_sig_range
+from catboost import Pool
 
 class ResultDataset(Dataset):
 
@@ -46,16 +47,13 @@ class ResultDataset(Dataset):
     def all(self):
         return self[self.df.index]
     
-def _create_datasets(train_set, val_set, test_set):
-    train_sets = [x.all for x in train_sets]
-    val_sets = [x.all for x in val_sets]
-    test_sets = [x.all for x in test_sets]
-
-    train_set = tuple(pd.concat(x) for x in zip(*train_sets))
-    val_set = tuple(pd.concat(x) for x in zip(*val_sets))
-    test_set = tuple(pd.concat(x) for x in zip(*test_sets))
-
-    train_set, val_set, test_set = [(X, tanh_to_sig_range(y), w) for X, y, w in (train_set, val_set, test_set)]
+def _create_datasets(*datasets):
+    datasets = [[x.all for x in ds] for ds in datasets]
+    datasets = [tuple(pd.concat(x) for x in zip(*ds)) for ds in datasets]
+    datasets = [(X, tanh_to_sig_range(y), w) for X, y, w in datasets]
+    cat_ids = np.where(datasets[0][0].dtypes != float)[0]
+    datasets = [Pool(X, y, cat_features=cat_ids, weight=w) for X, y, w in datasets]
+    return datasets
 
 def load_datasets(
     *args,
