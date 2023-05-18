@@ -65,8 +65,10 @@ def objective(
     assert len(epochs) == 1
     if "od_wait" not in predictor_kwargs:
         predictor_kwargs["od_wait"] = max(x[0] for x in epochs)
-    if "iterations" not in predictor_kwargs:
-        predictor_kwargs["iterations"] = sum(x[1] for x in epochs)
+    if "epochs" not in predictor_kwargs:
+        predictor_kwargs["epochs"] = sum(x[1] for x in epochs)
+    if "lr" not in predictor_kwargs:
+        predictor_kwargs["lr"] = lrs[0]
 
     predictor = create_predictor(**predictor_kwargs)
     
