@@ -113,7 +113,7 @@ class ResultPredictor:
         else:
             lr = self.get_lr()
             ms = (time.time() - start_time) * 1000
-            print(f'| epoch {self.epoch:3d} | step {i:5d} | '
+            print(f'| epoch {self.epoch:3d} | '
                 f'lr {lr} | ms {ms:5.2f} | ')
             
         self.save_model()
