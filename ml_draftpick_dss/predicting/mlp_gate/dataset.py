@@ -1,1 +1,1 @@
-from ..mlp.dataset import ResultDataset, create_dataloader, _load_datasets
+from ..mlp.dataset import ResultDataset, create_dataloader, load_datasets
