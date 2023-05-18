@@ -74,7 +74,7 @@ class HeroLabelEncoder:
         self.mixeds = mixeds
         self.uniques = uniques
         self.dim = len(df_heroes_x.columns)
-        self.columns = self.x.columns
+        self.columns = self.x.columns[1:]
 
     def get_encoding(self, hero):
         return self.encoding[hero]
