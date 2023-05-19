@@ -4,15 +4,13 @@ from ..study import get_metric, LRS, EPOCHS
 
 
 PARAM_SPACE = {
-    "objective": ("categorical", ["Logloss", "CrossEntropy"]),
-    "colsample_bylevel": ("log_float", 0.01, 0.1),
-    "depth": ("int", 1, 12),
-    "boosting_type": ("categorical", ["Ordered", "Plain"]),
-    "bootstrap_type": (
-        "categorical", ["Bayesian", "Bernoulli", "MVS"]
-    ),
-    'l2_leaf_reg': ('qloguniform', 0, 2, 1),
-    'lr': ('float', 1e-3, 1e-1),
+    #"objective": ("categorical", ["Logloss", "CrossEntropy"]),
+    "colsample_bylevel": ("log_float", 0.01, 1),
+    "depth": ("int", 3, 7),
+    #"boosting_type": ("categorical", ["Ordered", "Plain"]),
+    #"bootstrap_type": ("categorical", ["Bayesian", "Bernoulli", "MVS"]),
+    #'l2_leaf_reg': ('qloguniform', 0, 2, 1),
+    'lr': ('float', 1e-3, 0.08),
 }
 
 PARAMS_DEFAULT = {
@@ -23,8 +21,8 @@ PARAM_MAP = {}
 def create_predictor(
     encoder=None,
     create_dataloader=None,
-    objective="CrossEntropy",
-    colsample_bylevel=1,
+    objective="Logloss",
+    colsample_bylevel=0.1,
     depth=6,
     boosting_type="Plain",
     bootstrap_type="Bayesian",
