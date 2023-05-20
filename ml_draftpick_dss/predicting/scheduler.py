@@ -80,6 +80,9 @@ class OneCycleLR:
     def state_dict(self):
         return self.scheduler.state_dict
 
+    def load_state_dict(self, state_dict):
+        return self.scheduler.load_state_dict(state_dict)
+
     def reset(self):
         """
         self.scheduler.last_epoch = -1
