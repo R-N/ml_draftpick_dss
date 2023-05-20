@@ -33,7 +33,7 @@ PARAM_SPACE = {
     #"cross_residual": BOOLEAN,
     "onecycle_lr": ("log_float", 1e-3, 1),
     "onecycle_epochs": ("int", 50, 100),
-    "lr": ("log_float", 1e-1, 1e-5),
+    "lr": ("log_float", 1e-5, 1e-1),
     "min_epoch": ("int", 25, 100),
 }
 
