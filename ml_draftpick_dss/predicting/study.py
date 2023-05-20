@@ -227,7 +227,7 @@ def objective(
     )
     print(predictor.summary())
 
-    def _train(lr, min_epoch, max_epoch, prune=True):
+    def _train(lr, min_epoch, max_epoch, prune=True, wait=wait):
         if lr is None:
             lr = predictor.find_lr(min_epoch=min_epoch).best_lr
         predictor.set_lr(lr)
@@ -257,12 +257,12 @@ def objective(
 
     if scheduler_type == "onecycle":
         print("Initial onecycle run")
-        _train(lr, min(onecycle_epochs, min_epoch), onecycle_epochs, prune=False)
+        _train(lr, min(onecycle_epochs, min_epoch), onecycle_epochs, prune=False, wait=wait)
         print("Done onecycle run")
         predictor.load_checkpoint(onecycle_save)
         predictor.scheduler_type = "plateau"
         print("Continue with plateau")
-    _train(lr, min_epoch, max_epoch, prune=True)
+    _train(lr, min_epoch, max_epoch, prune=True, wait=0)
         
     #last_metrics = predictor.train(val=True)[1]
     best_metrics = predictor.best_metrics
