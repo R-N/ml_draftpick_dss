@@ -290,14 +290,14 @@ class ResultPredictor:
         )
         return early_stopping_1
     
-    def create_early_stopping_2(self, early_stopping_1, **kwargs):
+    def create_early_stopping_2(self, early_stopping_1, max_epoch=None, **kwargs):
         early_stopping_2 = EarlyStopping(
             self.model,
             log_dir=self.log_dir,
             label=self.model.name + "a",
             interval_mode=early_stopping_1.interval_mode,
             wait=0,
-            max_epoch=early_stopping_1.best_epoch,
+            max_epoch=max_epoch or early_stopping_1.best_epoch,
             update_state_mode=1,
             **kwargs
         )

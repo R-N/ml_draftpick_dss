@@ -227,13 +227,16 @@ def objective(
     )
     print(predictor.summary())
 
-    def _train(lr, min_epoch, max_epoch, prune=True, wait=wait):
+    def _train(lr, min_epoch, max_epoch, prune=True, wait=wait, early_stopping_1=None):
         if lr is None:
             lr = predictor.find_lr(min_epoch=min_epoch).best_lr
         predictor.set_lr(lr)
         _early_stopping = None
         if early_stopping:
-            _early_stopping = predictor.create_early_stopping_1(wait, max_epoch)
+            if not early_stopping_1:
+                _early_stopping = predictor.create_early_stopping_1(wait, max_epoch)
+            else:
+                _early_stopping = predictor.create_early_stopping_2(early_stopping_1, max_epoch)
         for i in range(max_epoch):
             try:
                 train_results = predictor.train(autosave=autosave)
@@ -254,15 +257,17 @@ def objective(
             finally:
                 if trial.should_prune():
                     raise optuna.TrialPruned()
+        return _early_stopping
 
+    _early_stopping_1 = None
     if scheduler_type == "onecycle":
         print("Initial onecycle run")
-        _train(lr, min(onecycle_epochs, min_epoch), onecycle_epochs, prune=False, wait=wait)
+        _early_stopping_1 = _train(lr, min(onecycle_epochs, min_epoch), onecycle_epochs, prune=False, wait=wait)
         print("Done onecycle run")
         predictor.load_checkpoint(onecycle_save)
         predictor.scheduler_type = "plateau"
         print("Continue with plateau")
-    _train(lr, min_epoch, max_epoch, prune=True, wait=0)
+    _train(lr, min_epoch, max_epoch, prune=True, wait=0, early_stopping_1=_early_stopping_1)
         
     #last_metrics = predictor.train(val=True)[1]
     best_metrics = predictor.best_metrics
