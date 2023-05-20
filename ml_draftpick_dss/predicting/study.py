@@ -172,12 +172,13 @@ def objective(
     metric="val_loss",
     checkpoint_dir=f"checkpoints",
     log_dir=f"logs",
-    autosave=False,
+    autosave="val_loss",
     trial=None,
     scheduler_config=SCHEDULER_CONFIGS[2],
     bin_crit=torch.nn.BCELoss(reduction="none"),
     onecycle_lr=10,
     onecycle_epochs=50,
+    onecycle_save="val_loss",
     lr=1e-3,
     min_epoch=50,
     max_epoch=200,
@@ -197,6 +198,8 @@ def objective(
 
     scheduler_kwargs = {}
     if scheduler_type == "onecycle":
+        if not autosave:
+            autosave = onecycle_save
         wait = onecycle_epochs//2
         scheduler_kwargs = {
             "steps": batch_count, 
@@ -256,7 +259,7 @@ def objective(
         print("Initial onecycle run")
         _train(lr, min_epoch, max_epoch, prune=False)
         print("Done onecycle run")
-        predictor.load_checkpoint("val_loss")
+        predictor.load_checkpoint(onecycle_save)
         predictor.scheduler_type = "plateau"
         print("Continue with plateau")
     _train(lr, min_epoch, max_epoch, prune=True)

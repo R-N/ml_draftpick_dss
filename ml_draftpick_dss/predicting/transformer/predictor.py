@@ -250,7 +250,12 @@ class ResultPredictor:
         if self.checkpoint_managers:
             for m in self.metrics:
                 cm = self.checkpoint_managers[m]
-                ret = cm.check_metric(cur_metrics, save=autosave)
+                save = autosave
+                if isinstance(save, str):
+                    save = (m == save)
+                elif isinstance(save, list) or isinstance(save, tuple):
+                    save = (m in save)
+                ret = cm.check_metric(cur_metrics, save=save)
                 if ret:
                     new_best_metrics.append(ret)
         return self.epoch, cur_metrics, new_best_metrics
