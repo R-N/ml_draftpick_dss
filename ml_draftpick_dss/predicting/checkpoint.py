@@ -44,6 +44,7 @@ class CheckpointManager:
             self.load_best_metrics(True)
             self.model.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
             self.model.scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
+            print("Loaded checkpoint", self.metric, "at epoch", checkpoint['epoch'])
         except Exception as ex:
             print(ex)
 

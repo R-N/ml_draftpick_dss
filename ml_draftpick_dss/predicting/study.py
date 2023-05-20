@@ -205,11 +205,14 @@ def objective(
         }
 
     predictor = create_predictor(**predictor_kwargs)
+
+    if lr is None:
+        lr = predictor.find_lr(min_epoch=min_epoch).best_lr
     
     predictor.prepare_training(
         train_loader,
         val_loader,
-        lr=lrs[0],
+        lr=lr,
         norm_crit=norm_crit,
         optimizer=optimizer,
         grad_clipping=grad_clipping,
@@ -250,9 +253,12 @@ def objective(
                     raise optuna.TrialPruned()
 
     if scheduler_type == "onecycle":
+        print("Initial onecycle run")
         _train(lr, min_epoch, max_epoch, prune=False)
+        print("Done onecycle run")
         predictor.load_checkpoint("val_loss")
         predictor.scheduler_type = "plateau"
+        print("Continue with plateau")
     _train(lr, min_epoch, max_epoch, prune=True)
         
     #last_metrics = predictor.train(val=True)[1]
