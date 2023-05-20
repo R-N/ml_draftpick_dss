@@ -5,12 +5,12 @@ from ..study import get_metric
 
 PARAM_SPACE = {
     #"objective": ("categorical", ["Logloss", "CrossEntropy"]),
-    "colsample_bylevel": ("log_float", 0.01, 1),
-    "depth": ("int", 3, 7),
+    "colsample_bylevel": ("log_float", 0.1, 1),
+    "depth": ("int", 4, 7),
     #"boosting_type": ("categorical", ["Ordered", "Plain"]),
     #"bootstrap_type": ("categorical", ["Bayesian", "Bernoulli", "MVS"]),
     #'l2_leaf_reg': ('qloguniform', 0, 2, 1),
-    'lr': ('float', 1e-3, 0.08),
+    'lr': ('float', 1e-3, 0.02),
 }
 
 PARAMS_DEFAULT = {
