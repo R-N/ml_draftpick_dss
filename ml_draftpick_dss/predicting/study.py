@@ -257,7 +257,7 @@ def objective(
 
     if scheduler_type == "onecycle":
         print("Initial onecycle run")
-        _train(lr, min_epoch, max_epoch, prune=False)
+        _train(lr, min(onecycle_epochs, min_epoch), onecycle_epochs, prune=False)
         print("Done onecycle run")
         predictor.load_checkpoint(onecycle_save)
         predictor.scheduler_type = "plateau"
