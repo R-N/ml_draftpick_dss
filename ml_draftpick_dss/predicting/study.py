@@ -34,21 +34,11 @@ ACTIVATIONS = {
     "selu": torch.nn.SELU,
     #"gelu": torch.nn.GELU,
 }
-LRS = [
-    [1e-2],
-    [1e-3],
-]
-EPOCHS = [
-    [(50, 200)],
-    [(50, 200)],
-]
 PARAM_MAP = {
     "pooling": POOLINGS,
     "loss": LOSSES,
     "optimizer": OPTIMS,
     "activation": ACTIVATIONS,
-    "lrs": LRS,
-    "epochs": EPOCHS,
     "scheduler_config": SCHEDULER_CONFIGS
 }
 BOOLEAN = ("categorical", [True, False])
@@ -175,8 +165,6 @@ def objective(
     datasets,
     create_predictor,
     create_dataloader,
-    lrs=LRS[0],
-    epochs=EPOCHS[0],
     norm_crit=None,
     optimizer=torch.optim.Adam,
     grad_clipping=0,
@@ -188,6 +176,12 @@ def objective(
     trial=None,
     scheduler_config=SCHEDULER_CONFIGS[2],
     bin_crit=torch.nn.BCELoss(reduction="none"),
+    onecycle_mul=10,
+    onecycle_epochs=50,
+    lr=1e-3,
+    min_epoch=50,
+    max_epoch=200,
+    wait=25,
     **predictor_kwargs
 ):
     if trial:
@@ -200,7 +194,15 @@ def objective(
 
     batch_count = len(train_loader)
     scheduler_type, early_stopping = scheduler_config
-    scheduler_kwargs = {"steps": batch_count} if scheduler_type == "onecycle" else {}
+
+    scheduler_kwargs = {}
+    if scheduler_type == "onecycle":
+        wait = onecycle_epochs//2
+        scheduler_kwargs = {
+            "steps": batch_count, 
+            "epochs": onecycle_epochs,
+            "mul": onecycle_mul
+        }
 
     predictor = create_predictor(**predictor_kwargs)
     
@@ -218,13 +220,14 @@ def objective(
         bin_crit=bin_crit,
     )
     print(predictor.summary())
-    for lr, (min_epoch, max_epoch) in zip(lrs, epochs):
+
+    def _train(lr, min_epoch, max_epoch, prune=True):
         if lr is None:
             lr = predictor.find_lr(min_epoch=min_epoch).best_lr
         predictor.set_lr(lr)
         _early_stopping = None
         if early_stopping:
-            _early_stopping = predictor.create_early_stopping_1(min_epoch//2, max_epoch)
+            _early_stopping = predictor.create_early_stopping_1(wait, max_epoch)
         for i in range(max_epoch):
             try:
                 train_results = predictor.train(autosave=autosave)
@@ -237,7 +240,7 @@ def objective(
                 train_metric = train_results[1][train_metric]
                 if _early_stopping:
                     _early_stopping(train_metric, intermediate_value)
-                if trial:
+                if prune and trial:
                     trial.report(intermediate_value, predictor.epoch)
             except optuna.TrialPruned as ex:
                 print(str(ex))
@@ -245,6 +248,13 @@ def objective(
             finally:
                 if trial.should_prune():
                     raise optuna.TrialPruned()
+
+    if scheduler_type == "onecycle":
+        _train(lr, min_epoch, max_epoch, prune=False)
+        predictor.load_checkpoint("val_loss")
+        predictor.scheduler_type = "plateau"
+    _train(lr, min_epoch, max_epoch, prune=True)
+        
     #last_metrics = predictor.train(val=True)[1]
     best_metrics = predictor.best_metrics
     final_value = get_metric(best_metrics, metric)

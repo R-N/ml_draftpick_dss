@@ -1,6 +1,6 @@
 from .predictor import ResultPredictor
 from .dataset import create_dataloader
-from ..study import get_metric, LRS, EPOCHS
+from ..study import get_metric
 
 
 PARAM_SPACE = {
@@ -47,8 +47,6 @@ def create_predictor(
 def objective(
     datasets,
     create_predictor,
-    #lrs=LRS[0],
-    #epochs=EPOCHS[0],
     metric="val_loss",
     checkpoint_dir=f"checkpoints",
     log_dir=f"logs",

@@ -1,8 +1,8 @@
 import torch
-from ..mlp.study import LRS, EPOCHS, PARAM_SPACE, create_predictor as _create_predictor, PARAMS_DEFAULT
+from ..mlp.study import PARAM_SPACE, create_predictor as _create_predictor, PARAMS_DEFAULT
 from .dataset import create_dataloader
 from .predictor import ResultPredictor
-from ..study import BOOLEAN, get_metric, LRS, EPOCHS, SCHEDULER_CONFIGS
+from ..study import BOOLEAN, get_metric, SCHEDULER_CONFIGS
 import optuna
 
 
@@ -19,7 +19,6 @@ PARAM_SPACE = {
     #"bias_final": BOOLEAN,
     #"n_layers_head": ("int", 4, 6),
     "dropout": ("float", 0.0, 0.15),
-    #"lrs": ("lrs", list(range(len(LRS)))),
     #"optimizer": ("optimizer", ["adam", "adamw"]),
     "grad_clipping": ("float", 0.6, 1.4),
     #"pooling": ("categorical", ["concat", "diff_left", "diff_right"]),
@@ -32,31 +31,19 @@ PARAM_SPACE = {
     #"cross_0": BOOLEAN,
     #"self_residual": BOOLEAN,
     #"cross_residual": BOOLEAN,
+    "onecycle_mul": ("log_float", 1, 1e+5),
+    "onecycle_epochs": ("int", 50, 100),
+    "lr": ("log_float", 1e-1, 1e-5),
+    "min_epoch": ("int", 25, 100),
 }
 
 PARAMS_DEFAULT = {
     #**PARAMS_DEFAULT,
-    "lrs": LRS[1],
+    #"lr": 1e-3,
     "optimizer": torch.optim.Adam,
 }
 
 PARAM_MAP = {}
-"""
-LRS = [
-    [1e-2]
-]
-EPOCHS = [
-    [200]
-]
-"""
-"""
-LRS = LRS
-EPOCHS = EPOCHS
-PARAM_MAP = {
-    "lrs": LRS,
-    "epochs": EPOCHS,
-}
-"""
 
 def create_predictor(
     d_input=171,

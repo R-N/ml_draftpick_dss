@@ -4,7 +4,7 @@ from .model import GlobalPooling1D
 from .predictor import ResultPredictor
 from ..embedding import scaled_sqrt_factory, create_embedding_sizes
 from ..encoding import HeroLabelEncoder, HeroOneHotEncoder
-from ..study import POOLINGS, LOSSES, OPTIMS, ACTIVATIONS, BOOLEAN, map_parameter, get_metric, LRS, EPOCHS, SCHEDULER_CONFIGS
+from ..study import POOLINGS, LOSSES, OPTIMS, ACTIVATIONS, BOOLEAN, map_parameter, get_metric, SCHEDULER_CONFIGS
 import optuna
 
 
@@ -25,10 +25,13 @@ PARAM_SPACE = {
     "n_layers_head": ("int", 2, 3),
     "dropout": ("float", 0.1, 0.14),
     "bidirectional": ("categorical", ["none", "concat", "diff_left", "diff_right"]),
-    #"lrs": ("lrs", list(range(len(LRS)))),
     #"optimizer": ("optimizer", ["adam", "adamw"]),
     "grad_clipping": ("float", 0.4, 0.65),
     #"pooling": ("pooling", ["global_average", "global_max"]),
+    "onecycle_mul": ("log_float", 1, 1e+5),
+    "onecycle_epochs": ("int", 50, 100),
+    "lr": ("log_float", 1e-1, 1e-5),
+    "min_epoch": ("int", 25, 100),
 }
 
 PARAMS_DEFAULT = {
@@ -36,22 +39,6 @@ PARAMS_DEFAULT = {
 }
 
 PARAM_MAP = {}
-"""
-LRS = [
-    [1e-2]
-]
-EPOCHS = [
-    [200]
-]
-"""
-"""
-LRS = LRS
-EPOCHS = EPOCHS
-PARAM_MAP = {
-    "lrs": LRS,
-    "epochs": EPOCHS,
-}
-"""
 
 def create_predictor(
     encoder,

@@ -32,6 +32,7 @@ class OneCycleLR:
         self.div_factor = max(25, div_factor)
         print("max_lr", self.max_lr)
         print("div_factor", self.div_factor)
+        print("onecycle max_epochs", self.epochs)
         self.steps_per_epoch = steps_per_epoch
         self.max_epochs = epochs
         self.epochs = 0

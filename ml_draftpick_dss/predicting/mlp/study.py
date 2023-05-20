@@ -1,7 +1,7 @@
 import torch
 from .dataset import create_dataloader
 from .predictor import ResultPredictor
-from ..study import BOOLEAN, get_metric, LRS, EPOCHS, SCHEDULER_CONFIGS
+from ..study import BOOLEAN, get_metric, SCHEDULER_CONFIGS
 import optuna
 
 
@@ -16,10 +16,13 @@ PARAM_SPACE = {
     #"bias_final": BOOLEAN,
     "n_layers_head": ("int", 1, 2),
     "dropout": ("float", 0.06, 0.12),
-    #"lrs": ("lrs", list(range(len(LRS)))),
     #"optimizer": ("optimizer", ["adamw", "sgd"]),
     "grad_clipping": ("float", 1, 2.0),
     "pooling": ("categorical", ["concat", "diff_left"]),
+    "onecycle_mul": ("log_float", 1, 1e+5),
+    "onecycle_epochs": ("int", 50, 100),
+    "lr": ("log_float", 1e-1, 1e-5),
+    "min_epoch": ("int", 25, 100),
 }
 
 PARAMS_DEFAULT = {
@@ -27,22 +30,6 @@ PARAMS_DEFAULT = {
 }
 
 PARAM_MAP = {}
-"""
-LRS = [
-    [1e-2]
-]
-EPOCHS = [
-    [200]
-]
-"""
-"""
-LRS = LRS
-EPOCHS = EPOCHS
-PARAM_MAP = {
-    "lrs": LRS,
-    "epochs": EPOCHS,
-}
-"""
 
 def create_predictor(
     d_input=171,

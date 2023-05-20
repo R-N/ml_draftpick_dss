@@ -1,4 +1,4 @@
-from ..transformer.study import create_predictor as _create_predictor, LRS, EPOCHS, PARAM_SPACE, PARAMS_DEFAULT
+from ..transformer.study import create_predictor as _create_predictor, PARAM_SPACE, PARAMS_DEFAULT
 from .predictor import ResultPredictor
 from .dataset import create_dataloader
 from .model import create_encoder
@@ -33,7 +33,6 @@ PARAM_SPACE = {
     "activation_reducer": ("activation", ["identity", "relu", "tanh", "sigmoid", "leakyrelu", "elu"]),
     "dropout_reducer": ("float", 0.04, 0.12),
     #"bias_reducer": BOOLEAN,
-    #"lrs": ("lrs", list(range(len(LRS)))),
     "pooling": ("pooling", ["global_average", "global_max"]),
 }
 if "s_embed" in PARAM_SPACE:
@@ -41,19 +40,11 @@ if "s_embed" in PARAM_SPACE:
 
 PARAMS_DEFAULT = {
     #**PARAMS_DEFAULT,
-    "lrs": LRS[0],
+    #"lrs": 1e-2,
     #"optimizer": torch.optim.AdamW,
 }
 
 PARAM_MAP = {}
-"""
-LRS = LRS
-EPOCHS = EPOCHS
-PARAM_MAP = {
-    "lrs": LRS,
-    "epochs": EPOCHS,
-}
-"""
 
 def create_predictor(
     d_input=171,

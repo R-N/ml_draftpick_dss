@@ -74,6 +74,10 @@ class ResultPredictor:
         self.training_prepared = True
 
     def create_scheduler(self):
+        print("creating scheduler of type", self.scheduler_type)
+        if self.scheduler_type == None:
+            self.scheduler = None
+            return
         if self.scheduler_type == "plateau":
             scheduler_f = self.create_plateau_scheduler
         elif self.scheduler_type == "onecycle":
@@ -82,7 +86,11 @@ class ResultPredictor:
             raise ValueError(f"Invalid scheduler type: {self.scheduler_type}")
         self.scheduler = scheduler_f(**self.scheduler_kwargs)
 
-    def create_plateau_scheduler(self, patience=10, cooldown=2, threshold=1e-4, min_lr=0, eps=1e-8, verbose=True):
+    def remove_scheduler(self):
+        self.scheduler_type = None
+        self.scheduler = None
+
+    def create_plateau_scheduler(self, patience=10, cooldown=2, threshold=1e-4, min_lr=0, eps=1e-8, verbose=True, **kwargs):
         return ReduceLROnPlateau(
             self.optimizer, 
             patience=patience,
@@ -231,7 +239,8 @@ class ResultPredictor:
             ms_per_batch = (time.time() - start_time) * 1000 / batch_count
             print(f'| epoch {self.epoch:3d} | step {i:5d} | '
                 f'lr {lr} | ms/batch {ms_per_batch:5.2f} | ')
-            self.scheduler.step(loss.item())
+            if self.scheduler:
+                self.scheduler.step(loss.item())
         
         if self.logger:
             for m, v in cur_metrics.items():
@@ -265,12 +274,12 @@ class ResultPredictor:
         lr_finder.reset_state()
         return lr_finder.result
     
-    def create_early_stopping_1(self, min_epoch=50, max_epoch=200, **kwargs):
+    def create_early_stopping_1(self, wait=50, max_epoch=200, **kwargs):
         early_stopping_1 = EarlyStopping(
             self.model,
             log_dir=self.log_dir,
             label=self.model.name,
-            wait=min_epoch,
+            wait=wait,
             max_epoch=max_epoch,
             **kwargs
         )
@@ -289,11 +298,10 @@ class ResultPredictor:
         )
         return early_stopping_2
     
-    def create_onecycle_scheduler(self, steps, min_epoch=50, **kwargs):
+    def create_onecycle_scheduler(self, steps, mul=10, epochs=50, **kwargs):
         return OneCycleLR(
             self.optimizer,
-            max_lr=self.get_lr(),
+            max_lr=min(1.0, mul*self.get_lr()),
             steps_per_epoch=steps,
-            epochs=int(0.5 * min_epoch),
-            **kwargs
+            epochs=epochs
         )
