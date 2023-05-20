@@ -176,7 +176,7 @@ def objective(
     trial=None,
     scheduler_config=SCHEDULER_CONFIGS[2],
     bin_crit=torch.nn.BCELoss(reduction="none"),
-    onecycle_mul=10,
+    onecycle_lr=10,
     onecycle_epochs=50,
     lr=1e-3,
     min_epoch=50,
@@ -201,7 +201,7 @@ def objective(
         scheduler_kwargs = {
             "steps": batch_count, 
             "epochs": onecycle_epochs,
-            "mul": onecycle_mul
+            "lr": onecycle_lr
         }
 
     predictor = create_predictor(**predictor_kwargs)

@@ -298,10 +298,10 @@ class ResultPredictor:
         )
         return early_stopping_2
     
-    def create_onecycle_scheduler(self, steps, mul=10, epochs=50, **kwargs):
+    def create_onecycle_scheduler(self, steps, lr=None, epochs=50, **kwargs):
         return OneCycleLR(
             self.optimizer,
-            max_lr=min(1.0, mul*self.get_lr()),
+            max_lr=lr or self.get_lr(),
             steps_per_epoch=steps,
             epochs=epochs
         )
