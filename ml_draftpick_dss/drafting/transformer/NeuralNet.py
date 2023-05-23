@@ -241,7 +241,7 @@ def create_params(
     else:
         raise ValueError(f"Unknown encoder type: {type(encoder)}")
     params = {
-        "game": game,
+        #"game": game,
         "embedding": sizes, 
         "tf_kwargs": {
             "encoder_kwargs":{

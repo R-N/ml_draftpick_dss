@@ -128,7 +128,8 @@ class DraftingAgentModel(nn.Module):
         dropout=0.1,
         bidirectional=None,
         final_2_mode="double",
-        v_pooling="mean"
+        v_pooling="mean",
+        game=None
     ):
         super().__init__()
         self.name = "predictor_tf"
