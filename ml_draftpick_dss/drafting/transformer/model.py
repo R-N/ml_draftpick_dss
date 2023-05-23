@@ -203,19 +203,13 @@ class DraftingAgentModel(nn.Module):
 
     def forward(self, left_bans, left_picks, right_bans, right_picks, count=2, next_count=2, legal_mask=None):
 
-        tgt = self._forward(
-            left_picks, right_picks, 
-            encoder=self.encoder, 
-            tf_encoder=self.tf_encoder, 
-            tf_decoder=self.tf_decoder
+        tgt = self.tf(
+            left_picks, right_picks
         )
 
         if self.tf_ban:
-            tgt_ban = self._forward(
-                left_bans, right_bans, 
-                encoder=self.encoder_ban, 
-                tf_encoder=self.tf_encoder_ban, 
-                tf_decoder=self.tf_decoder_ban
+            tgt_ban = self.tf_ban(
+                left_bans, right_bans
             )
             tgt = torch.cat([tgt_ban, tgt], dim=-1)
 
