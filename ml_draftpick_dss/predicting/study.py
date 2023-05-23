@@ -7,6 +7,8 @@ import optuna
 
 POOLINGS = {
     "global_average": GlobalPooling1D(MEAN),
+    "global_avg": GlobalPooling1D(MEAN),
+    "global_mean": GlobalPooling1D(MEAN),
     "global_product": GlobalPooling1D(PROD),
     "global_sum": GlobalPooling1D(SUM),
     "global_max": GlobalPooling1D(MAX),

@@ -65,7 +65,7 @@ class ResultPredictorModel(nn.Module):
             final = right - left 
         else:
             final = torch.stack([left, right])
-            if self.pooling == "mean":
+            if self.pooling in ("avg", "average", "mean"):
                 final = torch.mean(final, dim=0)
             elif self.pooling == "prod":
                 final = torch.prod(final, dim=0)

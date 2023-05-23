@@ -21,7 +21,6 @@ args = dotdict({
     'num_channels': 512,
 })
 
-
 class NNetWrapper(NeuralNet):
     def __init__(self, game):
         self.nnet = onnet(game, args)
