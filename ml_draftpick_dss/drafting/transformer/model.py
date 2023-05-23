@@ -5,8 +5,8 @@ from torch.nn import TransformerEncoder, TransformerEncoderLayer
 from torch.nn import TransformerDecoder, TransformerDecoderLayer
 from torchinfo import summary
 import math
-from ..modules import GlobalPooling1D, Residual, create_mlp_stack, RepeatExpander, MLPExpander
-from ..embedding import PositionalEncoding, HeroEmbedder
+from ...predicting.modules import GlobalPooling1D, create_mlp_stack
+from ...predicting.embedding import PositionalEncoding, HeroEmbedder
 
 class TransformerModel(nn.Module):
     def __init__(
