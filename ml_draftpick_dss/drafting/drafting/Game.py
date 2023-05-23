@@ -14,7 +14,7 @@ class DraftingGame(_Game):
     """
     Use 1 for player1 and -1 for player2.
     """
-    def __init__(self):
+    def __init__(self, n=5):
         pass
 
     def getInitBoard(self):
