@@ -68,7 +68,7 @@ class DraftingBoard():
         ))
     
     def get_illegal_mask(self, player=None):
-        return np.sum(np.array(self.get_illegal_moves(player)))
+        return np.sum(np.array(self.get_illegal_moves(player)), axis=-1)
 
     def get_legal_moves(self, player=None):
         """Returns all the legal moves for the given player.
@@ -88,7 +88,11 @@ class DraftingBoard():
         return list(double_legal_moves)
     
     def get_legal_mask(self, player=None):
-        return 1 - self.get_illegal_mask(player)
+        illegal_mask = self.get_illegal_mask(player)
+        if illegal_mask and len(list(illegal_mask)[0]) > 0:
+            return 1 - self.get_illegal_mask(player)
+        else:
+            return np.sum(self.hero_pool, axis=-1)
 
     def has_legal_moves(self, player):
         return len(self.bans(player)) < self.ban_size or len(self.picks(player)) < self.team_size
