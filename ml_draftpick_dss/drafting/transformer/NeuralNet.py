@@ -36,6 +36,7 @@ class DraftingNeuralNet(NeuralNet):
 
     def __init__(self, game, *args, **kwargs):
         self.model = DraftingAgentModel(*args, **create_params(game), **kwargs)
+        self.prepare_training()
 
     def prepare_training(
         self,
