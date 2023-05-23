@@ -40,8 +40,8 @@ class TransformerModel(nn.Module):
         self.d_tf = self.encoder.dim
         assert self.d_tf % 2 == 0
         self.pos_encoder = PositionalEncoding(self.d_tf, dropout) if pos_encoder else None
-        self.tf_encoder = self._create_tf_encoder(dropout=dropout, **tf_encoder_kwargs)
-        self.tf_decoder = self._create_tf_decoder(dropout=dropout, **tf_decoder_kwargs)
+        self.tf_encoder = self._create_tf_encoder(**tf_encoder_kwargs)
+        self.tf_decoder = self._create_tf_decoder(**tf_decoder_kwargs)
         self.pooling = pooling or torch.nn.Flatten(start_dim=-2, end_dim=-1)
 
     def _create_encoder(self, d_hid, d_output=0, **kwargs):
