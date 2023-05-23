@@ -212,6 +212,8 @@ def create_model(
     activation_tf=torch.nn.ELU,
     d_hid_final=32,
     n_layers_final=3,
+    d_hid_final_2=32,
+    n_layers_final_2=3,
     activation_final=torch.nn.ELU,
     activation_final_head=torch.nn.Sigmoid,
     bias_final=True,
@@ -240,6 +242,7 @@ def create_model(
     else:
         raise ValueError(f"Unknown encoder type: {type(encoder)}")
     _agent = agent(
+        game,
         sizes, 
         tf_kwargs={
             "encoder_kwargs":{
@@ -290,6 +293,13 @@ def create_model(
         final_kwargs={
             "d_hid": d_hid_final,
             "n_layers": n_layers_final,
+            "activation": activation_final,
+            "bias": bias_final,
+            "dropout": dropout,
+        },
+        final_2_kwargs={
+            "d_hid": d_hid_final_2,
+            "n_layers": n_layers_final_2,
             "activation": activation_final,
             "bias": bias_final,
             "dropout": dropout,
