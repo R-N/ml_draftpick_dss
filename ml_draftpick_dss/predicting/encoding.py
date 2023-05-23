@@ -32,7 +32,8 @@ def encode_batch(f, batch, dtype=torch.IntTensor):
     return encoded_tensor
 
 class HeroLabelEncoder:
-    def __init__(self, df_heroes, patch=None):
+    def __init__(self, df_heroes, patch=None, key="name"):
+        assert key in ("name", "id")
         df_heroes = df_heroes.copy()
         
         mixeds = {x: get_mixed(df_heroes, x) for x in MULTIPLE_ATTRS}
@@ -66,9 +67,11 @@ class HeroLabelEncoder:
         df_heroes_x2["name"] = df_heroes["name"]
         df_heroes_x2 = df_heroes_x2[cols2]
         #df_heroes_x2.head()
-        encoding = dict(df_heroes_x2.apply(lambda x: (x["name"], x[df_heroes_x2.columns[1:]].tolist()), axis=1).tolist())
+        self.encoding_name = dict(df_heroes_x2.apply(lambda x: (x["name"], x[df_heroes_x2.columns[1:]].tolist()), axis=1).tolist())
+        self.encoding_id = dict(df_heroes_x2.apply(lambda x: (x["id"], x[df_heroes_x2.columns[1:]].tolist()), axis=1).tolist())
          
-        self.encoding = encoding
+        
+        self.encoding = self.encoding_name if key == "name" else self.encoding_id
         self.encoders = encoders
         self.x = df_heroes_x2
         self.mixeds = mixeds
@@ -77,7 +80,12 @@ class HeroLabelEncoder:
         self.columns = self.x.columns[1:]
 
     def get_encoding(self, hero):
-        return self.encoding[hero]
+        if isinstance(hero, str):
+            return self.encoding_name[hero]
+        elif isinstance(hero, int):
+            return self.encoding_id[hero]
+        else:
+            return self.encoding[hero]
     
     def encode_batch(self, batch, dtype=torch.IntTensor):
         return encode_batch(self.get_encoding, batch, dtype=dtype)
@@ -86,7 +94,8 @@ class HeroLabelEncoder:
         return self.encode_batch(batch)
 
 class HeroOneHotEncoder:
-    def __init__(self, df_heroes, include_name=True, patch=None):
+    def __init__(self, df_heroes, include_name=True, patch=None, key="name"):
+        assert key in ("name", "id")
         df_heroes = df_heroes.copy()
 
         mixeds = {x: get_mixed(df_heroes, x) for x in MULTIPLE_ATTRS}
@@ -125,21 +134,30 @@ class HeroOneHotEncoder:
         for d in dims:
             slices.append((prev, prev+d))
             prev += d
-        df_encoded = pd.DataFrame(encoded, index=df_heroes["name"])
-        encoding = {hero: df_encoded.loc[hero] for hero in uniques["name"]}
+
+        self.x_name = pd.DataFrame(encoded, index=df_heroes["name"])
+        self.x_id = pd.DataFrame(encoded, index=df_heroes["id"])
+        self.x = self.x_name if key == "name" else self.x_id
+
+        self.encoding_name = {hero: self.x_name.loc[hero] for hero in uniques["name"]}
+        self.encoding_id = {hero: self.x_id.loc[hero] for hero in uniques["id"]}
+        self.encoding = self.encoding_name if key == "name" else self.encoding_id
 
         self.mixeds = mixeds
         self.uniques = uniques
         self.encoder = encoder
-        self.x = df_encoded
-        self.encoding = encoding
         self.dim = dim
         self.dims = dims
         self.slices = slices
         self.columns = self.x.columns
 
     def get_encoding(self, hero):
-        return self.encoding[hero]
+        if isinstance(hero, str):
+            return self.encoding_name[hero]
+        elif isinstance(hero, int):
+            return self.encoding_id[hero]
+        else:
+            return self.encoding[hero]
     
     def encode_batch(self, batch, dtype=torch.FloatTensor):
         return encode_batch(self.get_encoding, batch, dtype=dtype)

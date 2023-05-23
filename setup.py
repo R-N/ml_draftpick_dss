@@ -27,7 +27,9 @@ setup(
         'optuna',
         'scipy',
         'torch-lr-finder',
-        'catboost'
+        'catboost',
+        'coloredlogs',
+        'tqdm'
     ],
 
     classifiers=[
