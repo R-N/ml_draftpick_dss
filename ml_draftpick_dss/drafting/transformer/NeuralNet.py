@@ -144,6 +144,7 @@ class DraftingNeuralNet(NeuralNet):
 
         # preparing input
 
+        boards = board
         boards = [
             to_tensor(b) if i < 5 else b
             for i, b in enumerate(zip(boards)) 
