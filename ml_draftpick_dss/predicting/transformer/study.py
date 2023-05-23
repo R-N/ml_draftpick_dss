@@ -24,6 +24,7 @@ PARAM_SPACE = {
     #"bias_final": BOOLEAN,
     "n_layers_head": ("int", 2, 3),
     "dropout": ("float", 0.1, 0.14),
+    #"bidirectional": ("categorical", ["none", "none_right", "concat", "diff_left", "diff_right"]),
     "bidirectional": ("categorical", ["none", "concat", "diff_left", "diff_right"]),
     #"optimizer": ("optimizer", ["adam", "adamw"]),
     "grad_clipping": ("float", 0.4, 0.65),

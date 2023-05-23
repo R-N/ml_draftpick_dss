@@ -41,8 +41,10 @@ class ResultPredictorModel(nn.Module):
             self.d_input = self.embedding.input_dim
         self.dim = dim
         self.model_type = 'Transformer'
+        """
         if isinstance(bidirectional, str) and bidirectional.lower() == "none":
             bidirectional = None
+        """
         self.bidirectional = bidirectional
         self._create_encoder(**encoder_kwargs)
         if self.dim == 2:
@@ -166,7 +168,7 @@ class ResultPredictorModel(nn.Module):
 
         left, right = (self.pos_encode(left), self.pos_encode(right))
         
-        if self.bidirectional:
+        if "none" not in self.bidirectional:
             left, right = (self.transform(left, right), self.transform(right, left))
             if self.dim == 2:
                 left, right = (torch.squeeze(left, -1), torch.squeeze(right, -1))
@@ -181,7 +183,7 @@ class ResultPredictorModel(nn.Module):
                 tgt = right - left
             else:
                 tgt = torch.stack([left, right])
-                if self.bidirectional == "mean":
+                if self.bidirectional in ("avg", "average", "mean"):
                     tgt = torch.mean(tgt, dim=0)
                 elif self.bidirectional == "prod":
                     tgt = torch.prod(tgt, dim=0)
@@ -192,6 +194,8 @@ class ResultPredictorModel(nn.Module):
             if isinstance(tgt, tuple):
                 tgt = tgt[0]
         else:
+            if "right" in self.bidirectional:
+                left, right = right, left
             tgt = self.transform(left, right)
             if self.dim == 2:
                 tgt = torch.squeeze(tgt, -1)
