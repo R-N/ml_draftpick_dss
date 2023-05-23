@@ -1,6 +1,6 @@
 import numpy as np
 from ..Game import Game as _Game
-from .Logic import Board
+from .Logic import DraftingBoard
 from itertools import permutations, product
 
 
@@ -30,7 +30,7 @@ class DraftingGame(_Game):
         Returns:
             actionSize: length of action vector
         """
-        #return Board().get_double_legal_moves()
+        #return DraftingBoard().get_double_legal_moves()
         return 2*120
         #return 120
 
@@ -45,7 +45,7 @@ class DraftingGame(_Game):
             nextBoard: board after applying action
             nextPlayer: player who plays in the next turn (should be -player)
         """
-        board = Board().load_board(board)
+        board = DraftingBoard().load_board(board)
         board.execute_move(action, player=player)
         return board.get_board(), board.get_round()[-1]
 
@@ -60,7 +60,7 @@ class DraftingGame(_Game):
                         moves that are valid from the current board and player,
                         0 for invalid moves
         """
-        return Board().load_board(board).get_legal_mask(player)
+        return DraftingBoard().load_board(board).get_legal_mask(player)
     
     def predict_left_win(self, left, right, threshold=0.5):
         left_win = 1
@@ -77,7 +77,7 @@ class DraftingGame(_Game):
                small non-zero value for draw.
                
         """
-        board = Board().load_board(board)
+        board = DraftingBoard().load_board(board)
         if not board.has_game_ended():
             return 0
         left_win = self.predict_win(board.left_picks, board.right_picks)
@@ -94,7 +94,7 @@ class DraftingGame(_Game):
             canonicalBoard: returns canonical form of board. The canonical form
                             should be independent of player. 
         """
-        return Board().load_board(board).get_board(player)
+        return DraftingBoard().load_board(board).get_board(player)
 
     def getSymmetries(self, board, pi):
         """
