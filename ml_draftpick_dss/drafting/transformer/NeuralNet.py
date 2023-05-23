@@ -35,7 +35,7 @@ class DraftingNeuralNet(NeuralNet):
     """
 
     def __init__(self, game, *args, **kwargs):
-        self.model = DraftingAgentModel(*args, **kwargs)
+        self.model = DraftingAgentModel(*args, **create_params(game), **kwargs)
 
     def prepare_training(
         self,
@@ -195,7 +195,7 @@ class DraftingNeuralNet(NeuralNet):
         self.nnet.load_state_dict(checkpoint['state_dict'])
 
 
-def create_model(
+def create_params(
     game=None,
     encoder=120,
     s_embed=4,
@@ -240,10 +240,10 @@ def create_model(
         sizes = encoder.dim
     else:
         raise ValueError(f"Unknown encoder type: {type(encoder)}")
-    _agent = agent(
-        game,
-        sizes, 
-        tf_kwargs={
+    params = {
+        "game": game,
+        "embedding": sizes, 
+        "tf_kwargs": {
             "encoder_kwargs":{
                 "d_hid": d_hid_encoder,
                 "n_layers": n_layers_encoder,
@@ -266,7 +266,7 @@ def create_model(
                 "dropout": dropout,
             },
         },
-        tf_ban_kwargs={
+        "tf_ban_kwargs": {
             "encoder_kwargs":{
                 "d_hid": d_hid_encoder,
                 "n_layers": n_layers_encoder,
@@ -289,21 +289,21 @@ def create_model(
                 "dropout": dropout,
             },
         },
-        final_kwargs={
+        "final_kwargs": {
             "d_hid": d_hid_final,
             "n_layers": n_layers_final,
             "activation": activation_final,
             "bias": bias_final,
             "dropout": dropout,
         },
-        final_2_kwargs={
+        "final_2_kwargs": {
             "d_hid": d_hid_final_2,
             "n_layers": n_layers_final_2,
             "activation": activation_final,
             "bias": bias_final,
             "dropout": dropout,
         },
-        head_kwargs={
+        "head_kwargs": {
             "n_heads": n_heads,
             "d_hid": d_hid_final,
             "n_layers": n_layers_head,
@@ -311,11 +311,11 @@ def create_model(
             "bias": bias_final,
             "dropout": dropout,
         },
-        pos_encoder=pos_encoder,
-        bidirectional=bidirectional,
-        pooling=pooling,
-        final_2_mode=final_2_mode,
-        v_pooling=v_pooling,
+        "pos_encoder": pos_encoder,
+        "bidirectional": bidirectional,
+        "pooling": pooling,
+        "final_2_mode": final_2_mode,
+        "v_pooling": v_pooling,
         **kwargs
-    )
-    return _agent
+    }
+    return params
