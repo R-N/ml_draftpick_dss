@@ -23,7 +23,7 @@ class DraftingGame(_Game):
             startBoard: a representation of the board (ideally this is the form
                         that will be the input to your neural network)
         """
-        return self.init_board
+        return DraftingBoard().get_board()
 
     def getActionSize(self):
         """
