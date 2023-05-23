@@ -86,21 +86,27 @@ class NNetWrapper(NeuralNet):
             bar.finish()
 
 
-    def predict(self, boardAndValids):
+    def predict(self, board, valids):
         """
         board: np array with board
         """
         # timing
         start = time.time()
 
-        board, valids = boardAndValids
-
         # preparing input
         board = board[np.newaxis, :, :]
         valids = valids[np.newaxis, :]
 
         # run
-        prob, v = self.sess.run([self.nnet.prob, self.nnet.v], feed_dict={self.nnet.input_boards: board, self.nnet.valids: valids, self.nnet.dropout: 0, self.nnet.isTraining: False})
+        prob, v = self.sess.run(
+            [self.nnet.prob, self.nnet.v], 
+            feed_dict={
+                self.nnet.input_boards: board, 
+                self.nnet.valids: valids, 
+                self.nnet.dropout: 0, 
+                self.nnet.isTraining: False
+            }
+        )
 
         #print('PREDICTION TIME TAKEN : {0:03f}'.format(time.time()-start))
         return prob[0], v[0]

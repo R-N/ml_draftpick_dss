@@ -73,7 +73,7 @@ class NNetWrapper(NeuralNet):
                 total_loss.backward()
                 optimizer.step()
 
-    def predict(self, board):
+    def predict(self, board, valids=None):
         """
         board: np array with board
         """
