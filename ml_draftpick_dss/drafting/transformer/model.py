@@ -140,6 +140,8 @@ class DraftingAgentModel(nn.Module):
             self.d_embed = embedding
             self.embedding = nn.Identity()
             self.d_input = self.d_embed
+            self.embedding.dim = self.d_embed
+            self.embedding.input_dim = self.d_input
         elif embedding and hasattr(embedding, "__iter__"):
             self.embedding = HeroEmbedder(embedding)
             self.d_embed = self.embedding.dim
