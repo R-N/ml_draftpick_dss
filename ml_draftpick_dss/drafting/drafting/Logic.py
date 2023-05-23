@@ -60,12 +60,12 @@ class DraftingBoard():
         return self.get_bans(player) if type == 0 else self.get_picks(player)
 
     def get_illegal_moves(self, player=None):
-        return set().union([
-            self.left_picks,
-            self.right_picks,
-            self.left_bans,
-            self.right_bans,
-        ])
+        return set().union((
+            tuple(self.left_picks),
+            tuple(self.right_picks),
+            tuple(self.left_bans),
+            tuple(self.right_bans),
+        ))
     
     def get_illegal_mask(self, player=None):
         return np.sum(np.array(self.get_illegal_moves(player)))
