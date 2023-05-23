@@ -123,6 +123,7 @@ class DraftingBoard():
             self.get_array(type, player).append(hero_2)
 
         self.round += 1
+        return self
 
     def get_board(self, player=1):
         return (
@@ -139,3 +140,4 @@ class DraftingBoard():
     def load_board(self, board):
         self.left_bans, self.left_picks, self.right_bans, self.right_picks = board[:4]
         self.round = board[-1]
+        return self
