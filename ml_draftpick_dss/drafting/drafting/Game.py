@@ -8,7 +8,7 @@ def onehot_to_label(arr):
     arr = np.array(arr)
     if len(arr.shape) > 2:
         return np.array([onehot_to_label(b) for b in arr])
-    return np.where(a)[-1]
+    return np.where(arr)[-1]
 
 class DraftingGame(_Game):
     """

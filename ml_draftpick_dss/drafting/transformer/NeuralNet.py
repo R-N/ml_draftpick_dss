@@ -197,7 +197,7 @@ class DraftingNeuralNet(NeuralNet):
 
 def create_model(
     game=None,
-    encoder=7,
+    encoder=120,
     s_embed=4,
     d_hid_encoder=32,
     n_layers_encoder=2,

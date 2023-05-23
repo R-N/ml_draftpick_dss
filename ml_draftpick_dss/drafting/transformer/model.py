@@ -162,13 +162,12 @@ class DraftingAgentModel(nn.Module):
         self._create_final_2(**{**final_kwargs, **final_2_kwargs})
         self._create_heads(**head_kwargs)
 
-    def create_tf_model(self, dropout=0.1, **kwargs):
+    def create_tf_model(self, **kwargs):
         return TransformerModel(
             embedding=self.embedding,
             bidirectional=self.bidirectional,
             pos_encoder=self.pos_encoder,
             pooling=self.pooling,
-            dropout=dropout,
             **kwargs
         )
     
