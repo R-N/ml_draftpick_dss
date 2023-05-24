@@ -250,9 +250,9 @@ class DraftingAgentModel(nn.Module):
             pi_2 = torch.zeros(pi.shape)
 
         pis = (pi, pi_2)
-        if legal_mask is not None and not self.training:
-            pis = [legal_mask * p for p in pis]
         pi = torch.cat(pis, dim=-1)
+        if legal_mask is not None and not self.training:
+            pi = pi * legal_mask
         return pi, v
     
     def summary(self, batch_size=64, team_size=5, dtype=torch.int):

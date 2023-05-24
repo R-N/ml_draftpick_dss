@@ -160,7 +160,7 @@ class DraftingBoard():
             self.get_picks(player),
             self.get_bans(-player),
             self.get_picks(-player),
-            self.get_legal_mask(), 
+            self.get_double_legal_mask(), 
             self.get_round(),
             self.get_next_round(),
             self.round
