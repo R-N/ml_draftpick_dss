@@ -18,11 +18,34 @@ from .model import DraftingAgentModel
 def split_pis(pis, n=120):
     return pis[..., :n], pis[..., n:]
 
+def append_zero(arr, count=3):
+    return [(tuple(a) + (count * (0,))) for a in arr]
+
+START_TOKEN = (120 * (0,)) + (1, 0, 0)
+END_TOKEN = (120 * (0,)) + (0, 1, 0)
+PAD_TOKEN = (120 * (0,)) + (0, 0, 1)
+
+def fill_token(arr, length):
+    return [
+        START_TOKEN,
+        *arr,
+        *[PAD_TOKEN for i in range(max(0, length - len(arr)))],
+        END_TOKEN
+    ]
+
+def prepare_board(board):
+    state = board[:4]
+    state = [append_zero(arr) for arr in state]
+    state = [fill_token(arr, n) for arr, n in zip(state, (3, 5, 3, 5))]
+    return tuple(*state, board[4:])
+
 def to_tensor(b):
     return torch.FloatTensor(np.array(b).astype(np.float64))
 
 def to_gpu(b):
     return b.contiguous().cuda()
+
+
 
 class DraftingNeuralNet(NeuralNet):
     """
@@ -82,6 +105,11 @@ class DraftingNeuralNet(NeuralNet):
             for _ in t:
                 sample_ids = np.random.randint(len(examples), size=self.batch_size)
                 boards, pis, vs = list(zip(*[examples[i] for i in sample_ids]))
+
+                boards = [
+                    prepare_board(b)
+                    for i, b in enumerate(boards)
+                ]
 
                 boards = [
                     to_tensor(b) if i < 5 else b
@@ -199,7 +227,7 @@ class DraftingNeuralNet(NeuralNet):
 
 def create_params(
     game=None,
-    encoder=120,
+    encoder=123,
     s_embed=4,
     d_hid_encoder=32,
     n_layers_encoder=2,
