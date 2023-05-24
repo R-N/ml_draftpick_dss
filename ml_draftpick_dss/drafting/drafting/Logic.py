@@ -79,9 +79,7 @@ class DraftingBoard():
         illegal_moves = self.get_illegal_moves(player)
         if len(illegal_moves) == 0:
             return np.zeros((120,))
-        print(illegal_moves)
         mask = np.sum(np.array(list(illegal_moves)), axis=0)
-        print(mask)
         return mask
 
     def get_legal_moves(self, player=None):

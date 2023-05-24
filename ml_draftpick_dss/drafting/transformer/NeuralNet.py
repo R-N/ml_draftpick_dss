@@ -216,7 +216,7 @@ class DraftingNeuralNet(NeuralNet):
         pi_1 = int(np.argmax(double_pi[:120]))
         pis = (pi_1,)
         if count == 2:
-            pi_2 = int(np.argmax(double_pi[120:]))
+            pi_2 = 120+int(np.argmax(double_pi[120:]))
             pis = (pi_1, pi_2)
         pi = tuple([1 if i in pis else 0 for i in range(240)])
         index_pi = self.game.board.double_possible_moves.index(pi)
