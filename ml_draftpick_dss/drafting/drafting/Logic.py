@@ -116,9 +116,11 @@ class DraftingBoard():
     
     def get_double_legal_mask(self, player=None):
         count = self.get_round()[-1]
+        legal_mask = self.get_legal_mask(player)
+        print(legal_mask)
         if count == 1:
-            return np.concatenate([self.get_legal_mask(player), np.zeros((120,))], axis=-1)
-        return np.repeat(self.get_legal_mask(player), 2, axis=-1)
+            return np.concatenate([legal_mask, np.zeros((120,))], axis=-1)
+        return np.repeat(legal_mask, 2, axis=-1)
 
     def has_legal_moves(self, player):
         return len(self.bans(player)) < self.ban_size or len(self.picks(player)) < self.team_size
