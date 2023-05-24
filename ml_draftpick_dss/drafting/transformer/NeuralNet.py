@@ -173,16 +173,16 @@ class DraftingNeuralNet(NeuralNet):
 
         # preparing input
 
-        boards = board
-        boards = [
+        board = prepare_board(board)
+        board = [
             to_tensor(b) if i < 5 else b
-            for i, b in enumerate(zip(boards)) 
+            for i, b in enumerate(board)
         ]
 
-        tensors = boards[:4]
-        legal_mask = boards[4]
-        count = to_tensor(list(zip(boards[-3]))[-1])
-        next_count = to_tensor(list(zip(boards[-2]))[-1])
+        tensors = board[:4]
+        legal_mask = board[4]
+        count = to_tensor(board[-3][-1])
+        next_count = to_tensor(board[-2][-1])
         # predict
         if self.cuda:
             tensors = [to_gpu(t) for t in tensors]
