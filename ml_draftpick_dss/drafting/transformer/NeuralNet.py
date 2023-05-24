@@ -221,7 +221,7 @@ class DraftingNeuralNet(NeuralNet):
         pi = tuple([1 if i in pis else 0 for i in range(240)])
         index_pi = self.game.board.double_possible_moves.index(pi)
         index_pi = [1 if i == index_pi else 0 for i in range(self.game.actionSize)]
-        return np.array(index_pi)
+        return np.array(index_pi, dtype=float)
 
     def save_checkpoint(self, folder, filename):
         """
