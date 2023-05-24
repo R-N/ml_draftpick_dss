@@ -63,11 +63,10 @@ class DraftingGame(_Game):
                         0 for invalid moves
         """
         board = DraftingBoard().load_board(board)
-        legal_moves = board.get_double_legal_moves(player)
-        print(len(legal_moves), type(legal_moves), type(legal_moves[0]), len(legal_moves[0]), type(legal_moves[0][0]))
-        print(len(board.double_possible_moves), type(board.double_possible_moves), len(board.double_possible_moves[0]), type(board.double_possible_moves[0]), type(board.double_possible_moves[0][0]))
+        legal_moves = legal_moves_0 = board.get_double_legal_moves(player)
         legal_moves = [1 if m in legal_moves else 0 for m in board.double_possible_moves]
-        print(sum(legal_moves))
+        if sum(legal_moves) == 0:
+            print("no legal move", len(legal_moves_0), type(legal_moves_0), type(legal_moves_0[0]), len(legal_moves_0[0]), type(legal_moves_0[0][0]))
         return np.array(legal_moves)
     
     def predict_left_win(self, left, right, threshold=0.5):
