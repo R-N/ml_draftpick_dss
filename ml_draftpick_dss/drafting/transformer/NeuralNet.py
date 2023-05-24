@@ -37,7 +37,7 @@ def prepare_board(board):
     state = board[:4]
     state = [append_zero(arr) for arr in state]
     state = [fill_token(arr, n) for arr, n in zip(state, (3, 5, 3, 5))]
-    return tuple(*state, board[4:])
+    return tuple([*state, *board[4:]])
 
 def to_tensor(b):
     return torch.FloatTensor(np.array(b).astype(np.float64))
