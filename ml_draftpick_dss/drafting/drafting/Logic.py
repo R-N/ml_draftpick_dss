@@ -18,7 +18,7 @@ class DraftingBoard():
         self.double_possible_moves = list(set(
             i+j
             for i in self.hero_pool
-            for j in self.hero_pool
+            for j in [self.zero, *self.hero_pool]
             if i != j
         ))
         self.double_possible_moves_np = np.array(self.double_possible_moves)

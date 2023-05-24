@@ -207,16 +207,21 @@ class DraftingNeuralNet(NeuralNet):
 
         # print('PREDICTION TIME TAKEN : {0:03f}'.format(time.time()-start))
         pi, v = torch.exp(pi).data.cpu().numpy(), v.data.cpu().numpy()[0]
-        pi = self.convert_double_pi_output(pi)
+        pi = self.convert_double_pi_output(pi, count=count)
         return pi, v
 
-    def convert_double_pi_output(self, double_pi):
+    def convert_double_pi_output(self, double_pi, count=1):
         if len(double_pi.shape) > 1:
             return [self.convert_double_pi_output(p) for p in double_pi]
-        double_pi = tuple(int(round(x)) for x in double_pi)
-        double_pi = self.game.board.double_possible_moves.index(double_pi)
-        double_pi = [1 if i == double_pi else 0 for i in range(self.game.actionSize)]
-        return double_pi
+        pi_1 = int(np.argmax(double_pi[:120]))
+        pis = (pi_1,)
+        if count == 2:
+            pi_2 = int(np.argmax(double_pi[120:]))
+            pis = (pi_1, pi_2)
+        pi = [1 if i in pis else 0 for i in range(240)]
+        index_pi = self.game.board.double_possible_moves.index(pi)
+        index_pi = [1 if i == index_pi else 0 for i in range(self.game.actionSize)]
+        return index_pi
 
     def save_checkpoint(self, folder, filename):
         """
