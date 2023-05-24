@@ -48,10 +48,21 @@ def split_dataframe(df, points, rand=42):
         [int(x*len(df)) for x in points]
     )
 
-def split_dataframe_kfold(df, ratio=0.2, rand=42):
+def split_dataframe_kfold(df, ratio=0.2, rand=42, val=True, filter_i=None):
     result = []
     count = int(1.0/ratio)
+    splits = [i*ratio for i in range(1, count)]
+    splits = split_dataframe(df, splits, rand=rand)
+
     for i in range(count):
-        train_1, test, train_2 = split_dataframe(df, (i*ratio, (i+1)*ratio), rand=rand)
-        result.append((pd.concat([train_1, train_2]), test))
+        if filter_i and i not in filter_i:
+            continue
+        test_df = splits[i%count]
+        val_df = None
+        if val:
+            val_df = splits[(i+1)%count]
+        train_dfs = [s for s in splits if s is not test_df and s is not val_df]
+        train_df = pd.concat(train_dfs)
+        result.append((train_df, val_df, test_df))
+
     return result

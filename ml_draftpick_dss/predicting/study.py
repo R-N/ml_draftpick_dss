@@ -275,3 +275,118 @@ def objective(
     best_metrics = predictor.best_metrics
     final_value = get_metric(best_metrics, metric)
     return final_value
+
+def eval(
+    datasets,
+    create_predictor,
+    create_dataloader,
+    norm_crit=None,
+    optimizer=torch.optim.Adam,
+    grad_clipping=0,
+    batch_size=64,
+    metric="val_loss",
+    checkpoint_dir=f"checkpoints",
+    log_dir=f"logs",
+    autosave="val_loss",
+    trial=None,
+    scheduler_config=SCHEDULER_CONFIGS[2],
+    bin_crit=torch.nn.BCELoss(reduction="none"),
+    onecycle_lr=10,
+    onecycle_epochs=50,
+    onecycle_save="val_loss",
+    lr=1e-3,
+    min_epoch=50,
+    max_epoch=200,
+    wait=25,
+    **predictor_kwargs
+):
+    if trial:
+        print(f"Begin trial {trial.number}")
+    print("Metric: ", metric)
+    train_set, val_set, test_set = datasets
+    train_loader = create_dataloader(train_set, batch_size=batch_size)
+    val_loader = create_dataloader(val_set, batch_size=batch_size)
+    test_loader = create_dataloader(test_set, batch_size=batch_size)
+
+    batch_count = len(train_loader)
+    scheduler_type, early_stopping = scheduler_config
+
+    scheduler_kwargs = {}
+    if scheduler_type == "onecycle":
+        if not autosave:
+            autosave = onecycle_save
+        wait = onecycle_epochs//2
+        scheduler_kwargs = {
+            "steps": batch_count, 
+            "epochs": onecycle_epochs,
+            "lr": onecycle_lr
+        }
+
+    predictor = create_predictor(**predictor_kwargs)
+
+    if lr is None:
+        lr = predictor.find_lr(min_epoch=min_epoch).best_lr
+    
+    predictor.prepare_training(
+        train_loader,
+        val_loader,
+        lr=lr,
+        norm_crit=norm_crit,
+        optimizer=optimizer,
+        grad_clipping=grad_clipping,
+        checkpoint_dir=checkpoint_dir,
+        log_dir=log_dir,
+        scheduler_type=scheduler_type,
+        scheduler_kwargs=scheduler_kwargs,
+        bin_crit=bin_crit,
+    )
+    print(predictor.summary())
+
+    def _train(lr, min_epoch, max_epoch, prune=True, wait=wait, early_stopping_1=None):
+        if lr is None:
+            lr = predictor.find_lr(min_epoch=min_epoch).best_lr
+        predictor.set_lr(lr)
+        _early_stopping = None
+        if early_stopping:
+            if not early_stopping_1:
+                _early_stopping = predictor.create_early_stopping_1(wait, max_epoch)
+            else:
+                _early_stopping = predictor.create_early_stopping_2(early_stopping_1, max_epoch)
+        for i in range(max_epoch):
+            try:
+                train_results = predictor.train(autosave=autosave)
+                print(train_results)
+                val_results = predictor.train(autosave=autosave, val=True)
+                print(val_results)
+                predictor.inc_epoch()
+                intermediate_value = get_metric({**train_results[1], **val_results[1]}, metric)
+                train_metric = metric[4:] if metric.startswith("val_") else metric
+                train_metric = train_results[1][train_metric]
+                if _early_stopping:
+                    _early_stopping(train_metric, intermediate_value)
+                if prune and trial:
+                    trial.report(intermediate_value, predictor.epoch)
+            except optuna.TrialPruned as ex:
+                print(str(ex))
+                break
+            finally:
+                if trial.should_prune():
+                    raise optuna.TrialPruned()
+        return _early_stopping
+
+    _early_stopping_1 = None
+    if scheduler_type == "onecycle":
+        print("Initial onecycle run")
+        _early_stopping_1 = _train(lr, min(onecycle_epochs, min_epoch), onecycle_epochs, prune=False, wait=wait)
+        print("Done onecycle run")
+        predictor.load_checkpoint(onecycle_save)
+        predictor.scheduler_type = "plateau"
+        print("Continue with plateau")
+    _train(lr, min_epoch, max_epoch, prune=True, wait=0, early_stopping_1=_early_stopping_1)
+        
+    #last_metrics = predictor.train(val=True)[1]
+    best_metrics_train = predictor.best_metrics
+    
+    victory_preds, bin_pred, eval_metrics = predictor.eval()
+
+    return best_metrics_train, eval_metrics

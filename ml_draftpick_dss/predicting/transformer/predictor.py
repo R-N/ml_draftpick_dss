@@ -260,7 +260,7 @@ class ResultPredictor:
                     new_best_metrics.append(ret)
         return self.epoch, cur_metrics, new_best_metrics
     
-    def eval(self, val=False, val_loader=None, autosave=True, true_threshold=0.5):
+    def eval(self, val_loader=None, true_threshold=0.5):
         assert self.training_prepared
 
         self.model.eval()
@@ -335,10 +335,6 @@ class ResultPredictor:
         }
     
         cur_metrics = {f"val_{k}": v for k, v in cur_metrics.items()}
-        
-        if self.logger:
-            for m, v in cur_metrics.items():
-                self.log_scalar(m, v, self.epoch)
 
         return victory_preds, bin_pred, cur_metrics
     

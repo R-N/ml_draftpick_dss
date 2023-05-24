@@ -7,7 +7,7 @@ from ..result_loader import flip_results, merge_results, load_victory
 from ..preparation import normalize
 from ..heroes_loader import load_heroes
 from ..encoding import HeroLabelEncoder, PATCHES
-from ..preparation import split_dataframe
+from ..preparation import split_dataframe, split_dataframe_kfold
 
 class ResultDataset(Dataset):
 
@@ -60,6 +60,7 @@ def load_datasets(
     heroes_file="heroes.csv",
     data_dir="../csv",
     weights=None,
+    ratio=0.2,
     encoder_factory=HeroLabelEncoder,
     dataset_factory=ResultDataset,
     create_datasets=None
@@ -93,7 +94,7 @@ def load_datasets(
         encoder = encoder_factory(df_heroes)
         encoders.append(encoder)
 
-        train_df, val_df, test_df = _dfs = split_dataframe(_df, (0.6, 0.8), rand=42)
+        train_df, val_df, test_df = _dfs = split_dataframe(_df, (1-ratio*2, 1-ratio*1), rand=42)
         train_dfs.append(train_df)
         val_dfs.append(val_df)
         test_dfs.append(test_df)
@@ -123,12 +124,14 @@ def load_datasets(
     }
 
 def _load_datasets_kfold(
-    fold=(0.0, 0.2),
+    i=0,
     patches=PATCHES,
     result_file="results.csv",
     heroes_file="heroes.csv",
     data_dir="../csv",
     weights=None,
+    ratio=0.2,
+    val=True,
     encoder_factory=HeroLabelEncoder,
     dataset_factory=ResultDataset,
     create_datasets=None
@@ -149,8 +152,8 @@ def _load_datasets_kfold(
     _ = [normalize(df, scaler=scaler) for df in dfs]
 
     encoders = []
-    train_dfs, test_dfs = [], []
-    train_sets, test_sets = [], []
+    train_dfs, val_dfs, test_dfs = [], [], []
+    train_sets, val_sets, test_sets = [], [], []
     encoder = None
 
     for _df, patch in zip(dfs, patches):
@@ -162,37 +165,40 @@ def _load_datasets_kfold(
         encoder = encoder_factory(df_heroes)
         encoders.append(encoder)
 
-        train_df_1, test_df, train_df_2 = _dfs = split_dataframe(_df, fold, rand=42)
-        train_df = pd.concat([train_df_1, train_df_2])
+        train_df, val_df, test_df = _dfs = split_dataframe_kfold(_df, ratio=ratio, val=val, filter_i={i})[0]
         train_dfs.append(train_df)
+        val_dfs.append(val_df)
         test_dfs.append(test_df)
 
-        train_set, test_set = _datasets = [dataset_factory(__df, encoder) for __df in _dfs]
+        train_set, val_set, test_set = _datasets = [dataset_factory(__df, encoder) for __df in _dfs]
         train_sets.append(train_set)
+        val_sets.append(val_set)
         test_sets.append(test_set)
 
     train_df = pd.concat(train_dfs)
+    val_df = pd.concat(val_dfs)
     test_df = pd.concat(test_dfs)
 
     if create_datasets:
-        train_set, test_set = create_datasets(train_sets, test_sets)
+        train_set, val_set, test_set = create_datasets(train_sets, val_sets, test_sets)
     else:
         train_set = ConcatDataset(train_sets)
+        val_set = ConcatDataset(val_sets)
         test_set = ConcatDataset(test_sets)
 
     return {
         "df": df,
         "dfs": dfs,
         "encoders": encoders,
-        "split_dfs": (train_df, test_df),
-        "split_datasets": (train_set, test_set)
+        "split_dfs": (train_df, val_df, test_df),
+        "split_datasets": (train_set, val_set, test_set)
     }
 
 def load_datasets_kfold(ratio=0.2, **kwargs):
     result = []
     count = int(1.0/ratio)
     for i in range(count):
-        r = _load_datasets_kfold((i*ratio, (i+1)*ratio), **kwargs)
+        r = _load_datasets_kfold(i=i, ratio=ratio, **kwargs)
         result.append(r)
     return result
 
