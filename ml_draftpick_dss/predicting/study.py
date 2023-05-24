@@ -151,6 +151,49 @@ def create_objective(
         )
     return f
 
+def 
+
+def map_parameters(params_raw):
+    if type_0 in param_map:
+        param = map_parameter(param, param_map[type_0])
+
+def create_eval(
+    eval, eval_kwargs={}, 
+    params={}, params_raw={}, 
+    mapping_kwargs={}, eval_id=1,
+    checkpoint_dir="checkpoints", log_dir="logs"
+):
+    def f(trial):
+        id = eval_id
+        print(f"Begin eval {eval_id}")
+        study_dir = f"evals/{id}"
+        mkdir(study_dir)
+
+        params = {
+            **params,
+            **map_parameters(params_raw)
+        }
+        param_path = f"{study_dir}/params.json"
+        with open(param_path, 'w') as f:
+            try:
+                json.dump(params_raw, f, indent=4)
+            except TypeError as ex:
+                print(params_raw)
+                raise
+        print(json.dumps(params_raw, indent=4))
+        if checkpoint_dir:
+            _checkpoint_dir = f"{study_dir}/{checkpoint_dir}"
+        if log_dir:
+            _log_dir = f"{study_dir}/{log_dir}"
+        return eval(
+            **eval_kwargs,
+            **params, 
+            checkpoint_dir=_checkpoint_dir,
+            log_dir=_log_dir,
+            trial=trial,
+        )
+    return f
+
 def calc_basket(min_resource, max_resource, reduction_factor):
     basket = math.log(max_resource/min_resource, reduction_factor)
     return basket
@@ -288,7 +331,7 @@ def eval(
     checkpoint_dir=f"checkpoints",
     log_dir=f"logs",
     autosave="val_loss",
-    trial=None,
+    eval_id=1,
     scheduler_config=SCHEDULER_CONFIGS[2],
     bin_crit=torch.nn.BCELoss(reduction="none"),
     onecycle_lr=10,
@@ -300,8 +343,8 @@ def eval(
     wait=25,
     **predictor_kwargs
 ):
-    if trial:
-        print(f"Begin trial {trial.number}")
+    if eval_id:
+        print(f"Begin eval {eval_id}")
     print("Metric: ", metric)
     train_set, val_set, test_set = datasets
     train_loader = create_dataloader(train_set, batch_size=batch_size)
@@ -364,14 +407,11 @@ def eval(
                 train_metric = train_results[1][train_metric]
                 if _early_stopping:
                     _early_stopping(train_metric, intermediate_value)
-                if prune and trial:
-                    trial.report(intermediate_value, predictor.epoch)
             except optuna.TrialPruned as ex:
                 print(str(ex))
                 break
             finally:
-                if trial.should_prune():
-                    raise optuna.TrialPruned()
+                pass
         return _early_stopping
 
     _early_stopping_1 = None
