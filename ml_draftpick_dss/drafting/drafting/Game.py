@@ -60,7 +60,7 @@ class DraftingGame(_Game):
                         moves that are valid from the current board and player,
                         0 for invalid moves
         """
-        return DraftingBoard().load_board(board).get_legal_mask(player)
+        return DraftingBoard().load_board(board).get_double_legal_mask(player)
     
     def predict_left_win(self, left, right, threshold=0.5):
         left_win = 1

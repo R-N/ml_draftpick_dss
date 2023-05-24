@@ -93,6 +93,9 @@ class DraftingBoard():
             return 1 - self.get_illegal_mask(player)
         else:
             return np.sum(self.hero_pool, axis=-1)
+    
+    def get_double_legal_mask(self, player=None):
+        return np.repeat(self.get_legal_mask(player), 2, axis=-1)
 
     def has_legal_moves(self, player):
         return len(self.bans(player)) < self.ban_size or len(self.picks(player)) < self.team_size
