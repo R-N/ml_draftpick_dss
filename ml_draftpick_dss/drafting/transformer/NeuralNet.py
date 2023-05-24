@@ -218,10 +218,10 @@ class DraftingNeuralNet(NeuralNet):
         if count == 2:
             pi_2 = int(np.argmax(double_pi[120:]))
             pis = (pi_1, pi_2)
-        pi = [1 if i in pis else 0 for i in range(240)]
+        pi = tuple([1 if i in pis else 0 for i in range(240)])
         index_pi = self.game.board.double_possible_moves.index(pi)
         index_pi = [1 if i == index_pi else 0 for i in range(self.game.actionSize)]
-        return index_pi
+        return np.array(index_pi)
 
     def save_checkpoint(self, folder, filename):
         """

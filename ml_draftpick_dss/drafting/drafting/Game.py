@@ -65,7 +65,7 @@ class DraftingGame(_Game):
         board = DraftingBoard().load_board(board)
         legal_moves = board.get_double_legal_moves(player)
         legal_moves = [1 if m in legal_moves else 0 for m in board.double_possible_moves]
-        return legal_moves
+        return np.array(legal_moves)
     
     def predict_left_win(self, left, right, threshold=0.5):
         left_win = 1
