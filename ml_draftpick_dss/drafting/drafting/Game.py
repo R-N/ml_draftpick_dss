@@ -67,6 +67,7 @@ class DraftingGame(_Game):
         print(len(legal_moves), type(legal_moves), type(legal_moves[0]), len(legal_moves[0]), type(legal_moves[0][0]), [sum(x) for x in legal_moves])
         print(len(board.double_possible_moves), type(board.double_possible_moves), len(board.double_possible_moves[0]), type(board.double_possible_moves[0]), type(board.double_possible_moves[0][0]), [sum(x) for x in board.double_possible_moves])
         legal_moves = [1 if m in legal_moves else 0 for m in board.double_possible_moves]
+        print(sum(legal_moves))
         return np.array(legal_moves)
     
     def predict_left_win(self, left, right, threshold=0.5):
