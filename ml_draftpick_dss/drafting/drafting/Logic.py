@@ -79,6 +79,7 @@ class DraftingBoard():
         illegal_moves = self.get_illegal_moves(player)
         if len(illegal_moves) == 0:
             return np.zeros((120,))
+        print(illegal_moves)
         mask = np.sum(np.array(list(illegal_moves)), axis=-1)
         return mask
 
@@ -109,12 +110,9 @@ class DraftingBoard():
     
     def get_legal_mask(self, player=None):
         illegal_mask = self.get_illegal_mask(player)
-        print(illegal_mask)
         if len(illegal_mask) > 0:
-            print("A")
             return 1 - illegal_mask
         else:
-            print("B")
             return np.sum(self.hero_pool, axis=-1)
     
     def get_double_legal_mask(self, player=None):
