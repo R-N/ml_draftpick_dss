@@ -45,8 +45,6 @@ def to_tensor(b):
 def to_gpu(b):
     return b.contiguous().cuda()
 
-
-
 class DraftingNeuralNet(NeuralNet):
     """
     This class specifies the base NeuralNet class. To define your own neural
@@ -58,8 +56,19 @@ class DraftingNeuralNet(NeuralNet):
     """
 
     def __init__(self, game, *args, **kwargs):
+        self.game = game
         self.model = DraftingAgentModel(*args, **create_params(game), **kwargs)
         self.prepare_training()
+
+    def convert_pi_target(self, double_pi):
+        if not isinstance(double_pi, np.array):
+            double_pi = np.array(double_pi)
+        if len(double_pi.shape) > 1:
+            return [self.convert_pi_target(p) for p in double_pi]
+        return np.sum([
+            self.game.board.double_possible_moves_np[i] * pi
+            for i, pi in enumerate(double_pi)
+        ], axis=0)
 
     def prepare_training(
         self,
@@ -105,6 +114,8 @@ class DraftingNeuralNet(NeuralNet):
             for _ in t:
                 sample_ids = np.random.randint(len(examples), size=self.batch_size)
                 boards, pis, vs = list(zip(*[examples[i] for i in sample_ids]))
+
+                pis = self.convert_pi_target(pis)
 
                 boards = [
                     prepare_board(b)
@@ -188,15 +199,24 @@ class DraftingNeuralNet(NeuralNet):
             tensors = [to_gpu(t) for t in tensors]
             legal_mask = legal_mask.contiguous().cuda()
             count, next_count = [to_gpu(t) for t in (count, next_count)]
-            target_pis, target_pis_2, target_vs = [to_gpu(t) for t in (target_pis, target_pis_2, target_vs)]
 
         self.model.eval()
         with torch.no_grad():
             pi, v = self.model(*tensors, count=count, next_count=next_count, legal_mask=legal_mask)
-            pi_1, pi_2 = split_pis(pi)
+            #pi_1, pi_2 = split_pis(pi)
 
         # print('PREDICTION TIME TAKEN : {0:03f}'.format(time.time()-start))
-        return torch.exp(pi).data.cpu().numpy()[0], v.data.cpu().numpy()[0]
+        pi, v = torch.exp(pi).data.cpu().numpy()[0], v.data.cpu().numpy()[0]
+        pi = self.convert_double_pi_output(pi)
+        return pi, v
+
+    def convert_double_pi_output(self, double_pi):
+        if double_pi.dim() > 1:
+            return [self.convert_double_pi_output(p) for p in double_pi]
+        double_pi = tuple(int(round(x)) for x in double_pi)
+        double_pi = self.game.board.double_possible_moves.index(double_pi)
+        double_pi = [1 if i == double_pi else 0 for i in range(self.game.actionSize)]
+        return double_pi
 
     def save_checkpoint(self, folder, filename):
         """

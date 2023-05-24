@@ -14,6 +14,14 @@ class DraftingBoard():
             )
             for i in range(hero_pool_size)
         ]
+        self.zero = tuple(0 for j in range(hero_pool_size))
+        self.double_possible_moves = list(set(
+            i+j
+            for i in self.hero_pool
+            for j in self.hero_pool
+            if i != j
+        ))
+        self.double_possible_moves_np = np.array(self.double_possible_moves)
 
         self.ban_sequence = [
             (1, 1),
@@ -79,6 +87,14 @@ class DraftingBoard():
     def get_double_legal_moves(self, player=None):
         legal_moves = self.get_legal_moves(player)
         legal_moves = [tuple(x) for x in legal_moves]
+
+        count = self.get_round()[-1]
+        if count == 1:
+            return [
+                m + self.zero
+                for m in legal_moves
+            ]
+
         double_legal_moves = set(
             i+j
             for i in legal_moves
@@ -95,6 +111,9 @@ class DraftingBoard():
             return np.sum(self.hero_pool, axis=-1)
     
     def get_double_legal_mask(self, player=None):
+        count = self.get_round()[-1]
+        if count == 1:
+            return np.concatenate([self.get_legal_mask(player), np.zeros((120,))], axis=-1)
         return np.repeat(self.get_legal_mask(player), 2, axis=-1)
 
     def has_legal_moves(self, player):
@@ -110,6 +129,9 @@ class DraftingBoard():
         assert type == _type
         assert player == _player
 
+        if isinstance(hero, int):
+            assert hero < len(self.double_possible_moves)
+            hero = self.double_possible_moves[hero]
         hero = tuple(int(round(x)) for x in hero)
         hero_1, hero_2 = hero[:self.hero_pool_size], hero[self.hero_pool_size:]
         #hero_1, hero_2 = hero

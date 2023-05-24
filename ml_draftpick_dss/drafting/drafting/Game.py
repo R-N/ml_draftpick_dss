@@ -15,7 +15,8 @@ class DraftingGame(_Game):
     Use 1 for player1 and -1 for player2.
     """
     def __init__(self, n=5):
-        pass
+        self.board = DraftingBoard()
+        self.actionSize = len(self.board.double_possible_moves)
 
     def getInitBoard(self):
         """
@@ -31,8 +32,9 @@ class DraftingGame(_Game):
             actionSize: length of action vector
         """
         #return DraftingBoard().get_double_legal_moves()
-        return 2*120
+        #return 2*120
         #return 120
+        return self.actionSize
 
     def getNextState(self, board, player, action):
         """
@@ -60,7 +62,10 @@ class DraftingGame(_Game):
                         moves that are valid from the current board and player,
                         0 for invalid moves
         """
-        return DraftingBoard().load_board(board).get_double_legal_mask(player)
+        board = DraftingBoard().load_board(board)
+        legal_moves = board.get_double_legal_moves(player)
+        legal_moves = [1 if m in legal_moves else 0 for m in board.double_possible_moves]
+        return legal_moves
     
     def predict_left_win(self, left, right, threshold=0.5):
         left_win = 1
