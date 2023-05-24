@@ -122,6 +122,80 @@ def load_datasets(
         "split_datasets": (train_set, val_set, test_set)
     }
 
+def _load_datasets_kfold(
+    fold=(0.0, 0.2),
+    patches=PATCHES,
+    result_file="results.csv",
+    heroes_file="heroes.csv",
+    data_dir="../csv",
+    weights=None,
+    encoder_factory=HeroLabelEncoder,
+    dataset_factory=ResultDataset,
+    create_datasets=None
+):
+
+    dfs = []
+    for patch in patches:
+        result_path = os.path.join(data_dir, patch, result_file)
+        _df = load_victory(result_path)
+        _df["patch"] = patch
+        if weights:
+            _df["weight"] = weights[patch]
+        dfs.append(_df)
+        
+    df = pd.concat(dfs)
+    scaler = normalize(df)
+
+    _ = [normalize(df, scaler=scaler) for df in dfs]
+
+    encoders = []
+    train_dfs, test_dfs = [], []
+    train_sets, test_sets = [], []
+    encoder = None
+
+    for _df, patch in zip(dfs, patches):
+        heroes_path = os.path.join(data_dir, patch, heroes_file)
+        df_heroes = load_heroes(heroes_path)
+        df_heroes["patch"] = patch
+        if weights:
+            df_heroes["weight"] = weights[patch]
+        encoder = encoder_factory(df_heroes)
+        encoders.append(encoder)
+
+        train_df_1, test_df, train_df_2 = _dfs = split_dataframe(_df, fold, rand=42)
+        train_df = pd.concat([train_df_1, train_df_2])
+        train_dfs.append(train_df)
+        test_dfs.append(test_df)
+
+        train_set, test_set = _datasets = [dataset_factory(__df, encoder) for __df in _dfs]
+        train_sets.append(train_set)
+        test_sets.append(test_set)
+
+    train_df = pd.concat(train_dfs)
+    test_df = pd.concat(test_dfs)
+
+    if create_datasets:
+        train_set, test_set = create_datasets(train_sets, test_sets)
+    else:
+        train_set = ConcatDataset(train_sets)
+        test_set = ConcatDataset(test_sets)
+
+    return {
+        "df": df,
+        "dfs": dfs,
+        "encoders": encoders,
+        "split_dfs": (train_df, test_df),
+        "split_datasets": (train_set, test_set)
+    }
+
+def load_datasets_kfold(ratio=0.2, **kwargs):
+    result = []
+    count = int(1.0/ratio)
+    for i in range(count):
+        r = _load_datasets_kfold((i*ratio, (i+1)*ratio), **kwargs)
+        result.append(r)
+    return result
+
 def create_dataloader(dataset, batch_size=64, shuffle=True, num_workers=0):
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers)
     return dataloader

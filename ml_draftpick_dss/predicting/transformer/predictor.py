@@ -260,6 +260,88 @@ class ResultPredictor:
                     new_best_metrics.append(ret)
         return self.epoch, cur_metrics, new_best_metrics
     
+    def eval(self, val=False, val_loader=None, autosave=True, true_threshold=0.5):
+        assert self.training_prepared
+
+        self.model.eval()
+        val_loader = self.val_loader if val_loader is None else val_loader
+        assert val_loader is not None, "Please provide validation dataloader"
+
+        losses = {
+            **{f"{t}_loss": 0 for t in TARGETS},
+            "loss": 0
+        }
+        start_time = time.time()
+
+        batch_count = 0
+        bin_true = []
+        bin_pred = []
+        #min_victory_pred, max_victory_pred = 2, -2
+        victory_preds = torch.Tensor([])
+        loader = val_loader
+        for i, batch in enumerate(loader):
+            left, right, targets, weights = batch
+
+            _trues = split_dim(targets)
+            _preds = self.model(left, right)
+
+            victory_true, score_true, duration_true = _trues
+            victory_pred, score_pred, duration_pred = _preds
+            
+            victory_true = victory_true * (1.0 - true_threshold) + true_threshold
+            
+            victory_loss = self.bin_crit(victory_pred, victory_true)
+            score_loss = 0
+            duration_loss = 0
+            if self.norm_crit:
+                score_loss = self.norm_crit(score_pred, score_true)
+                duration_loss = self.norm_crit(duration_pred, duration_true)
+                raw_losses = (victory_loss, score_loss, duration_loss)
+            else:
+                raw_losses = (victory_loss,)
+
+            weighted_losses = [weights * raw_losses[i] for i in range(len(raw_losses))]
+            reduced_losses = torch.stack([self.reduce_loss(x) for x in weighted_losses])
+
+            loss = torch.sum(reduced_losses)
+
+            new_losses = {
+                **{f"{t}_loss": l for t, l in zip(TARGETS, reduced_losses)},
+                "loss": loss
+            }
+            for k, v in new_losses.items():
+                losses[k] += v.item() if torch.is_tensor(v) else v
+            batch_count += 1
+            #min_victory_pred = min(min_victory_pred, torch.min(victory_pred).item())
+            #max_victory_pred = max(max_victory_pred, torch.max(victory_pred).item())
+
+            squeezed_pred = torch.squeeze(victory_pred, dim=-1)
+            bin_true.extend(list(torch.squeeze(victory_true, dim=-1) > true_threshold))
+            bin_pred.extend(list(squeezed_pred > true_threshold))
+            victory_preds = torch.cat([victory_preds, squeezed_pred], dim=-1)
+
+        bin_true, bin_pred = np.array(bin_true).astype(int), np.array(bin_pred).astype(int)
+        cm = confusion_matrix(bin_true, bin_pred)
+        cm_labels = ["tn", "fp", "fn", "tp"]
+
+        losses = {k: v/batch_count for k, v in losses.items()}
+        cur_metrics = {
+            "epoch": self.epoch,
+            **losses,
+            "accuracy": accuracy_score(bin_true, bin_pred),
+            "auc": roc_auc_score(bin_true, bin_pred),
+            "f1_score": f1_score(bin_true, bin_pred),
+            **{cm_labels[i]: x for i, x in enumerate(cm.ravel())}
+        }
+    
+        cur_metrics = {f"val_{k}": v for k, v in cur_metrics.items()}
+        
+        if self.logger:
+            for m, v in cur_metrics.items():
+                self.log_scalar(m, v, self.epoch)
+
+        return victory_preds, bin_pred, cur_metrics
+    
     def inc_epoch(self):
         self.epoch += 1
     

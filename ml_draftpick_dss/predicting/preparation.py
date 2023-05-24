@@ -47,3 +47,11 @@ def split_dataframe(df, points, rand=42):
         df.sample(frac=1, random_state=rand), 
         [int(x*len(df)) for x in points]
     )
+
+def split_dataframe_kfold(df, ratio=0.2, rand=42):
+    result = []
+    count = int(1.0/ratio)
+    for i in range(count):
+        train_1, test, train_2 = split_dataframe(df, (i*ratio, (i+1)*ratio), rand=rand)
+        result.append((pd.concat([train_1, train_2]), test))
+    return result
