@@ -213,6 +213,7 @@ class DraftingNeuralNet(NeuralNet):
     def convert_double_pi_output(self, double_pi, count=1):
         if len(double_pi.shape) > 1:
             return [self.convert_double_pi_output(p) for p in double_pi]
+        """
         pi_1 = int(np.argmax(double_pi[:120]))
         pis = (pi_1,)
         if count == 2:
@@ -222,6 +223,12 @@ class DraftingNeuralNet(NeuralNet):
         index_pi = self.game.board.double_possible_moves.index(pi)
         index_pi = [1 if i == index_pi else 0 for i in range(self.game.actionSize)]
         return np.array(index_pi, dtype=float)
+        """
+        index_pi = [
+            np.sum(np.array(m)*double_pi)
+            for m in self.game.board.double_possible_moves
+        ]
+        return index_pi
 
     def save_checkpoint(self, folder, filename):
         """
