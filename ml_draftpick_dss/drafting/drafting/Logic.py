@@ -109,6 +109,7 @@ class DraftingBoard():
     
     def get_legal_mask(self, player=None):
         illegal_mask = self.get_illegal_mask(player)
+        print(illegal_mask)
         if len(illegal_mask) > 0:
             return 1 - illegal_mask
         else:
@@ -117,7 +118,6 @@ class DraftingBoard():
     def get_double_legal_mask(self, player=None):
         count = self.get_round()[-1]
         legal_mask = self.get_legal_mask(player)
-        print(legal_mask)
         if count == 1:
             return np.concatenate([legal_mask, np.zeros((120,))], axis=-1)
         return np.repeat(legal_mask, 2, axis=-1)
