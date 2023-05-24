@@ -111,8 +111,10 @@ class DraftingBoard():
         illegal_mask = self.get_illegal_mask(player)
         print(illegal_mask)
         if len(illegal_mask) > 0:
+            print("A")
             return 1 - illegal_mask
         else:
+            print("B")
             return np.sum(self.hero_pool, axis=-1)
     
     def get_double_legal_mask(self, player=None):
