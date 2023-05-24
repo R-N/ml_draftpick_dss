@@ -232,9 +232,10 @@ class DraftingAgentModel(nn.Module):
         
         if count > 1:
             if self.final_2_mode == "double":
-                pi_2, v_2 = self.final_2(torch.cat([tgt, tgt_0], dim=-1))
+                tgt_2 = self.final_2(torch.cat([tgt, tgt_0], dim=-1))
             else:
-                pi_2, v_2 = self.final_2(tgt)
+                tgt_2 = self.final_2(tgt)
+            pi_2, v_2 = [f(tgt) for f in self.heads[-1]]
             if self.v_pooling == "1":
                 pass
             elif self.v_pooling == "2":
