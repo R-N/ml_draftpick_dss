@@ -225,8 +225,12 @@ class DraftingNeuralNet(NeuralNet):
         return np.array(index_pi, dtype=float)
         """
         index_pi = [
-            np.sum(np.array(m)*double_pi)
+            np.array(m)*double_pi
             for m in self.game.board.double_possible_moves
+        ]
+        index_pi = [
+            np.prod(p, where=p>0)
+            for p in index_pi
         ]
         return index_pi
 
