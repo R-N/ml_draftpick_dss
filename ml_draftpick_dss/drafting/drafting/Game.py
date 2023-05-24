@@ -64,8 +64,8 @@ class DraftingGame(_Game):
         """
         board = DraftingBoard().load_board(board)
         legal_moves = board.get_double_legal_moves(player)
-        print(len(legal_moves), type(legal_moves), type(legal_moves[0]), len(legal_moves[0]), type(legal_moves[0][0]), [sum(x) for x in legal_moves])
-        print(len(board.double_possible_moves), type(board.double_possible_moves), len(board.double_possible_moves[0]), type(board.double_possible_moves[0]), type(board.double_possible_moves[0][0]), [sum(x) for x in board.double_possible_moves])
+        print(len(legal_moves), type(legal_moves), type(legal_moves[0]), len(legal_moves[0]), type(legal_moves[0][0]))
+        print(len(board.double_possible_moves), type(board.double_possible_moves), len(board.double_possible_moves[0]), type(board.double_possible_moves[0]), type(board.double_possible_moves[0][0]))
         legal_moves = [1 if m in legal_moves else 0 for m in board.double_possible_moves]
         print(sum(legal_moves))
         return np.array(legal_moves)
