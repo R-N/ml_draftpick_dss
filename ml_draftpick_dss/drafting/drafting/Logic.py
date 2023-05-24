@@ -105,10 +105,10 @@ class DraftingBoard():
     
     def get_legal_mask(self, player=None):
         illegal_mask = self.get_illegal_mask(player)
-        if illegal_mask and len(list(illegal_mask)[0]) > 0:
+        if len(illegal_mask) > 0:
             return 1 - illegal_mask
         else:
-            return np.sum(self.hero_pool, axis=-1)
+            return np.sum(self.hero_pool, axis=-1)[0]
     
     def get_double_legal_mask(self, player=None):
         count = self.get_round()[-1]
