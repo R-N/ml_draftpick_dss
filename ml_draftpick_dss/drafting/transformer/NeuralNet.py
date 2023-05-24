@@ -206,12 +206,12 @@ class DraftingNeuralNet(NeuralNet):
             #pi_1, pi_2 = split_pis(pi)
 
         # print('PREDICTION TIME TAKEN : {0:03f}'.format(time.time()-start))
-        pi, v = torch.exp(pi).data.cpu().numpy()[0], v.data.cpu().numpy()[0]
+        pi, v = torch.exp(pi).data.cpu().numpy(), v.data.cpu().numpy()[0]
         pi = self.convert_double_pi_output(pi)
         return pi, v
 
     def convert_double_pi_output(self, double_pi):
-        if double_pi.dim() > 1:
+        if len(double_pi.shape) > 1:
             return [self.convert_double_pi_output(p) for p in double_pi]
         double_pi = tuple(int(round(x)) for x in double_pi)
         double_pi = self.game.board.double_possible_moves.index(double_pi)
