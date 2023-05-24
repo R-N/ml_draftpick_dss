@@ -81,6 +81,7 @@ class DraftingBoard():
             return np.zeros((120,))
         print(illegal_moves)
         mask = np.sum(np.array(list(illegal_moves)), axis=-1)
+        print(mask)
         return mask
 
     def get_legal_moves(self, player=None):
