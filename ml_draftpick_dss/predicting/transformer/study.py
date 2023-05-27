@@ -9,7 +9,7 @@ import optuna
 
 
 PARAM_SPACE = {
-    "s_embed": ("int", 3, 4),
+    #"s_embed": ("int", 3, 4),
     #"d_hid_encoder": ("int_exp_2", 32, 64),
     #"n_layers_encoder": ("int", 1, 2),
     #"activation_encoder": ("activation", ["relu", "elu"]),
@@ -23,16 +23,16 @@ PARAM_SPACE = {
     "activation_final": ("activation", ["tanh", "elu"]),
     #"bias_final": BOOLEAN,
     "n_layers_head": ("int", 2, 3),
-    "dropout": ("float", 0.1, 0.14),
+    "dropout": ("float", 0.1, 0.12),
     #"bidirectional": ("categorical", ["none", "none_right", "concat", "diff_left", "diff_right"]),
     "bidirectional": ("categorical", ["none", "concat", "diff_left", "diff_right"]),
     #"optimizer": ("optimizer", ["adam", "adamw"]),
-    "grad_clipping": ("float", 0.4, 0.65),
+    "grad_clipping": ("float", 0.55, 0.65),
     #"pooling": ("pooling", ["global_average", "global_max"]),
-    "onecycle_lr": ("log_float", 1e-3, 1),
-    "onecycle_epochs": ("int", 50, 100),
-    "lr": ("log_float", 1e-5, 1e-1),
-    "min_epoch": ("int", 25, 100),
+    "onecycle_lr": ("log_float", 1e-4, 1e-2),
+    "onecycle_epochs": ("int", 25, 60),
+    "lr": ("log_float", 1e-6, 1e-4),
+    "min_epoch": ("int", 25, 50),
 }
 
 PARAMS_DEFAULT = {

@@ -45,6 +45,7 @@ PARAM_MAP = {
 }
 BOOLEAN = ("categorical", [True, False])
 
+
 def get_metric(best_metrics, metric):
     if isinstance(metric, str):
         return best_metrics[metric]
@@ -151,11 +152,16 @@ def create_objective(
         )
     return f
 
-def 
 
-def map_parameters(params_raw):
-    if type_0 in param_map:
-        param = map_parameter(param, param_map[type_0])
+def map_parameters(params_raw, param_map={}):
+    param_map = {**PARAM_MAP, **param_map}
+    ret = {}
+    for k, v in params_raw.items():
+        for k0, v0 in param_map.items():
+            if k0 in k:
+                v = v0
+        ret[k] = v
+    return ret
 
 def create_eval(
     eval, eval_kwargs={}, 
@@ -169,9 +175,9 @@ def create_eval(
         study_dir = f"evals/{id}"
         mkdir(study_dir)
 
-        params = {
+        _params = {
             **params,
-            **map_parameters(params_raw)
+            **map_parameters(params_raw, **mapping_kwargs)
         }
         param_path = f"{study_dir}/params.json"
         with open(param_path, 'w') as f:
@@ -187,7 +193,7 @@ def create_eval(
             _log_dir = f"{study_dir}/{log_dir}"
         return eval(
             **eval_kwargs,
-            **params, 
+            **_params, 
             checkpoint_dir=_checkpoint_dir,
             log_dir=_log_dir,
             trial=trial,
@@ -221,10 +227,10 @@ def objective(
     trial=None,
     scheduler_config=SCHEDULER_CONFIGS[2],
     bin_crit=torch.nn.BCELoss(reduction="none"),
-    onecycle_lr=10,
+    onecycle_lr=1e-3,
     onecycle_epochs=50,
     onecycle_save="val_loss",
-    lr=1e-3,
+    lr=1e-5,
     min_epoch=50,
     max_epoch=200,
     wait=25,

@@ -5,12 +5,12 @@ from ..study import get_metric
 
 PARAM_SPACE = {
     #"objective": ("categorical", ["Logloss", "CrossEntropy"]),
-    "colsample_bylevel": ("log_float", 0.1, 1),
-    "depth": ("int", 4, 7),
+    "colsample_bylevel": ("log_float", 0.1, 0.3),
+    #"depth": ("int", 5, 7),
     #"boosting_type": ("categorical", ["Ordered", "Plain"]),
     #"bootstrap_type": ("categorical", ["Bayesian", "Bernoulli", "MVS"]),
     #'l2_leaf_reg': ('qloguniform', 0, 2, 1),
-    'lr': ('float', 1e-3, 0.02),
+    'lr': ('float', 0.005, 0.01),
 }
 
 PARAMS_DEFAULT = {
@@ -22,12 +22,12 @@ def create_predictor(
     encoder=None,
     create_dataloader=None,
     objective="Logloss",
-    colsample_bylevel=0.1,
-    depth=6,
+    colsample_bylevel=0.2,
+    depth=7,
     boosting_type="Plain",
     bootstrap_type="Bayesian",
     l2_leaf_reg=3.0,
-    lr=0.1,
+    lr=0.005,
     predictor=ResultPredictor,
     **kwargs
 ):

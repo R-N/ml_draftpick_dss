@@ -17,12 +17,12 @@ PARAM_SPACE = {
     #"n_layers_head": ("int", 1, 2),
     "dropout": ("float", 0.06, 0.12),
     #"optimizer": ("optimizer", ["adamw", "sgd"]),
-    "grad_clipping": ("float", 1, 2.0),
+    "grad_clipping": ("float", 1, 1.8),
     "pooling": ("categorical", ["concat", "diff_left"]),
-    "onecycle_lr": ("log_float", 1e-3, 1),
-    "onecycle_epochs": ("int", 50, 100),
-    "lr": ("log_float", 1e-5, 1e-1),
-    "min_epoch": ("int", 25, 100),
+    "onecycle_lr": ("log_float", 1e-4, 1e-2),
+    "onecycle_epochs": ("int", 25, 60),
+    "lr": ("log_float", 1e-6, 1e-4),
+    "min_epoch": ("int", 25, 50),
 }
 
 PARAMS_DEFAULT = {
@@ -37,7 +37,7 @@ def create_predictor(
     n_layers_encoder=7,
     activation_encoder=torch.nn.ELU,
     bias_encoder=True,
-    d_final=256,
+    d_final=128,
     d_hid_final=64,
     n_layers_final=2,
     activation_final=torch.nn.LeakyReLU,
