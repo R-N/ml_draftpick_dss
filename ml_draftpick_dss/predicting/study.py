@@ -169,7 +169,7 @@ def create_eval(
     mapping_kwargs={}, eval_id=1,
     checkpoint_dir="checkpoints", log_dir="logs"
 ):
-    def f(trial):
+    def f():
         id = eval_id
         print(f"Begin eval {eval_id}")
         study_dir = f"evals/{id}"
