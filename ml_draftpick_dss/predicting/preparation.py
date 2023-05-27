@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from .result_loader import NORMALIZE_COLS, NORMALIZED_COLS
 import torch
 
@@ -57,10 +58,11 @@ def split_dataframe_kfold(df, ratio=0.2, rand=42, val=True, filter_i=None):
     for i in range(count):
         if filter_i and i not in filter_i:
             continue
-        test_df = splits[i%count]
+        j = count - 1 + i
+        test_df = splits[j%count]
         val_df = None
         if val:
-            val_df = splits[(i+1)%count]
+            val_df = splits[(j-1)%count]
         train_dfs = [s for s in splits if s is not test_df and s is not val_df]
         train_df = pd.concat(train_dfs)
         result.append((train_df, val_df, test_df))

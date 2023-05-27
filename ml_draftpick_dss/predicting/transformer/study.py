@@ -37,6 +37,11 @@ PARAM_SPACE = {
 
 PARAMS_DEFAULT = {
     "optimizer": torch.optim.AdamW,
+    "grad_clipping": 0.5844786264234516,
+    "lr": 1.4032728994404293e-05,
+    "min_epoch": 78,
+    "onecycle_epochs": 53,
+    "onecycle_lr": 0.006131995310469579,
 }
 
 PARAM_MAP = {}
@@ -64,7 +69,7 @@ def create_predictor(
     n_layers_head=2,
     n_heads=3,
     dropout_reducer=0,
-    dropout=0.1,
+    dropout=0.1277080512658134,
     pos_encoder=False,
     bidirectional="diff_right",
     pooling=GlobalPooling1D(),
