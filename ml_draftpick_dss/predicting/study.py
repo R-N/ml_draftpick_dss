@@ -159,6 +159,7 @@ def map_parameters(params_raw, param_map={}):
     for k, v in params_raw.items():
         if k.endswith("_exp_2"):
             v = int(math.pow(2, v))
+            k = k[:-6]
         else:
             for k0, v0 in param_map.items():
                 if k0 in k:
