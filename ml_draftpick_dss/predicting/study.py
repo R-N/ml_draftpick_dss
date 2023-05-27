@@ -163,7 +163,7 @@ def map_parameters(params_raw, param_map={}):
         else:
             for k0, v0 in param_map.items():
                 if k0 in k:
-                    v = v0
+                    v = v0[v]
         ret[k] = v
     return ret
 
