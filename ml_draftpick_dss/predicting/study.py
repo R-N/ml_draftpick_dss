@@ -157,9 +157,12 @@ def map_parameters(params_raw, param_map={}):
     param_map = {**PARAM_MAP, **param_map}
     ret = {}
     for k, v in params_raw.items():
-        for k0, v0 in param_map.items():
-            if k0 in k:
-                v = v0
+        if k.endswith("_exp_2"):
+            v = int(math.pow(2, v))
+        else:
+            for k0, v0 in param_map.items():
+                if k0 in k:
+                    v = v0
         ret[k] = v
     return ret
 
