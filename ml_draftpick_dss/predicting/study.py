@@ -437,6 +437,6 @@ def eval(
     #last_metrics = predictor.train(val=True)[1]
     best_metrics_train = predictor.best_metrics
     
-    victory_preds, bin_pred, eval_metrics = predictor.eval()
+    victory_preds, bin_pred, eval_metrics = predictor.eval(test_loader)
 
     return best_metrics_train, eval_metrics
