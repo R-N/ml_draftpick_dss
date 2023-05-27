@@ -196,7 +196,7 @@ def create_eval(
             **_params, 
             checkpoint_dir=_checkpoint_dir,
             log_dir=_log_dir,
-            trial=trial,
+            eval_id=eval_id
         )
     return f
 
