@@ -139,3 +139,36 @@ class ResultPredictor:
 
     def predict_prob(self, data):
         return self.model.predict_proba(data)
+
+    def eval(self, val_loader=None, true_threshold=0.5):
+        assert self.training_prepared
+        val_loader = self.val_loader if val_loader is None else val_loader
+        assert val_loader is not None, "Please provide validation dataloader"
+
+        bin_true = []
+        bin_pred = []
+        loader = val_loader
+
+        victory_preds = self.model.predict(loader)
+
+        bin_true = loader.y > true_threshold
+        bin_pred = victory_preds > true_threshold
+
+        cm = confusion_matrix(bin_true, bin_pred)
+        cm_labels = ["tn", "fp", "fn", "tp"]
+
+        loss = np.mean(self.model.eval_metrics(loader, [metrics.CrossEntropy()])['CrossEntropy'])
+
+        cur_metrics = {
+            "epoch": self.epoch,
+            "loss": loss,
+            "victory_loss": loss,
+            "accuracy": accuracy_score(bin_true, bin_pred),
+            "auc": roc_auc_score(bin_true, bin_pred),
+            "f1_score": f1_score(bin_true, bin_pred),
+            **{cm_labels[i]: x for i, x in enumerate(cm.ravel())}
+        }
+    
+        cur_metrics = {f"val_{k}": v for k, v in cur_metrics.items()}
+
+        return victory_preds, bin_pred, cur_metrics

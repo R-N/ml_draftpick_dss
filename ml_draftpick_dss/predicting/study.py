@@ -433,7 +433,9 @@ def eval(
         predictor.scheduler_type = "plateau"
         print("Continue with plateau")
     _train(lr, min_epoch, max_epoch, prune=True, wait=0, early_stopping_1=_early_stopping_1)
-        
+
+    predictor.load_checkpoint(metric)
+
     #last_metrics = predictor.train(val=True)[1]
     best_metrics_train = predictor.best_metrics
     
