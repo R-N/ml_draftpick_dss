@@ -194,11 +194,11 @@ def _load_datasets_kfold(
         "split_datasets": (train_set, val_set, test_set)
     }
 
-def load_datasets_kfold(ratio=0.2, **kwargs):
+def load_datasets_kfold(ratio=0.2, func=_load_datasets_kfold, **kwargs):
     result = []
     count = int(1.0/ratio)
     for i in range(count):
-        r = _load_datasets_kfold(i=i, ratio=ratio, **kwargs)
+        r = func(i=i, ratio=ratio, **kwargs)
         result.append(r)
     return result
 

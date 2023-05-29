@@ -3,7 +3,7 @@ from ..preparation import TARGET_COLS, extract_target
 from ..result_loader import flip_results, merge_results
 import numpy as np
 import pandas as pd
-from ..mlp.dataset import load_datasets as _load_datasets
+from ..mlp.dataset import load_datasets as _load_datasets, load_datasets_kfold as __load_datasets_kfold, _load_datasets_kfold as ___load_datasets_kfold
 from ..util import tanh_to_sig_range
 from catboost import Pool
 from ..encoding import HeroLabelEncoder, HeroOneHotEncoder, PATCHES
@@ -77,6 +77,24 @@ def load_datasets(
         dataset_factory=dataset_factory,
         **kwargs
     )
+
+def _load_datasets_kfold(
+    *args,
+    create_datasets=_create_datasets,
+    encoder_factory=HeroOneHotEncoder,
+    dataset_factory=ResultDataset,
+    **kwargs
+):
+    return ___load_datasets_kfold(
+        *args,
+        create_datasets=create_datasets,
+        encoder_factory=encoder_factory,
+        dataset_factory=dataset_factory,
+        **kwargs
+    )
+
+def load_datasets_kfold(func=_load_datasets_kfold, **kwargs):
+    return __load_datasets_kfold(func=func, **kwargs)
 
 def create_dataloader(dataset, batch_size=64, shuffle=True, num_workers=0):
     return dataset

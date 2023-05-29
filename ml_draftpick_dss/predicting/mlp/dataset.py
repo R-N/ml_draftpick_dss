@@ -3,7 +3,7 @@ from ..preparation import TARGET_COLS, extract_target
 from ..result_loader import flip_results, merge_results
 import torch
 from ..encoding import HeroOneHotEncoder
-from ..transformer.dataset import load_datasets as _load_datasets
+from ..transformer.dataset import load_datasets as _load_datasets, load_datasets_kfold as __load_datasets_kfold, _load_datasets_kfold as ___load_datasets_kfold
 
 class ResultDataset(Dataset):
 
@@ -55,6 +55,22 @@ def load_datasets(
         dataset_factory=dataset_factory,
         **kwargs
     )
+
+def _load_datasets_kfold(
+    *args,
+    encoder_factory=HeroOneHotEncoder,
+    dataset_factory=ResultDataset,
+    **kwargs
+):
+    return ___load_datasets_kfold(
+        *args,
+        encoder_factory=encoder_factory,
+        dataset_factory=dataset_factory,
+        **kwargs
+    )
+
+def load_datasets_kfold(func=_load_datasets_kfold, **kwargs):
+    return __load_datasets_kfold(func=func, **kwargs)
 
 def create_dataloader(dataset, batch_size=64, shuffle=True, num_workers=0):
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle, num_workers=num_workers)
