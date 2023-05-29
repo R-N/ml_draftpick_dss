@@ -131,8 +131,6 @@ def eval(
 
     final_value = get_metric(val_results[-1], metric)
 
-    predictor.load_checkpoint(metric)
-
     #last_metrics = predictor.train(val=True)[1]
     best_metrics_train = train_results[-1]
     
