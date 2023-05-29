@@ -395,7 +395,8 @@ def eval(
     )
     print(predictor.summary())
 
-    def _train(lr, min_epoch, max_epoch, prune=True, wait=wait, early_stopping_1=None):
+    _autosave = autosave
+    def _train(lr, min_epoch, max_epoch, prune=True, wait=wait, early_stopping_1=None, autosave=_autosave):
         if lr is None:
             lr = predictor.find_lr(min_epoch=min_epoch).best_lr
         predictor.set_lr(lr)
@@ -432,7 +433,7 @@ def eval(
         predictor.load_checkpoint(onecycle_save)
         predictor.scheduler_type = "plateau"
         print("Continue with plateau")
-    _train(lr, min_epoch, max_epoch, prune=True, wait=0, early_stopping_1=_early_stopping_1)
+    _train(lr, min_epoch, max_epoch, prune=True, wait=0, early_stopping_1=_early_stopping_1, autosave=metric)
 
     predictor.load_checkpoint(metric)
 
