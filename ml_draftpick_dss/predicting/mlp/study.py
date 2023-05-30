@@ -27,6 +27,11 @@ PARAM_SPACE = {
 
 PARAMS_DEFAULT = {
     "optimizer": torch.optim.AdamW,
+    "grad_clipping": 1.5546952993041978,
+    "lr": 1.7839998278851032e-05,
+    "min_epoch": 37,
+    "onecycle_epochs": 66,
+    "onecycle_lr": 0.13552000903994363
 }
 
 PARAM_MAP = {}
@@ -43,7 +48,7 @@ def create_predictor(
     activation_final=torch.nn.LeakyReLU,
     bias_final=False,
     n_layers_head=2,
-    dropout=0.1,
+    dropout=0.07931339684998305,
     pooling="concat",
     n_heads=3,
     activation_final_head=torch.nn.Sigmoid,

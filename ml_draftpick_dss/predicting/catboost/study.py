@@ -14,6 +14,7 @@ PARAM_SPACE = {
 }
 
 PARAMS_DEFAULT = {
+    "lr": 0.010793724507757438
 }
 
 PARAM_MAP = {}

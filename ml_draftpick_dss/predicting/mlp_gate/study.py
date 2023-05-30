@@ -41,6 +41,11 @@ PARAMS_DEFAULT = {
     #**PARAMS_DEFAULT,
     #"lr": 1e-3,
     "optimizer": torch.optim.Adam,
+    "grad_clipping": 0.7921847463607343,
+    "lr": 6.567116884019413e-05,
+    "min_epoch": 73,
+    "onecycle_epochs": 98,
+    "onecycle_lr": 0.010640154204407485
 }
 
 PARAM_MAP = {}
@@ -69,7 +74,7 @@ def create_predictor(
     bias_final=False,
     n_layers_head=5,
     n_heads=3,
-    dropout=0.1,
+    dropout=0.04122349236114184,
     pooling="concat",
     #**kwargs
 ):
