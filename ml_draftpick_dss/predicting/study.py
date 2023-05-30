@@ -329,6 +329,11 @@ def objective(
     final_value = get_metric(best_metrics, metric)
     return final_value
 
+def listify(x):
+    if not (isinstance(x, list) or isinstance(x, tuple)):
+        x = [x]
+    return x
+
 def eval(
     datasets,
     create_predictor,
@@ -395,20 +400,13 @@ def eval(
     )
     print(predictor.summary())
 
-    print("saves0:", autosave, onecycle_save, metric)
-
-    if not (isinstance(autosave, list) or isinstance(autosave, tuple)):
-        autosave = [autosave]
-    if not (isinstance(onecycle_save, list) or isinstance(onecycle_save, tuple)):
-        onecycle_save = [onecycle_save]
+    _autosave = listify(autosave)
+    _onecycle_save = listify(onecycle_save)
         
-    print("saves:", autosave, onecycle_save, metric)
-    autosave = tuple(set([*autosave, *onecycle_save, metric]))
-    print("autosave0:", autosave)
+    autosave = tuple(set([*_autosave, *_onecycle_save, metric]))
 
     _autosave = autosave
     def _train(lr, min_epoch, max_epoch, prune=True, wait=wait, early_stopping_1=None, autosave=_autosave):
-        print("autosave:", autosave)
         if lr is None:
             lr = predictor.find_lr(min_epoch=min_epoch).best_lr
         predictor.set_lr(lr)
