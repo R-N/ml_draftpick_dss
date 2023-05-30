@@ -397,9 +397,9 @@ def eval(
 
     print("saves0:", autosave, onecycle_save, metric)
 
-    if not hasattr(autosave, "__iter__"):
+    if not (isinstance(autosave, list) or isinstance(autosave, tuple)):
         autosave = [autosave]
-    if not hasattr(onecycle_save, "__iter__"):
+    if not (isinstance(onecycle_save, list) or isinstance(onecycle_save, tuple)):
         onecycle_save = [onecycle_save]
         
     print("saves:", autosave, onecycle_save, metric)
