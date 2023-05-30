@@ -395,6 +395,12 @@ def eval(
     )
     print(predictor.summary())
 
+    if not hasattr(autosave, "__iter__"):
+        autosave = [autosave]
+    if not hasattr(onecycle_save, "__iter__"):
+        onecycle_save = [onecycle_save]
+    autosave = tuple(set([*autosave, *onecycle_save, metric]))
+
     _autosave = autosave
     def _train(lr, min_epoch, max_epoch, prune=True, wait=wait, early_stopping_1=None, autosave=_autosave):
         if lr is None:
@@ -428,12 +434,12 @@ def eval(
     _early_stopping_1 = None
     if scheduler_type == "onecycle":
         print("Initial onecycle run")
-        _early_stopping_1 = _train(lr, min(onecycle_epochs, min_epoch), onecycle_epochs, prune=False, wait=wait)
+        _early_stopping_1 = _train(lr, min(onecycle_epochs, min_epoch), onecycle_epochs, prune=False, wait=wait, autosave=autosave)
         print("Done onecycle run")
         predictor.load_checkpoint(onecycle_save)
         predictor.scheduler_type = "plateau"
         print("Continue with plateau")
-    _train(lr, min_epoch, max_epoch, prune=True, wait=0, early_stopping_1=_early_stopping_1, autosave=metric)
+    _train(lr, min_epoch, max_epoch, prune=True, wait=0, early_stopping_1=_early_stopping_1, autosave=autosave)
 
     predictor.load_checkpoint(metric)
 
