@@ -395,14 +395,20 @@ def eval(
     )
     print(predictor.summary())
 
+    print("saves0:", autosave, onecycle_save, metric)
+
     if not hasattr(autosave, "__iter__"):
         autosave = [autosave]
     if not hasattr(onecycle_save, "__iter__"):
         onecycle_save = [onecycle_save]
+        
+    print("saves:", autosave, onecycle_save, metric)
     autosave = tuple(set([*autosave, *onecycle_save, metric]))
+    print("autosave0:", autosave)
 
     _autosave = autosave
     def _train(lr, min_epoch, max_epoch, prune=True, wait=wait, early_stopping_1=None, autosave=_autosave):
+        print("autosave:", autosave)
         if lr is None:
             lr = predictor.find_lr(min_epoch=min_epoch).best_lr
         predictor.set_lr(lr)
