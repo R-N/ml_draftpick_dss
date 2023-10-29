@@ -425,7 +425,7 @@ def eval(
                 epoch_time_train += train_results[1]["duration"]
                 print(train_results)
                 val_results = predictor.train(autosave=autosave, val=True)
-                epoch_time_val += val_results[1]["duration"]
+                epoch_time_val += val_results[1]["val_duration"]
                 print(val_results)
                 predictor.inc_epoch()
                 intermediate_value = get_metric({**train_results[1], **val_results[1]}, metric)
