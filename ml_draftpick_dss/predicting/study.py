@@ -4,6 +4,7 @@ import json
 from ..util import mkdir
 import math
 import optuna
+import time
 
 POOLINGS = {
     "global_average": GlobalPooling1D(MEAN),
@@ -416,11 +417,15 @@ def eval(
                 _early_stopping = predictor.create_early_stopping_1(wait, max_epoch)
             else:
                 _early_stopping = predictor.create_early_stopping_2(early_stopping_1, max_epoch)
+        epoch_time_train = 0
+        epoch_time_val = 0
         for i in range(max_epoch):
             try:
                 train_results = predictor.train(autosave=autosave)
+                epoch_time_train += train_results["duration"]
                 print(train_results)
                 val_results = predictor.train(autosave=autosave, val=True)
+                epoch_time_val += val_results["duration"]
                 print(val_results)
                 predictor.inc_epoch()
                 intermediate_value = get_metric({**train_results[1], **val_results[1]}, metric)
@@ -433,6 +438,12 @@ def eval(
                 break
             finally:
                 pass
+        epoch_time_train /= (i+1)
+        epoch_time_val /= (i+1)
+        predictor.epoch_time = {
+            True: epoch_time_val,
+            False: epoch_time_train,
+        }
         return _early_stopping
 
     _early_stopping_1 = None
@@ -452,4 +463,4 @@ def eval(
     
     victory_preds, bin_pred, eval_metrics = predictor.eval(test_loader)
 
-    return best_metrics_train, eval_metrics
+    return best_metrics_train, eval_metrics, predictor.epoch_time

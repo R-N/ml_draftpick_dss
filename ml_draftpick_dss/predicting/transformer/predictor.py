@@ -9,6 +9,7 @@ from ..logging import TrainingLogger
 from ..lr_finder import LRFinder
 from ..early_stopping import EarlyStopping
 from ..scheduler import OneCycleLR, ReduceLROnPlateau
+import time
 
 TARGETS = ["victory", "score", "duration"]
 
@@ -36,8 +37,6 @@ class ResultPredictor:
         self.reduce_loss = reduce_loss
         self.scale_loss = scale_loss
         self.extra_loss = extra_loss
-
-    
 
     def prepare_training(
         self,
@@ -152,6 +151,9 @@ class ResultPredictor:
         #min_victory_pred, max_victory_pred = 2, -2
         victory_preds = torch.Tensor([])
         loader = val_loader if val else self.train_loader
+
+        t0 = time.time()
+
         for i, batch in enumerate(loader):
             left, right, targets, weights = batch
 
@@ -209,6 +211,10 @@ class ResultPredictor:
             bin_pred.extend(list(squeezed_pred > true_threshold))
             victory_preds = torch.cat([victory_preds, squeezed_pred], dim=-1)
 
+        t1 = time.time()
+
+        duration = t1 - t0
+
         bin_true, bin_pred = np.array(bin_true).astype(int), np.array(bin_pred).astype(int)
         cm = confusion_matrix(bin_true, bin_pred)
         cm_labels = ["tn", "fp", "fn", "tp"]
@@ -226,6 +232,7 @@ class ResultPredictor:
             "accuracy": accuracy_score(bin_true, bin_pred),
             "auc": roc_auc_score(bin_true, bin_pred),
             "f1_score": f1_score(bin_true, bin_pred),
+            "duration": duration,
             #"mean_victory_pred": mean_victory_pred,
             #"min_victory_pred": min_victory_pred,
             #"max_victory_pred": max_victory_pred,
