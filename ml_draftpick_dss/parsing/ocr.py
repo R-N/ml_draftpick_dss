@@ -75,6 +75,7 @@ class OCR:
 
     def process_int(self, num):
         if isinstance(num, list):
+            print("process_int num is list", len(num))
             return [self.process_int(n) for n in num]
         num = self.process_num(num)
         return int(num.replace(".", ""))
