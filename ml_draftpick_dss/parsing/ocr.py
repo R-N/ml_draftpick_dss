@@ -161,7 +161,7 @@ class OCR:
             text = text.split(" ", maxsplit=1)[-1].strip()
         except ValueError as ex:
             pass
-        time = time.replace(".", ":").replace("!", ":").replace(";", ":").strip()
+        time = text.replace(".", ":").replace("!", ":").replace(";", ":").strip()
         if ":" not in time:
             time = time.replace(" ", ":")
         time = text[-5:].strip()
