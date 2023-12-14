@@ -24,7 +24,7 @@ class OCR:
 
     def read(self, img):
         if isinstance(img, list) and not self.batched:
-            return [self.read([i])[0] for i in img]
+            return [self.read(i)[0] for i in img]
         text = self.ocr.ocr(
             img, det=False, cls=False
         )
