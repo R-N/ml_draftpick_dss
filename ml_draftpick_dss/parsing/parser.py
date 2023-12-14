@@ -98,6 +98,7 @@ class Parser:
             forgive_afk=False,
             forgive_invalid=False,
             forgive_double=False,
+            forgive_order=False,
             exts=["jpg", "jpeg", "JPG", "JPEG", "png", "PNG"]
         ):
         self.input_dir = input_dir
@@ -123,6 +124,7 @@ class Parser:
         self.forgive_afk = forgive_afk
         self.forgive_invalid = forgive_invalid
         self.forgive_double = forgive_double
+        self.forgive_order = forgive_order
         self.n_size = 0
         self.exts = exts
 
@@ -249,7 +251,7 @@ class Parser:
 
                 medal_score_medal = [sorted(medal_score[i], key=lambda x: (MEDAL_LABELS.index(x[0]), -(x[1])), reverse=False) for i in range(2)]
                 medal_score_score = [sorted(medal_score[i], key=lambda x: (-(x[1]), MEDAL_LABELS.index(x[0])), reverse=False) for i in range(2)]
-                assert medal_score_medal == medal_score_score, f"MEDAL_ORDER_MISMATCH: {ss_path}; {medal_score_medal}; {medal_score_score}"
+                assert (self.forgive_order or medal_score_medal == medal_score_score), f"MEDAL_ORDER_MISMATCH: {ss_path}; {medal_score_medal}; {medal_score_score}"
         
         t2 = time.time()
 
