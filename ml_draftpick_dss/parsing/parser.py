@@ -215,10 +215,13 @@ class Parser:
         except AssertionError as ex:
             rethrow(ex)
 
+        team_kills = [None, None]
+        team_kills_img = [None, None]
         try:
             team_kills, team_kills_img = self.read_team_kills(img, bgr=False, throw=throw)
         except AssertionError as ex:
-            rethrow(ex)
+            if match_result != "Invalid":
+                rethrow(ex)
 
         try:
             scores, scores_img = self.read_scores(img, bgr=False, throw=throw)
