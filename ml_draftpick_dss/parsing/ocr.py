@@ -153,18 +153,18 @@ class OCR:
     def read_match_duration(self, img):
         return self.process_match_duration(self.read(img))
     
-    def process_match_duration(self, text):
-        if isinstance(text, list):
-            return [self.process_match_duration(n) for n in text]
+    def process_match_duration(self, time):
+        if isinstance(time, list):
+            return [self.process_match_duration(n) for n in time]
         try:
-            text = text.strip()
-            text = text.split(" ", maxsplit=1)[-1].strip()
+            time = time.strip()
+            time = time.split(" ", maxsplit=1)[-1].strip()
         except ValueError as ex:
             pass
-        time = text.replace(".", ":").replace("!", ":").replace(";", ":").strip()
+        time = time.replace(".", ":").replace("!", ":").replace(";", ":").strip()
         if ":" not in time:
             time = time.replace(" ", ":")
-        time = text[-5:].strip()
+        time = time[-5:].strip()
         if not time[0].isdigit():
             time = time[1:]
         return time
@@ -177,10 +177,10 @@ class OCR:
                 raise AssertionError(f"BAD_SS_DURATION: ; {ex}")
             return None
 
-    def process_match_duration_mins(self, text):
-        if isinstance(text, list):
-            return [self.process_match_duration_mins(n) for n in text]
-        time = self.process_match_duration(text)
+    def process_match_duration_mins(self, time):
+        if isinstance(time, list):
+            return [self.process_match_duration_mins(n) for n in time]
+        time = self.process_match_duration(time)
         if ":" in time:
             mins, sec = [int(x.strip()) for x in time.split(":")]
         elif len(time) == 4 and time.isnumeric():
