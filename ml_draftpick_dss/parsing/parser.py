@@ -191,8 +191,8 @@ class Parser:
         t0 = time.time()
 
         match_result, match_result_img = self.infer_match_result(img, bgr=False)
-        is_invalid = (match_result != "Invalid")
-        assert (self.forgive_invalid or (not throw) or is_invalid), f"INVALID: {ss_path}"
+        is_invalid = (match_result == "Invalid")
+        assert (self.forgive_invalid or (not throw) or (not is_invalid)), f"INVALID: {ss_path}"
 
         medals, medals_img = [None, None], [None, None]
         if not is_invalid:
