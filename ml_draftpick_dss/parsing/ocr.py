@@ -26,8 +26,8 @@ class OCR:
             img, det=False, cls=False
         )
         text = [t[0] for t in text]
-        text = [t[0] if t else None for t in text]
         print("read", len(img), len(text))
+        text = [t[0] if t else None for t in text]
         show_imgs(img)
         return [t.strip() for t in text]
 
