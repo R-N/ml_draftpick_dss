@@ -186,16 +186,31 @@ class Parser:
         
         t1 = time.time()
 
-        try:
-            battle_id, battle_id_img = self.read_battle_id(img, bgr=False, throw=throw)
-            match_duration, match_duration_img = self.read_match_duration(img, bgr=False, throw=throw)
-            team_kills, team_kills_img = self.read_team_kills(img, bgr=False, throw=throw)
-            scores, scores_img = self.read_scores(img, bgr=False, throw=throw)
-        except AssertionError as ex:
+        def rethrow(ex):
             message = exception_message(ex)
             err_type, err_detail = message.split(":", maxsplit=1)
             new_message = f"{err_type}: {relpath}; {err_detail.strip()}"
             raise AssertionError(new_message)
+
+        try:
+            battle_id, battle_id_img = self.read_battle_id(img, bgr=False, throw=throw)
+        except AssertionError as ex:
+            rethrow(ex)
+
+        try:
+            match_duration, match_duration_img = self.read_match_duration(img, bgr=False, throw=throw)
+        except AssertionError as ex:
+            rethrow(ex)
+
+        try:
+            team_kills, team_kills_img = self.read_team_kills(img, bgr=False, throw=throw)
+        except AssertionError as ex:
+            rethrow(ex)
+
+        try:
+            scores, scores_img = self.read_scores(img, bgr=False, throw=throw)
+        except AssertionError as ex:
+            rethrow(ex)
         
         t2 = time.time()
 
@@ -258,7 +273,7 @@ class Parser:
         return objs
     
 
-    def _infer_player_split(self, player_name, return_img=False):
+    def _infer_player_split(self, player_name, throw=True, return_img=False):
         input_dir_player = self.input_dir_player(player_name)
         files = os.listdir(input_dir_player)
         files = []
@@ -271,7 +286,7 @@ class Parser:
             path = os.path.join(input_dir_player, file)
             relpath = self.input_relpath(path)
             try:
-                obj = self.infer(path, player_name, throw=True, return_img=return_img)
+                obj = self.infer(path, player_name, throw=throw, return_img=return_img)
                 valid_objs.append(obj)
             except AssertionError as ex:
                 message = exception_message(ex)
