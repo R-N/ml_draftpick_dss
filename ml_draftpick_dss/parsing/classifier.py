@@ -264,7 +264,9 @@ class BaseClassifier:
 
     def infer(self, imgs):
         imgs = self.prepare_imgs(imgs)
-        return [self.label(y) for y in self.model(imgs)]
+        imgs = tf.stack(imgs)
+        infers = self.model(imgs)
+        return [self.label(y) for y in infers]
     
     def label(self, logits):
         return self.labels[np.argmax(logits)]
