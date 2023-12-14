@@ -7,6 +7,8 @@ from .classifier import MatchResultClassifier, HeroIconClassifier, MedalClassifi
 from .grouping import infer_ss_type, read_opening_failure, check_opening_failure
 from .util import inference_save_path, read_save_path, save_inference, mkdir, exception_message
 import time
+import glob
+from pathlib import Path
 
 BAD_FILE_EXCEPTIONS = [
     "HISTORY",
@@ -85,6 +87,7 @@ class Parser:
             inference_save_dir="inferences",
             forgive_afk=False,
             forgive_invalid=False,
+            exts=["jpg", "jpeg", "JPG", "JPEG", "png", "PNG"]
         ):
         self.input_dir = input_dir
         assert isinstance(ss_classifier, ScreenshotClassifier)
@@ -108,6 +111,7 @@ class Parser:
         self.forgive_afk = forgive_afk
         self.forgive_invalid = forgive_invalid
         self.n_size = 0
+        self.exts = exts
 
     @property
     def total_time(self):
@@ -255,6 +259,10 @@ class Parser:
     def _infer_player_split(self, player_name, return_img=False):
         input_dir_player = self.input_dir_player(player_name)
         files = os.listdir(input_dir_player)
+        files = []
+        for ext in self.exts:
+            files.extend(glob.glob(os.path.join(input_dir_player, f"*.{ext}")))
+        files = [Path(f).name for f in files]
         bad_files = {x: [] for x in BAD_FILE_EXCEPTIONS}
         valid_objs = []
         for file in files:
