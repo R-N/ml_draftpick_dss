@@ -21,6 +21,7 @@ class OCR:
         self.similarity = similarity
 
     def read(self, img):
+        print("read", len(img))
         text = self.ocr.ocr(
             img, det=False, cls=False
         )
@@ -69,6 +70,7 @@ class OCR:
         return num
     
     def read_int(self, img):
+        print("read_int", len(img))
         return self.process_int(self.read(img))
 
     def process_int(self, num):
@@ -78,6 +80,7 @@ class OCR:
         return int(num.replace(".", ""))
     
     def read_team_kills(self, img, throw=True):
+        print("read_team_kills", len(img))
         try:
             return self.read_int(img)
         except ValueError as ex:
