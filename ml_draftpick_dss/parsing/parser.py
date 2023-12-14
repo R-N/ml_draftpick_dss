@@ -38,7 +38,8 @@ def infer_match_result(img, classifier, scaler, bgr=True):
 def read_match_duration(img, ocr, scaler, bgr=True, throw=True):
     img = load_img(img, bgr=bgr)
     match_duration_img = extract(img, "MATCH_DURATION", scaler=scaler)
-    match_duration_float = ocr.read_match_duration_mins([match_duration_img], throw=throw)[0]
+    match_duration_float = ocr.read_match_duration_mins([match_duration_img], throw=throw)
+    match_duration_float = match_duration_float[0] if match_duration_float else match_duration_float
     return match_duration_float, match_duration_img
 
 def read_team_kills(img, ocr, scaler, bgr=True, throw=True):
