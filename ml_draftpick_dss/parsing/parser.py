@@ -238,24 +238,24 @@ class Parser:
                     scores = [None, None]
                 else:
                     rethrow(ex)
+
+            assert ((not throw) or (0 == len([1 for i in range(2) for s in scores[i] if s >= 17.0]))), f"OVERSCORE: {ss_path}; {scores}"
+
+            assert ((not throw) or (0 == len([1 for i in range(2) for s in scores[i] if s < 3.0]))), f"UNDERSCORE: {ss_path}; {scores}"
+
+            if throw:
+                medal_score = [list(zip(medals[i], scores[i])) for i in range(2)]
+                #assert (0 == len([1 for i in range(2) for m, s in medal_score[i] if m in {"Silver", "Bronze", "AFK"} and s >= 10.0])), f"MEDAL_MISMATCH: {ss_path}; {medal_score}"
+
+                medal_score_medal = [sorted(medal_score[i], key=lambda x: (MEDAL_LABELS.index(x[0]), -(x[1])), reverse=False) for i in range(2)]
+                medal_score_score = [sorted(medal_score[i], key=lambda x: (-(x[1]), MEDAL_LABELS.index(x[0])), reverse=False) for i in range(2)]
+                assert medal_score_medal == medal_score_score, f"MEDAL_ORDER_MISMATCH: {ss_path}; {medal_score_medal}; {medal_score_score}"
         
         t2 = time.time()
 
         self.n_size += 1
         self.total_inference_time += t1 - t0
         self.total_parse_time += t2 - t1
-
-        assert ((not throw) or (0 == len([1 for i in range(2) for s in scores[i] if s >= 17.0]))), f"OVERSCORE: {ss_path}; {scores}"
-
-        assert ((not throw) or (0 == len([1 for i in range(2) for s in scores[i] if s < 3.0]))), f"UNDERSCORE: {ss_path}; {scores}"
-
-        if throw:
-            medal_score = [list(zip(medals[i], scores[i])) for i in range(2)]
-            #assert (0 == len([1 for i in range(2) for m, s in medal_score[i] if m in {"Silver", "Bronze", "AFK"} and s >= 10.0])), f"MEDAL_MISMATCH: {ss_path}; {medal_score}"
-
-            medal_score_medal = [sorted(medal_score[i], key=lambda x: (MEDAL_LABELS.index(x[0]), -(x[1])), reverse=False) for i in range(2)]
-            medal_score_score = [sorted(medal_score[i], key=lambda x: (-(x[1]), MEDAL_LABELS.index(x[0])), reverse=False) for i in range(2)]
-            assert medal_score_medal == medal_score_score, f"MEDAL_ORDER_MISMATCH: {ss_path}; {medal_score_medal}; {medal_score_score}"
 
         obj = {
             "file": relpath,
