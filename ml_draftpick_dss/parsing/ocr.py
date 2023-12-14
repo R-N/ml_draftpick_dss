@@ -147,7 +147,7 @@ class OCR:
         text = text.lower().strip()
         text = text.split(":", maxsplit=1)[-1].strip()
         text = text.split(" ", maxsplit=1)[-1].strip()
-        if text.startswith("battleid"):
+        if text.startswith("batt"):
             text = text[8:]
         text = text.strip(":").strip()
         return int(text)
