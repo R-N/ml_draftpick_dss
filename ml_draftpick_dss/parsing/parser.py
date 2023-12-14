@@ -220,7 +220,9 @@ class Parser:
         try:
             team_kills, team_kills_img = self.read_team_kills(img, bgr=False, throw=throw)
         except AssertionError as ex:
-            if match_result != "Invalid":
+            if match_result == "Invalid":
+                team_kills = [None, None]
+            else:
                 rethrow(ex)
 
         try:
