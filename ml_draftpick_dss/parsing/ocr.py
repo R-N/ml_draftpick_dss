@@ -158,13 +158,13 @@ class OCR:
             return [self.process_match_duration(n) for n in text]
         try:
             text = text.strip()
-            text = text.rsplit(" ", maxsplit=1)[-1].strip()
+            text = text.split(" ", maxsplit=1)[-1].strip()
         except ValueError as ex:
             pass
-        time = text.strip()[-5:]
+        time = time.replace(".", ":").replace("!", ":").replace(";", ":").strip()
+        time = text[-5:].strip()
         if not time[0].isdigit():
             time = time[1:]
-        time = time.replace(".", ":").replace("!", ":").replace(";", ":").strip()
         if ":" not in time:
             time = time.replace(" ", ":")
         return time
