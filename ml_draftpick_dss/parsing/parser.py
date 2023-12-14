@@ -189,10 +189,13 @@ class Parser:
         t0 = time.time()
 
         match_result, match_result_img = self.infer_match_result(img, bgr=False)
-        assert (self.forgive_invalid or (not throw) or (match_result != "Invalid")), f"INVALID: {ss_path}"
+        is_invalid = (match_result != "Invalid")
+        assert (self.forgive_invalid or (not throw) or is_invalid), f"INVALID: {ss_path}"
 
-        medals, medals_img = self.infer_medals(img, bgr=False)
-        assert (self.forgive_afk or (not throw) or ("AFK" not in (medals[0] + medals[1]))), f"AFK: {ss_path}; {medals}"
+        medals, medals_img = [None, None], [None, None]
+        if not is_invalid:
+            medals, medals_img = self.infer_medals(img, bgr=False)
+            assert (is_invalid or self.forgive_afk or (not throw) or ("AFK" not in (medals[0] + medals[1]))), f"AFK: {ss_path}; {medals}"
 
         heroes, heroes_img = self.infer_heroes(img, bgr=False)
         assert ((not throw) or (len(set(heroes[0] + heroes[1])) == 10)), f"DOUBLE: {ss_path}; {heroes}"
@@ -215,20 +218,24 @@ class Parser:
         except AssertionError as ex:
             rethrow(ex)
 
-        team_kills = [None, None]
-        team_kills_img = [None, None]
-        try:
-            team_kills, team_kills_img = self.read_team_kills(img, bgr=False, throw=throw)
-        except AssertionError as ex:
-            if match_result == "Invalid":
-                team_kills = [None, None]
-            else:
-                rethrow(ex)
+        team_kills, team_kills_img = [None, None], [None, None]
+        scores, scores_img = [None, None], [None, None]
+        if not is_invalid:
+            try:
+                team_kills, team_kills_img = self.read_team_kills(img, bgr=False, throw=throw)
+            except AssertionError as ex:
+                if is_invalid:
+                    team_kills = [None, None]
+                else:
+                    rethrow(ex)
 
-        try:
-            scores, scores_img = self.read_scores(img, bgr=False, throw=throw)
-        except AssertionError as ex:
-            rethrow(ex)
+            try:
+                scores, scores_img = self.read_scores(img, bgr=False, throw=throw)
+            except AssertionError as ex:
+                if is_invalid:
+                    scores = [None, None]
+                else:
+                    rethrow(ex)
         
         t2 = time.time()
 
