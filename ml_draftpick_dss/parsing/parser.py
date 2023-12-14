@@ -163,7 +163,11 @@ class Parser:
     
     def infer(self, ss_path, player_name, throw=False, return_img=False):
         relpath = self.input_relpath(ss_path)
-        img = load_img(ss_path, resize=self.img_size)
+        try:
+            img = load_img(ss_path, resize=self.img_size)
+        except TypeError as ex:
+            print("ss_path", ss_path)
+            raise
         self.scaler = self._scaler or Scaler(img)
 
         ss_type, ss_type_img = self.infer_ss_type(img, bgr=False)
