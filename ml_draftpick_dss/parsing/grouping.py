@@ -79,7 +79,7 @@ def read_player_name(img, ocr, scaler, bgr=True, throw=True):
     img = load_img(img, bgr=bgr)
     name_img = extract(img, "HISTORY_PLAYER_NAME", scaler=scaler)
     try:
-        name_text = ocr.read_history_player_name(name_img)
+        name_text = ocr.read_history_player_name([name_img])[0]
     except AssertionError as ex:
         message = exception_message(ex)
         if "BAD_SS_HISTORY" not in message or throw:
@@ -89,7 +89,7 @@ def read_player_name(img, ocr, scaler, bgr=True, throw=True):
 
 def read_opening_failure(img, ocr, scaler, bgr=True):
     img = load_img(img, bgr=bgr)
-    text_img = extract(img, "OPENING_FAILURE", scaler=scaler)
+    text_img = extract([img], "OPENING_FAILURE", scaler=scaler)[0]
     text = ocr.read(text_img)
     return text, text_img
 

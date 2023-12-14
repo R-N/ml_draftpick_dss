@@ -10,7 +10,8 @@ from .util import inference_save_path, read_save_path, save_inference, mkdir, li
 def read_match_types(img, ocr, scaler, batch_index=0, bgr=True):
     img = load_img(img, bgr=bgr)
     match_type_imgs = extract(img, "MATCH_TYPE_LIST", scaler=scaler, batch_index=batch_index%4, split_list=True, crop_list=True)
-    match_type_texts = [ocr.read(i) for i in match_type_imgs]
+    #match_type_texts = [ocr.read(i) for i in match_type_imgs]
+    match_type_texts = ocr.read(match_type_imgs)
     return match_type_texts, match_type_imgs
 
 def infer_match_results(img, classifier, scaler, batch_index=0, bgr=True):

@@ -157,7 +157,7 @@ class Parser:
         return infer_ss_type(img, self.ss_classifier, self.scaler, bgr=bgr)
 
     def read_opening_failure(self, img, bgr=True):
-        return read_opening_failure(img, self.ocr, scaler=self.scaler, bgr=bgr)
+        return read_opening_failure([img], self.ocr, scaler=self.scaler, bgr=bgr)
 
     def check_opening_failure(self, text, similarity=DEFAULT_SIMILARITY):
         return check_opening_failure(text, similarity=similarity)
