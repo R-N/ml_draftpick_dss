@@ -78,6 +78,13 @@ def read_scores(img, ocr, scaler, bgr=True, throw=True):
     score_floats = [ocr.read_score(i, throw=throw) for i in score_imgs]
     return score_floats, score_imgs
 
+def list_files(input_dir_player, exts):
+    files = []
+    for ext in exts:
+        files.extend(glob.glob(os.path.join(input_dir_player, f"*.{ext}")))
+    files = [Path(f).name for f in files]
+    return files
+
 class Parser:
     def __init__(
             self, input_dir, 
@@ -272,18 +279,13 @@ class Parser:
     
     def _infer_player(self, player_name, throw=False, return_img=False):
         input_dir_player = self.input_dir_player(player_name)
-        files = os.listdir(input_dir_player)
+        files = list_files(input_dir_player, self.exts)
         objs = [self.infer(os.path.join(input_dir_player, file), player_name, throw=throw, return_img=return_img) for file in files]
         return objs
-    
 
     def _infer_player_split(self, player_name, throw=True, return_img=False):
         input_dir_player = self.input_dir_player(player_name)
-        files = os.listdir(input_dir_player)
-        files = []
-        for ext in self.exts:
-            files.extend(glob.glob(os.path.join(input_dir_player, f"*.{ext}")))
-        files = [Path(f).name for f in files]
+        files = list_files(input_dir_player, self.exts)
         bad_files = {x: [] for x in BAD_FILE_EXCEPTIONS}
         valid_objs = []
         for file in files:
