@@ -93,7 +93,7 @@ class Parser:
             match_result_classifier, 
             hero_icon_classifier, 
             medal_classifier, 
-            ocr=None, img_size=None,
+            ocr=None, ocr_num=None, img_size=None,
             inference_save_dir="inferences",
             forgive_afk=False,
             forgive_invalid=False,
@@ -115,6 +115,7 @@ class Parser:
         self._scaler = scaler
         self.scaler = None
         self.ocr = ocr or OCR(has_number=False)
+        self.ocr_num = ocr_num or ocr
 
         self.total_inference_time = 0
         self.total_parse_time = 0
@@ -155,7 +156,7 @@ class Parser:
         return infer_medals(img, self.medal_classifier, self.scaler, bgr=bgr)
 
     def read_scores(self, img, bgr=True, throw=True):
-        return read_scores(img, self.ocr, self.scaler, bgr=bgr, throw=throw)
+        return read_scores(img, self.ocr_num, self.scaler, bgr=bgr, throw=throw)
     
     def input_relpath(self, path):
         return os.path.relpath(path, self.input_dir)
