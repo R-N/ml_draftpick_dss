@@ -25,7 +25,7 @@ class OCR:
         text = self.ocr.ocr(
             img, det=False, cls=False
         )
-        print("read", len(img), len(text), text)
+        print("read", len(img), len(text), text, img)
         text = [t[0] for t in text]
         text = [t[0] if t else None for t in text]
         show_imgs(img)
