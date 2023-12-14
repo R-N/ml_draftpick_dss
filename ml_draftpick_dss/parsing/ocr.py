@@ -55,6 +55,7 @@ class OCR:
         num = num.replace("%", "")
         num = num.replace("V", "")
         num = num.replace("\\", "")
+        num = num.replace(")", "")
         num = num.replace("G", "6")
         num = num.replace("g", "9")
         num = num.replace("U", "7")
