@@ -9,7 +9,7 @@ def DEFAULT_SIMILARITY(*args, **kwargs):
 # otherwise use latin
 
 class OCR:
-    def __init__(self, has_number=True, similarity=DEFAULT_SIMILARITY):
+    def __init__(self, has_number=True, similarity=DEFAULT_SIMILARITY, batched=False):
         lang = "en" if has_number else "latin"
         self.ocr = PaddleOCR(
             lang=lang,
@@ -20,15 +20,16 @@ class OCR:
             use_angle_cls=True,
         )
         self.similarity = similarity
+        self.batched = batched
 
     def read(self, img):
+        if isinstance(img, list) and not self.batched:
+            return [self.read([i])[0] for i in img]
         text = self.ocr.ocr(
             img, det=False, cls=False
         )
-        print("read", len(img), len(text), text, img)
         text = [t[0] for t in text]
         text = [t[0] if t else None for t in text]
-        show_imgs(img)
         return [t.strip() for t in text]
 
     def read_history_player_name(self, img, throw=True):
@@ -72,18 +73,15 @@ class OCR:
         return num
     
     def read_int(self, img):
-        print("read_int", len(img))
         return self.process_int(self.read(img))
 
     def process_int(self, num):
         if isinstance(num, list):
-            print("process_int num is list", len(num))
             return [self.process_int(n) for n in num]
         num = self.process_num(num)
         return int(num.replace(".", ""))
     
     def read_team_kills(self, img, throw=True):
-        print("read_team_kills", len(img))
         try:
             return self.read_int(img)
         except ValueError as ex:
