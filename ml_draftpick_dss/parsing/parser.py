@@ -26,7 +26,7 @@ BAD_FILE_EXCEPTIONS = [
 def read_battle_id(img, ocr, scaler, bgr=True, throw=True):
     img = load_img(img, bgr=bgr)
     battle_id_img = extract(img, "BATTLE_ID", scaler=scaler)
-    battle_id_int = ocr.read_battle_id(battle_id_img, throw=throw)
+    battle_id_int = ocr.read_battle_id([battle_id_img], throw=throw)[0]
     return battle_id_int, battle_id_img
 
 def infer_match_result(img, classifier, scaler, bgr=True):
@@ -38,13 +38,14 @@ def infer_match_result(img, classifier, scaler, bgr=True):
 def read_match_duration(img, ocr, scaler, bgr=True, throw=True):
     img = load_img(img, bgr=bgr)
     match_duration_img = extract(img, "MATCH_DURATION", scaler=scaler)
-    match_duration_float = ocr.read_match_duration_mins(match_duration_img, throw=throw)
+    match_duration_float = ocr.read_match_duration_mins([match_duration_img], throw=throw)[0]
     return match_duration_float, match_duration_img
 
 def read_team_kills(img, ocr, scaler, bgr=True, throw=True):
     img = load_img(img, bgr=bgr)
     team_kills_imgs = [extract(img, "TEAM_KILLS", scaler=scaler, reverse_x=r) for r in (False, True)]
-    team_kills_ints = [ocr.read_team_kills(i, throw=throw) for i in team_kills_imgs]
+    #team_kills_ints = [ocr.read_team_kills(i, throw=throw) for i in team_kills_imgs]
+    team_kills_ints = ocr.read_team_kills(team_kills_imgs, throw=throw)
     return team_kills_ints, team_kills_imgs
 
 def _hero_icon_postprocessing(x, invert=False, scaler=None):
@@ -73,7 +74,8 @@ def infer_medals(img, classifier, scaler, bgr=True):
 def read_scores(img, ocr, scaler, bgr=True, throw=True):
     img = load_img(img, bgr=bgr)
     score_imgs = [extract(img, "SCORE_LIST", scaler=scaler, split_list=True, crop_list=True, reverse_x=r) for r in (False, True)]
-    score_floats = [[ocr.read_score(j, throw=throw) for j in i] for i in score_imgs]
+    #score_floats = [[ocr.read_score(j, throw=throw) for j in i] for i in score_imgs]
+    score_floats = [ocr.read_score(i, throw=throw) for i in score_imgs]
     return score_floats, score_imgs
 
 class Parser:
