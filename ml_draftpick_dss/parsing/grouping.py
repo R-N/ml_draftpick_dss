@@ -89,8 +89,8 @@ def read_player_name(img, ocr, scaler, bgr=True, throw=True):
 
 def read_opening_failure(img, ocr, scaler, bgr=True):
     img = load_img(img, bgr=bgr)
-    text_img = extract([img], "OPENING_FAILURE", scaler=scaler)[0]
-    text = ocr.read(text_img)
+    text_img = extract(img, "OPENING_FAILURE", scaler=scaler)
+    text = ocr.read([text_img])[0]
     return text, text_img
 
 def check_opening_failure(text, similarity=DEFAULT_SIMILARITY):
