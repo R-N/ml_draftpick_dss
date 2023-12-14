@@ -46,7 +46,7 @@ def read_team_kills(img, ocr, scaler, bgr=True, throw=True):
     team_kills_imgs = [extract(img, "TEAM_KILLS", scaler=scaler, reverse_x=r) for r in (False, True)]
     #team_kills_ints = [ocr.read_team_kills(i, throw=throw) for i in team_kills_imgs]
     team_kills_ints = ocr.read_team_kills(team_kills_imgs, throw=throw)
-    print(team_kills_ints)
+    print(team_kills_ints, len(team_kills_imgs))
     return team_kills_ints, team_kills_imgs
 
 def _hero_icon_postprocessing(x, invert=False, scaler=None):
