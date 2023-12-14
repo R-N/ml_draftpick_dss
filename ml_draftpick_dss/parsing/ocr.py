@@ -1,5 +1,6 @@
 from paddleocr import PaddleOCR
 from thefuzz import fuzz
+from .util import show_imgs
 
 def DEFAULT_SIMILARITY(*args, **kwargs):
     return 0.01 * fuzz.token_sort_ratio(*args, **kwargs)
@@ -21,12 +22,13 @@ class OCR:
         self.similarity = similarity
 
     def read(self, img):
-        print("read", len(img))
         text = self.ocr.ocr(
             img, det=False, cls=False
         )
         text = [t[0] for t in text]
         text = [t[0] if t else None for t in text]
+        print("read", len(img))
+        show_imgs(img)
         return [t.strip() for t in text]
 
     def read_history_player_name(self, img, throw=True):
