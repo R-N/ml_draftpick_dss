@@ -174,7 +174,7 @@ class OCR:
             return self.process_match_duration_mins(self.read(img))
         except ValueError as ex:
             if throw:
-                raise AssertionError(f"BAD_SS_DURATION: {time}; {ex}")
+                raise AssertionError(f"BAD_SS_DURATION: {ex}")
             return None
 
     def process_match_duration_mins(self, text):
