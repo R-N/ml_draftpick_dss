@@ -97,6 +97,7 @@ class Parser:
             inference_save_dir="inferences",
             forgive_afk=False,
             forgive_invalid=False,
+            forgive_double=False,
             exts=["jpg", "jpeg", "JPG", "JPEG", "png", "PNG"]
         ):
         self.input_dir = input_dir
@@ -121,6 +122,7 @@ class Parser:
         self.total_parse_time = 0
         self.forgive_afk = forgive_afk
         self.forgive_invalid = forgive_invalid
+        self.forgive_double = forgive_double
         self.n_size = 0
         self.exts = exts
 
@@ -198,7 +200,7 @@ class Parser:
             assert (is_invalid or self.forgive_afk or (not throw) or ("AFK" not in (medals[0] + medals[1]))), f"AFK: {ss_path}; {medals}"
 
         heroes, heroes_img = self.infer_heroes(img, bgr=False)
-        assert ((not throw) or (len(set(heroes[0] + heroes[1])) == 10)), f"DOUBLE: {ss_path}; {heroes}"
+        assert (self.forgive_double or (not throw) or (len(set(heroes[0] + heroes[1])) == 10)), f"DOUBLE: {ss_path}; {heroes}"
         
         t1 = time.time()
 
