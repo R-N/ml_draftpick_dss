@@ -162,11 +162,11 @@ class OCR:
         except ValueError as ex:
             pass
         time = time.replace(".", ":").replace("!", ":").replace(";", ":").strip()
+        if ":" not in time:
+            time = time.replace(" ", ":")
         time = text[-5:].strip()
         if not time[0].isdigit():
             time = time[1:]
-        if ":" not in time:
-            time = time.replace(" ", ":")
         return time
 
     def read_match_duration_mins(self, img, throw=True):
